@@ -11,5 +11,17 @@ class CustomBot(commands.Bot):
 
         self.context = commands.Context
 
+    def load_extensions(self):
+        extensions = [
+            'jishaku',
+            'core.context'
+        ]
+        for ext in extensions:
+            self.load_extension(ext)
+
     async def get_context(self, message, *, cls=None):
         return await super().get_context(message, cls=cls or self.context)
+
+    def run(self, *args, **kwargs):
+        self.load_extensions()
+        super().run(*args, **kwargs)
