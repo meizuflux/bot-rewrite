@@ -1,1 +1,2 @@
-
+discord.py @ git+https://github.com/rapptz/discord.py@master
+jishaku==1.20.0.220

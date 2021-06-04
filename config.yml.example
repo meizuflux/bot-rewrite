@@ -5,3 +5,9 @@ prefix:
   -  "$"
   
 status: "dnd"
+
+keys:
+    osu_client_id:
+    finnhub_key:
+    nasa_key:
+    perspective_key:
