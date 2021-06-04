@@ -3,6 +3,7 @@ import logging
 from typing import List, Union
 
 import discord
+from aiohttp import ClientSession
 from discord.ext import commands
 
 from core import config
@@ -22,6 +23,9 @@ class CustomBot(commands.Bot):
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
 
         self.context = commands.Context
+
+    async def __prep(self):
+        self.session = ClientSession(headers={"User-Agent": "Walrus (https://github.com/ppotatoo/bot-rewrite)"})
 
     def load_extensions(self):
         extensions = ["jishaku", "core.context"]
