@@ -12,10 +12,7 @@ class CustomBot(commands.Bot):
         self.context = commands.Context
 
     def load_extensions(self):
-        extensions = [
-            'jishaku',
-            'core.context'
-        ]
+        extensions = ["jishaku", "core.context"]
         for ext in extensions:
             self.load_extension(ext)
 
