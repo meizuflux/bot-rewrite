@@ -1,6 +1,14 @@
 import asyncio
+from typing import List, Union
 
+import discord
 from discord.ext import commands
+
+from core import config
+
+
+def get_prefix(bot: "CustomBot", message: discord.Message) -> Union[List[str], str]:
+    return commands.when_mentioned_or(*config.prefix)(bot, message)
 
 
 class CustomBot(commands.Bot):

@@ -1,2 +1,16 @@
+aiohttp==3.7.4.post0
+astunparse==1.6.3
+async-timeout==3.0.1
+attrs==21.2.0
+braceexpand==0.1.7
+chardet==4.0.0
 discord.py @ git+https://github.com/rapptz/discord.py@master
+humanize==3.7.0
+idna==3.2
+import-expression==1.1.4
 jishaku==1.20.0.220
+multidict==5.1.0
+PyYAML==5.4.1
+six==1.16.0
+typing-extensions==3.10.0.0
+yarl==1.6.3
