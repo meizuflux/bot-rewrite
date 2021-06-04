@@ -8,9 +8,7 @@ from discord.ext import commands
 from core import config
 
 log = logging.getLogger("bot")
-logging.basicConfig(
-    level=logging.INFO
-)
+logging.basicConfig(level=logging.INFO)
 
 
 def get_prefix(bot: "CustomBot", message: discord.Message) -> Union[List[str], str]:
