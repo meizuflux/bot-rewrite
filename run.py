@@ -14,5 +14,5 @@ bot = CustomBot(
     intents=intents,
     member_cache_flags=flags,
     max_messages=750,
-    owner_ids={809587169520910346}
+    owner_ids={809587169520910346},
 )
