@@ -25,7 +25,9 @@ class CustomBot(commands.Bot):
         self.context = commands.Context
 
     async def __prep(self):
-        self.session = ClientSession(headers={"User-Agent": "Walrus (https://github.com/ppotatoo/bot-rewrite)"})
+        self.session = ClientSession(
+            headers={"User-Agent": "Walrus (https://github.com/ppotatoo/bot-rewrite)"}
+        )
 
     def load_extensions(self):
         extensions = ["jishaku", "core.context"]
