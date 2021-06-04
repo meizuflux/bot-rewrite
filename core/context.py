@@ -10,5 +10,6 @@ class CustomContext(commands.Context):
 def setup(bot: CustomBot) -> None:
     bot.context = CustomContext
 
+
 def teardown(bot: CustomBot) -> None:
     bot.context = commands.Context
