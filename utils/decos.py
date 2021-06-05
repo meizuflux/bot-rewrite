@@ -12,7 +12,9 @@ def event(func):
         async def wrapper(*args, **kwargs):
             if await discord.utils.maybe_coroutine(func, *args, **kwargs):
                 await method(*args, **kwargs)
+
         return wrapper
+
     return check
 
 
@@ -25,4 +27,5 @@ def wait_until_ready(bot=None):
             raise Exception(f"bot must derived from commands.Bot not {bot.__class__.__name__}")
         await _bot.wait_until_ready()
         return True
+
     return event(predicate)

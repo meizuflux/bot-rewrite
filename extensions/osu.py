@@ -28,7 +28,7 @@ class Osu(commands.Cog):
             "client_id": osu_client_id,
             "client_secret": osu_client_secret,
             "grant_type": "client_credentials",
-            "scope": "public"
+            "scope": "public",
         }
         while not self.bot.is_closed():
             async with self.bot.session.post(url, json=data) as r:
@@ -54,14 +54,18 @@ class Osu(commands.Cog):
             f"**Average Accuracy:** `{(stats.get('hit_accuracy', 0) / 100):.2%}`"
         )
 
-        embed = self.bot.embed(title=f"Osu! Profile For {data.get('username')}", description=desc, url="https://osu.ppy.sh/users/" + str(data.get("id")))
-        embed.set_thumbnail(url=data.get("avatar_url", "https://osu.ppy.sh/images/layout/avatar-guest.png"))
+        embed = self.bot.embed(
+            title=f"Osu! Profile For {data.get('username')}",
+            description=desc,
+            url="https://osu.ppy.sh/users/" + str(data.get("id")),
+        )
+        embed.set_thumbnail(
+            url=data.get("avatar_url", "https://osu.ppy.sh/images/layout/avatar-guest.png")
+        )
         if (discord := data.get("discord")) is not None:
             embed.set_footer(text="Discord: " + discord)
 
         await ctx.send(embed=embed)
-
-
 
 
 def setup(bot):

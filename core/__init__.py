@@ -21,12 +21,12 @@ def command(name=None, cls=None, **attrs):
 
     def decorator(func):
         if isinstance(func, (Command, commands.Command)):
-            raise TypeError('Callback is already a command.')
+            raise TypeError("Callback is already a command.")
         return cls(func, name=name, **attrs)
 
     return decorator
 
 
 def group(name=None, **attrs):
-    attrs.setdefault('cls', Group)
+    attrs.setdefault("cls", Group)
     return command(name=name, **attrs)
