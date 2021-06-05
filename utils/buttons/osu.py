@@ -3,9 +3,7 @@ from discord import ButtonStyle, Embed, Interaction, ui
 from core.context import CustomContext
 from utils.buttons import StopButton
 
-EMOJIS = {
-    "main": "<:osu:850783495386300416>"
-}
+EMOJIS = {"main": "<:osu:850783495386300416>"}
 
 
 class OsuProfileView(ui.View):

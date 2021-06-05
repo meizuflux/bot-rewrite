@@ -5,6 +5,7 @@ import discord
 
 class StopButton(discord.ui.Button):
     """A button that deletes the message when pressed."""
+
     def __init__(
         self,
         *,
