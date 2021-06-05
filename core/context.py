@@ -4,7 +4,7 @@ from core.bot import CustomBot
 
 
 class CustomContext(commands.Context):
-    ...
+    bot: CustomBot
 
 
 def setup(bot: CustomBot) -> None:

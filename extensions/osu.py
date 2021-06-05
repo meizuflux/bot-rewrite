@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 
 from discord.ext import commands
 
@@ -53,17 +54,17 @@ class Osu(commands.Cog):
             f"**Global Rank:** `{stats.get('global_rank', 0):,d}`\n"
             f"**Average Accuracy:** `{(stats.get('hit_accuracy', 0) / 100):.2%}`"
         )
-
+        username = data.get("username")
         embed = self.bot.embed(
-            title=f"Osu! Profile For {data.get('username')}",
+            title=f"Osu! Profile For {username}",
             description=desc,
             url="https://osu.ppy.sh/users/" + str(data.get("id")),
         )
         embed.set_thumbnail(
             url=data.get("avatar_url", "https://osu.ppy.sh/images/layout/avatar-guest.png")
         )
-        if (discord := data.get("discord")) is not None:
-            embed.set_footer(text="Discord: " + discord)
+        fmt_join = datetime.fromisoformat(data.get("join_date")).strftime("%b %d %Y")
+        embed.set_footer(text=f"{username} started playing Osu! on {fmt_join}")
 
         await ctx.send(embed=embed)
 
