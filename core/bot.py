@@ -18,8 +18,8 @@ def get_prefix(bot: "CustomBot", message: discord.Message) -> Union[List[str], s
 
 class CustomBot(commands.Bot):
     def __init__(self, *args, **kwargs) -> None:
-        loop = asyncio.get_event_loop()
-        super().__init__(*args, **kwargs, loop=loop)
+        super().__init__(*args, **kwargs)
+        self.loop.create_task(self.__prep())
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
 
         self.context = commands.Context
@@ -30,7 +30,7 @@ class CustomBot(commands.Bot):
         )
 
     def load_extensions(self):
-        extensions = ["jishaku", "core.context"]
+        extensions = ["jishaku", "core.context", "extensions.osu"]
         for ext in extensions:
             self.load_extension(ext)
         log.info("Loaded extensions")
@@ -44,3 +44,8 @@ class CustomBot(commands.Bot):
 
     async def on_ready(self):
         log.info("Connected to Discord.")
+
+    @staticmethod
+    def embed(**kwargs):
+        color = kwargs.pop("color", discord.Color.blurple())
+        return discord.Embed(**kwargs, color=color)
