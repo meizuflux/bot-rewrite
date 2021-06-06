@@ -47,8 +47,13 @@ class Osu(commands.Cog):
             data = await r.json()
         return data
 
-    @core.command()
-    async def osu(self, ctx: CustomContext, query: str):
+    @core.group()
+    async def osu(self, ctx: CustomContext):
+        if ctx.invoked_subcommand is None:
+            await ctx.send_help(ctx.command)
+
+    @osu.command(name="profile")
+    async def osu_profile(self, ctx: CustomContext, query: str):
         data = await self.get_user(query)
         stats = data.get("statistics", {})
         username = data.get("username")
