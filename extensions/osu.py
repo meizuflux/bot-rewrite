@@ -57,7 +57,9 @@ class Osu(commands.Cog):
         data = {
             "username": username,
             "url": "https://osu.ppy.sh/users/" + str(data.get("id")),
-            "avatar_url": data.get("avatar_url", "https://osu.ppy.sh/images/layout/avatar-guest.png"),
+            "avatar_url": data.get(
+                "avatar_url", "https://osu.ppy.sh/images/layout/avatar-guest.png"
+            ),
             "footer": f"{username} started playing osu! on {join}",
             "Main": (
                 f"**PP:** `{stats.get('pp')}`\n"
