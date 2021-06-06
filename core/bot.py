@@ -1,5 +1,5 @@
-import asyncio
 import logging
+from asyncio import AbstractEventLoop, Event
 from typing import List, Union
 
 import discord
@@ -7,6 +7,7 @@ from aiohttp import ClientSession
 from discord.ext import commands
 
 from core import config
+from utils.db import CustomPool, create_pool
 
 log = logging.getLogger("bot")
 logging.basicConfig(level=logging.INFO)
@@ -17,10 +18,18 @@ def get_prefix(bot: "CustomBot", message: discord.Message) -> Union[List[str], s
 
 
 class CustomBot(commands.Bot):
+    loop: AbstractEventLoop
+
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.loop.create_task(self.__prep())
+
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
+
+        self.pool: CustomPool = self.loop.run_until_complete(
+            create_pool(bot=self, dsn=config.postgres_uri)
+        )
+        self.loop.create_task(self.__prep())
+        self.prepped = Event()
 
         self.context = commands.Context
 
@@ -28,6 +37,9 @@ class CustomBot(commands.Bot):
         self.session = ClientSession(
             headers={"User-Agent": "Walrus (https://github.com/ppotatoo/bot-rewrite)"}
         )
+        with open("schema.sql") as f:
+            await self.pool.execute(f.read())
+        self.prepped.set()
 
     def load_extensions(self):
         extensions = ["jishaku", "core.context", "extensions.osu"]
