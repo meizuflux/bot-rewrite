@@ -117,5 +117,6 @@ class Osu(commands.Cog):
         await self.bot.pool.register_user("osu", ctx.author.id, data["id"])
         await ctx.send("Registered you into the database.")
 
+
 def setup(bot):
     bot.add_cog(Osu(bot))
