@@ -61,8 +61,8 @@ class Osu(commands.Cog):
             format="%0.0f",
             minimum_unit="minutes",
         )
-        _global = stats['global_rank'] or 0
-        _country = stats.get("rank", {})['country'] or 0
+        _global = stats["global_rank"] or 0
+        _country = stats.get("rank", {})["country"] or 0
         data = {
             "username": username,
             "url": "https://osu.ppy.sh/users/" + str(data.get("id")),
