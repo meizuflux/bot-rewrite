@@ -58,7 +58,8 @@ class Osu(commands.Cog):
         time_played = precisedelta(
             timedelta(seconds=stats.get("play_time")),
             suppress=["months", "years", "days"],
-            format="%0.0f", minimum_unit="minutes"
+            format="%0.0f",
+            minimum_unit="minutes",
         )
         data = {
             "username": username,
