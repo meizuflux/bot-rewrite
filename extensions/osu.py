@@ -39,8 +39,8 @@ class Osu(commands.Cog):
             self.headers["Authorization"] = "Bearer " + data["access_token"]
             await asyncio.sleep(data["expires_in"])
 
-    async def get_user(self, user: str):
-        url = API_URL + f"/users/{user}/osu?key=username"
+    async def get_user(self, search: str):
+        url = API_URL + f"/users/{search}/osu"
         async with self.bot.session.get(url, headers=self.headers) as r:
             if r.status == 404:
                 raise commands.BadArgument("Could not find anything from that query.")
@@ -107,6 +107,15 @@ class Osu(commands.Cog):
         view = OsuProfileView(ctx, data)
         await view.start()
 
+    @osu.command(name="register")
+    async def osu_register(self, ctx: CustomContext, query: str):
+        try:
+            data = await self.get_user(query)
+        except commands.BadArgument:
+            return await ctx.send("Could not find anything from your search.")
+
+        await self.bot.pool.register_user("osu", ctx.author.id, data["id"])
+        await ctx.send("Registered you into the database.")
 
 def setup(bot):
     bot.add_cog(Osu(bot))
