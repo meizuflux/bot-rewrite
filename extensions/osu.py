@@ -61,6 +61,8 @@ class Osu(commands.Cog):
             format="%0.0f",
             minimum_unit="minutes",
         )
+        _global = stats['global_rank'] or 0
+        _country = stats.get("rank", {})['country'] or 0
         data = {
             "username": username,
             "url": "https://osu.ppy.sh/users/" + str(data.get("id")),
@@ -70,8 +72,8 @@ class Osu(commands.Cog):
             "footer": f"{username} started playing osu! on {join}",
             "Main": (
                 f"**PP:** `{stats.get('pp')}`\n"
-                f"**Global Rank:** `{stats.get('global_rank', 0):,d}`\n"
-                f"**Country Rank:** :flag_{data.get('country_code').lower()}: `{stats.get('rank', {}).get('country', 0):,d}`\n"
+                f"**Global Rank:** `{_global:,d}`\n"
+                f"**Country Rank:** :flag_{data.get('country_code').lower()}: `{_country:,d}`\n"
                 f"**Replays Watched by Others:** `{stats.get('replays_watched_by_others', 0):,d}`\n"
                 f"**First Place Ranks:** `{data.get('scores_first_count'):,d}`\n"
                 f"**Average Accuracy:** `{(stats.get('hit_accuracy', 0) / 100):.2%}`\n"
@@ -79,11 +81,11 @@ class Osu(commands.Cog):
                 f"**Play Time:** `{time_played}`"
             ),
             "Socials": (
-                f"**Discord:** `{data.get('discord', 'This user has not set their Discord.')}`\n"
-                f"**Website:** `{data.get('website', 'This user has not set their website')}`\n"
-                f"**Twitter:** `{data.get('twitter', 'This user has not set their Twitter')}`\n"
-                f"**Occupation:** `{data.get('occupation', 'This user has not set their occupation')}`\n"
-                f"**Location:** `{data.get('location', 'This user has not set their location')}`\n"
+                f"**Discord:** `{data.get('discord') or 'This user has not set their Discord'}`\n"
+                f"**Website:** `{data.get('website') or 'This user has not set their website'}`\n"
+                f"**Twitter:** `{data.get('twitter') or 'This user has not set their Twitter'}`\n"
+                f"**Occupation:** `{data.get('occupation') or 'This user has not set their occupation'}`\n"
+                f"**Location:** `{data.get('location') or 'This user has not set their location'}`\n"
                 f"**Forum Posts:** `{data.get('post_count', 0):,d}`"
             ),
             "Scores": (
