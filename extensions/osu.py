@@ -1,7 +1,8 @@
 import asyncio
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from discord.ext import commands
+from humanize import precisedelta
 
 import core
 from core.bot import CustomBot
@@ -52,8 +53,13 @@ class Osu(commands.Cog):
         stats = data.get("statistics", {})
         username = data.get("username")
         join = datetime.fromisoformat(data.get("join_date")).strftime("%b %d %Y")
-        plays_with = data.get("playstyle", ["This user has not specified their playstyle"])
+        plays_with = data.get("playstyle") or ["This user has not set what they play with."]
         ranks = stats.get("grade_counts")
+        time_played = precisedelta(
+            timedelta(seconds=stats.get("play_time")),
+            suppress=["months", "years", "days"],
+            format="%0.0f", minimum_unit="minutes"
+        )
         data = {
             "username": username,
             "url": "https://osu.ppy.sh/users/" + str(data.get("id")),
@@ -68,16 +74,16 @@ class Osu(commands.Cog):
                 f"**Replays Watched by Others:** `{stats.get('replays_watched_by_others', 0):,d}`\n"
                 f"**First Place Ranks:** `{data.get('scores_first_count'):,d}`\n"
                 f"**Average Accuracy:** `{(stats.get('hit_accuracy', 0) / 100):.2%}`\n"
-                f"**Plays With:** `{', '.join(i.capitalize() for i in plays_with)}`"
+                f"**Plays With:** `{', '.join(i.capitalize() for i in plays_with)}`\n"
+                f"**Play Time:** `{time_played}`"
             ),
             "Socials": (
-                f"**Discord:** `{data.get('discord')}`\n"
-                f"**Website:** `{data.get('website')}`\n"
-                f"**Twitter:** `{data.get('twitter')}`\n"
-                f"**Occupation:** `{data.get('occupation')}`\n"
-                f"**Location:** `{data.get('location')}`\n"
-                f"**Forum Posts:** `{data.get('post_count', 0):,d}`\n"
-                f"**Location:** `{data.get('location')}`"
+                f"**Discord:** `{data.get('discord', 'This user has not set their Discord.')}`\n"
+                f"**Website:** `{data.get('website', 'This user has not set their website')}`\n"
+                f"**Twitter:** `{data.get('twitter', 'This user has not set their Twitter')}`\n"
+                f"**Occupation:** `{data.get('occupation', 'This user has not set their occupation')}`\n"
+                f"**Location:** `{data.get('location', 'This user has not set their location')}`\n"
+                f"**Forum Posts:** `{data.get('post_count', 0):,d}`"
             ),
             "Scores": (
                 f"**SS Ranks:** `{ranks.get('ss', 0):,d}`\n"
