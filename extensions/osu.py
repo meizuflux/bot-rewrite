@@ -7,6 +7,7 @@ import core
 from core.bot import CustomBot
 from core.config import osu_client_id, osu_client_secret
 from core.context import CustomContext
+from utils.buttons.osu import OsuProfileView
 from utils.decos import wait_until_ready
 
 API_URL = "https://osu.ppy.sh/api/v2"
@@ -49,24 +50,46 @@ class Osu(commands.Cog):
     async def osu(self, ctx: CustomContext, query: str):
         data = await self.get_user(query)
         stats = data.get("statistics", {})
-        desc = (
-            f"**PP:** `{stats.get('pp')}`\n"
-            f"**Global Rank:** `{stats.get('global_rank', 0):,d}`\n"
-            f"**Average Accuracy:** `{(stats.get('hit_accuracy', 0) / 100):.2%}`"
-        )
         username = data.get("username")
-        embed = self.bot.embed(
-            title=f"Osu! Profile For {username}",
-            description=desc,
-            url="https://osu.ppy.sh/users/" + str(data.get("id")),
-        )
-        embed.set_thumbnail(
-            url=data.get("avatar_url", "https://osu.ppy.sh/images/layout/avatar-guest.png")
-        )
-        fmt_join = datetime.fromisoformat(data.get("join_date")).strftime("%b %d %Y")
-        embed.set_footer(text=f"{username} started playing Osu! on {fmt_join}")
-
-        await ctx.send(embed=embed)
+        join = datetime.fromisoformat(data.get("join_date")).strftime("%b %d %Y")
+        plays_with = data.get("playstyle", ["This user has not specified their playstyle"])
+        ranks = stats.get("grade_counts")
+        data = {
+            "username": username,
+            "url": "https://osu.ppy.sh/users/" + str(data.get("id")),
+            "avatar_url": data.get("avatar_url", "https://osu.ppy.sh/images/layout/avatar-guest.png"),
+            "footer": f"{username} started playing osu! on {join}",
+            "Main": (
+                f"**PP:** `{stats.get('pp')}`\n"
+                f"**Global Rank:** `{stats.get('global_rank', 0):,d}`\n"
+                f"**Country Rank:** :flag_{data.get('country_code').lower()}: `{stats.get('rank', {}).get('country', 0):,d}`\n"
+                f"**Replays Watched by Others:** `{stats.get('replays_watched_by_others', 0):,d}`\n"
+                f"**First Place Ranks:** `{data.get('scores_first_count'):,d}`\n"
+                f"**Average Accuracy:** `{(stats.get('hit_accuracy', 0) / 100):.2%}`\n"
+                f"**Plays With:** `{', '.join(i.capitalize() for i in plays_with)}`"
+            ),
+            "Socials": (
+                f"**Discord:** `{data.get('discord')}`\n"
+                f"**Website:** `{data.get('website')}`\n"
+                f"**Twitter:** `{data.get('twitter')}`\n"
+                f"**Occupation:** `{data.get('occupation')}`\n"
+                f"**Location:** `{data.get('location')}`\n"
+                f"**Forum Posts:** `{data.get('post_count', 0):,d}`\n"
+                f"**Location:** `{data.get('location')}`"
+            ),
+            "Scores": (
+                f"**SS Ranks:** `{ranks.get('ss', 0):,d}`\n"
+                f"**S Ranks:** `{ranks.get('s', 0):,d}`\n"
+                f"**A Ranks:** `{ranks.get('a', 0):,d}`\n"
+                f"**Total Score:** `{stats.get('total_score', 0):,d}`\n"
+                f"**Ranked Score:** `{stats.get('ranked_score', 0):,d}`\n"
+                f"**Play Count:** `{stats.get('play_count', 0):,d}`\n"
+                f"**Total Hits:** `{stats.get('total_hits', 0):,d}`\n"
+                f"**Maximum Combo:** `{stats.get('maximum_combo', 0):,d}`"
+            ),
+        }
+        view = OsuProfileView(ctx, data)
+        await view.start()
 
 
 def setup(bot):
