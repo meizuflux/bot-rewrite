@@ -95,7 +95,7 @@ class Osu(commands.Cog):
         plays_with = data.get("playstyle") or ["This user has not set what they play with."]
         ranks = stats.get("grade_counts")
         time_played = precisedelta(
-            timedelta(seconds=stats.get("play_time")),
+            timedelta(seconds=stats.get("play_time") or 0),
             suppress=["months", "years", "days"],
             format="%0.0f",
             minimum_unit="minutes",
