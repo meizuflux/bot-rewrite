@@ -1,5 +1,7 @@
 import asyncio
+import re
 from datetime import datetime, timedelta
+from typing import NamedTuple, Union
 
 from discord.ext import commands
 from humanize import precisedelta
@@ -8,10 +10,28 @@ import core
 from core.bot import CustomBot
 from core.config import osu_client_id, osu_client_secret
 from core.context import CustomContext
+from utils import MENTION_REGEX
 from utils.buttons.osu import OsuProfileView
 from utils.decos import wait_until_ready
 
 API_URL = "https://osu.ppy.sh/api/v2"
+OSU_PROFILE_REGEX = re.compile(r"https?://osu\.ppy\.sh/users/(?P<id>[0-9]+)")
+
+OsuConverterResponse = NamedTuple("ConverterResponse", [("search", Union[int, str]), ("type", str)])
+
+
+class OsuUserConverter(commands.Converter):
+    async def convert(self, ctx: CustomContext, argument):
+        if url_match := OSU_PROFILE_REGEX.match(argument.strip("<>")):
+            return OsuConverterResponse(search=url_match["id"], type="id")
+        if mention_match := MENTION_REGEX.fullmatch(argument):
+            snowflake = int(mention_match["id"])
+            _id = await ctx.bot.pool.fetchval("SELECT id FROM games WHERE game = 'osu' AND snowflake = $1", snowflake)
+            if _id is None:
+                raise commands.BadArgument("That user is not registered." if _id != ctx.author.id else "You are not registered.")
+            return OsuConverterResponse(search=_id, type="id")
+
+        return OsuConverterResponse(search=argument, type="username")
 
 
 class Osu(commands.Cog):
@@ -39,8 +59,8 @@ class Osu(commands.Cog):
             self.headers["Authorization"] = "Bearer " + data["access_token"]
             await asyncio.sleep(data["expires_in"])
 
-    async def get_user(self, search: str):
-        url = API_URL + f"/users/{search}/osu"
+    async def get_user(self, search: OsuConverterResponse) -> dict:
+        url = API_URL + f"/users/{search.search}/osu?key={search.type}"
         async with self.bot.session.get(url, headers=self.headers) as r:
             if r.status == 404:
                 raise commands.BadArgument("Could not find anything from that query.")
@@ -53,8 +73,9 @@ class Osu(commands.Cog):
             await ctx.send_help(ctx.command)
 
     @osu.command(name="profile")
-    async def osu_profile(self, ctx: CustomContext, query: str):
+    async def osu_profile(self, ctx: CustomContext, query: OsuUserConverter):
         data = await self.get_user(query)
+
         stats = data.get("statistics", {})
         username = data.get("username")
         join = datetime.fromisoformat(data.get("join_date")).strftime("%b %d %Y")

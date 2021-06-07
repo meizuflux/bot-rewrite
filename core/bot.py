@@ -26,7 +26,7 @@ class CustomBot(commands.Bot):
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
 
         self.pool: CustomPool = self.loop.run_until_complete(
-            create_pool(bot=self, dsn=config.postgres_uri)
+            create_pool(bot=self, dsn=config.postgres_uri, loop=self.loop)
         )
         self.loop.create_task(self.__prep())
         self.prepped = Event()

@@ -11,5 +11,5 @@ CREATE TABLE IF NOT EXISTS games (
     game TEXT,
     snowflake BIGINT,
     id BIGINT,
-    PRIMARY KEY (game, id)
+    PRIMARY KEY (game, snowflake)
 )

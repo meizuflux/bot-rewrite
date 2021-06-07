@@ -11,15 +11,13 @@ class CustomPool(Pool):
     async def register_user(self, game: str, snowflake: int, _id: int):
         query = """
             INSERT INTO
-                games (game, snowflake, id)
+                games
             VALUES
                 ($1, $2, $3)
-            ON CONFLICT (games.game, id)
+            ON CONFLICT (game, snowflake)
                 DO UPDATE
                     SET
                         id = $3
-                    WHERE
-                        games.game = $1 AND snowflake = $2
             """
         await self.execute(query, game, snowflake, _id)
 
