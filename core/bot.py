@@ -42,7 +42,7 @@ class CustomBot(commands.Bot):
         self.prepped.set()
 
     def load_extensions(self):
-        extensions = ["jishaku", "core.context", "extensions.osu"]
+        extensions = ["jishaku", "core.context", "extensions.osu", "extensions.errorhandler"]
         for ext in extensions:
             self.load_extension(ext)
         log.info("Loaded extensions")
@@ -61,3 +61,9 @@ class CustomBot(commands.Bot):
     def embed(**kwargs):
         color = kwargs.pop("color", discord.Color.blurple())
         return discord.Embed(**kwargs, color=color)
+
+    async def paste(self, data: str, url="https://mystb.in"):
+        async with self.bot.post(url + "/documents", data=bytes(str(data), "utf-8")) as r:
+            res = await r.json()
+        key = res["key"]
+        return url + f"/{key}"
