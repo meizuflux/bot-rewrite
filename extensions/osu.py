@@ -22,6 +22,13 @@ OsuConverterResponse = NamedTuple("ConverterResponse", [("search", Union[int, st
 
 class OsuUserConverter(commands.Converter):
     async def convert(self, ctx: CustomContext, argument):
+        if argument is None:
+            _id = await ctx.bot.pool.fetchval(
+                "SELECT id FROM games WHERE game = 'osu' AND snowflake = $1", ctx.author.id
+            )
+            if _id is None:
+                raise commands.BadArgument("You are not registered.")
+            return OsuConverterResponse(search=_id, type="id")
         if url_match := OSU_PROFILE_REGEX.match(argument.strip("<>")):
             return OsuConverterResponse(search=url_match["id"], type="id")
         if mention_match := MENTION_REGEX.fullmatch(argument):
@@ -79,8 +86,8 @@ class Osu(commands.Cog):
             await ctx.send_help(ctx.command)
 
     @osu.command(name="profile")
-    async def osu_profile(self, ctx: CustomContext, query: OsuUserConverter):
-        data = await self.get_user(query)
+    async def osu_profile(self, ctx: CustomContext, query: str=None):
+        data = await self.get_user(await OsuUserConverter().convert(ctx, query))
 
         stats = data.get("statistics", {})
         username = data.get("username")
@@ -135,11 +142,8 @@ class Osu(commands.Cog):
         await view.start()
 
     @osu.command(name="register")
-    async def osu_register(self, ctx: CustomContext, query: str):
-        try:
-            data = await self.get_user(query)
-        except commands.BadArgument:
-            return await ctx.send("Could not find anything from your search.")
+    async def osu_register(self, ctx: CustomContext, query: OsuUserConverter):
+        data = await self.get_user(query)
 
         await self.bot.pool.register_user("osu", ctx.author.id, data["id"])
         await ctx.send("Registered you into the database.")
