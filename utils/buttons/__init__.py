@@ -1,6 +1,8 @@
-from typing import Optional, Union
-
+from typing import Optional, Tuple, Union, Any
+from core.bot import CustomBot
+from core.context import CustomContext
 import discord
+import asyncio
 
 
 class StopButton(discord.ui.Button):
@@ -23,3 +25,47 @@ class StopButton(discord.ui.Button):
 
     async def callback(self, interaction: discord.Interaction):
         await interaction.message.delete()
+
+class ConfirmationButton(discord.ui.Button["ComfirmationView"]):
+    def __init__(self, value: bool, **kwargs):
+        self.value = value
+        super().__init__(**kwargs)
+
+    async def callback(self, interaction: discord.Interaction):
+        if self.view.delete_after:
+            try:
+                await interaction.message.delete()
+            except discord.HTTPException:
+                pass
+            interaction.message = None
+
+        self.view.message = interaction.message
+        self.view.value = self.value
+        
+        self.view.event.set()
+        self.view.stop()
+        
+
+class ConfirmationView(discord.ui.View):
+    event = asyncio.Event()
+    message: discord.Message = None
+    value: bool = False
+
+    def __init__(self, values, *, user: discord.User, delete_after=True):
+        self.delete_after = delete_after
+        self.user = user
+
+        super().__init__()
+
+
+        self.add_item(ConfirmationButton(True, label=values[0], style=discord.ButtonStyle.green))
+        self.add_item(ConfirmationButton(False, label=values[1], style=discord.ButtonStyle.red))
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        return self.user == interaction.user
+
+    async def start(self, ctx: CustomContext, **send_kwargs) -> Tuple[discord.Message, bool]:
+        await ctx.send(**send_kwargs, view=self)
+        await self.event.wait()
+        return self.message, self.value
+        
