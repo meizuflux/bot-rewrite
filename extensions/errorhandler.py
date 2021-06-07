@@ -5,6 +5,7 @@ from core.bot import CustomBot
 from core.context import CustomContext
 from traceback import format_exception
 
+
 class ErrorHandler(commands.Cog):
     def __init__(self, bot: CustomBot):
         self.bot = bot
@@ -41,7 +42,6 @@ class ErrorHandler(commands.Cog):
             except discord.HTTPException:
                 pass
 
-        
         if isinstance(error, commands.MissingRequiredArgument):
             errors = str(error).split(" ", maxsplit=1)
             return await ctx.send(
@@ -62,7 +62,9 @@ class ErrorHandler(commands.Cog):
             return await ctx.send(embed=self.bot.embed(title=str(error)))
 
         if isinstance(error, asyncio.TimeoutError):
-            return await ctx.send(embed=self.bot.embed(description=f"{ctx.invoked_with} timed out."))
+            return await ctx.send(
+                embed=self.bot.embed(description=f"{ctx.invoked_with} timed out.")
+            )
 
         traceback = "".join(format_exception(type(error), error, error.__traceback__))
         if len(traceback) > 1000:
@@ -70,7 +72,6 @@ class ErrorHandler(commands.Cog):
         else:
             traceback = "```py\n" + traceback + "```"
         await ctx.send("Oops, and error occured. Here's some info on it: \n" + traceback)
-
 
 
 def setup(bot):
