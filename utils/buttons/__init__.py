@@ -26,6 +26,7 @@ class StopButton(discord.ui.Button):
     async def callback(self, interaction: discord.Interaction):
         await interaction.message.delete()
 
+
 class ConfirmationButton(discord.ui.Button["ComfirmationView"]):
     def __init__(self, value: bool, **kwargs):
         self.value = value
@@ -41,10 +42,10 @@ class ConfirmationButton(discord.ui.Button["ComfirmationView"]):
 
         self.view.message = interaction.message
         self.view.value = self.value
-        
+
         self.view.event.set()
         self.view.stop()
-        
+
 
 class ConfirmationView(discord.ui.View):
     event = asyncio.Event()
@@ -57,7 +58,6 @@ class ConfirmationView(discord.ui.View):
 
         super().__init__()
 
-
         self.add_item(ConfirmationButton(True, label=values[0], style=discord.ButtonStyle.green))
         self.add_item(ConfirmationButton(False, label=values[1], style=discord.ButtonStyle.red))
 
@@ -68,4 +68,3 @@ class ConfirmationView(discord.ui.View):
         await ctx.send(**send_kwargs, view=self)
         await self.event.wait()
         return self.message, self.value
-        
