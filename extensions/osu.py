@@ -86,7 +86,7 @@ class Osu(commands.Cog):
             await ctx.send_help(ctx.command)
 
     @osu.command(name="profile")
-    async def osu_profile(self, ctx: CustomContext, query: str=None):
+    async def osu_profile(self, ctx: CustomContext, query: str = None):
         data = await self.get_user(await OsuUserConverter().convert(ctx, query))
 
         stats = data.get("statistics", {})
