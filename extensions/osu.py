@@ -26,9 +26,15 @@ class OsuUserConverter(commands.Converter):
             return OsuConverterResponse(search=url_match["id"], type="id")
         if mention_match := MENTION_REGEX.fullmatch(argument):
             snowflake = int(mention_match["id"])
-            _id = await ctx.bot.pool.fetchval("SELECT id FROM games WHERE game = 'osu' AND snowflake = $1", snowflake)
+            _id = await ctx.bot.pool.fetchval(
+                "SELECT id FROM games WHERE game = 'osu' AND snowflake = $1", snowflake
+            )
             if _id is None:
-                raise commands.BadArgument("That user is not registered." if _id != ctx.author.id else "You are not registered.")
+                raise commands.BadArgument(
+                    "That user is not registered."
+                    if _id != ctx.author.id
+                    else "You are not registered."
+                )
             return OsuConverterResponse(search=_id, type="id")
 
         return OsuConverterResponse(search=argument, type="username")
