@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+    db: # postgres service
+        image: postgres
+        restart: always
+        ports:
+            - 5432:5432
+        environment: # postgres://postgres:secret@bot:5432/bot
+            - POSTGRES_PASSWORD=secret
+            - POSTGRES_DB=bot
+        volumes: # persistent storage
+            - ~/docker/postgres:/var/lib/postgresql/data
+        healthcheck: 
+            test: ["CMD-SHELL", "pg_isready -U postgres -d bot"]
+            interval: 5s
+            retries: 5
+    bot:
+        build: .
+        ports:
+            - 5431:5431
+        depends_on:
+            db:
+                condition: service_healthy
+        restart: on-failure
