@@ -45,7 +45,13 @@ class CustomBot(commands.Bot):
         self.prepped.set()
 
     def load_extensions(self):
-        extensions = ["jishaku", "core.context", "extensions.osu", "extensions.errorhandler", "extensions.interactions"]
+        extensions = [
+            "jishaku",
+            "core.context",
+            "extensions.osu",
+            "extensions.errorhandler",
+            "extensions.interactions",
+        ]
         for ext in extensions:
             self.load_extension(ext)
         log.info("Loaded extensions")
