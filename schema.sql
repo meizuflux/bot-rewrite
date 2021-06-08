@@ -18,13 +18,13 @@ CREATE TABLE IF NOT EXISTS interactions (
     method TEXT,
     initiator BIGINT,
     receiver BIGINT,
-    count BIGINT,
+    count BIGINT DEFAULT 1,
     PRIMARY KEY (method, initiator, receiver)
 );
 
 CREATE TABLE IF NOT EXISTS totals (
     method TEXT,
     snowflake BIGINT,
-    count BIGINT,
+    count BIGINT DEFAULT 1,
     PRIMARY KEY (method, snowflake)
 )
