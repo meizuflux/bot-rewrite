@@ -30,7 +30,7 @@ class OsuUserConverter(commands.Converter):
                 raise commands.BadArgument("You are not registered.")
             return OsuConverterResponse(search=_id, type="id")
         if url_match := OSU_PROFILE_REGEX.match(argument.strip("<>")):
-            return OsuConverterResponse(search=url_match["id"], type="id")
+            return OsuConverterResponse(search=str(url_match["id"]), type="id")
         if mention_match := MENTION_REGEX.fullmatch(argument):
             snowflake = int(mention_match["id"])
             _id = await ctx.bot.pool.fetchval(
@@ -145,7 +145,7 @@ class Osu(commands.Cog):
     async def osu_register(self, ctx: CustomContext, query: OsuUserConverter):
         data = await self.get_user(query)
 
-        await self.bot.pool.register_user("osu", ctx.author.id, data["id"])
+        await self.bot.pool.register_user("osu", ctx.author.id, str(data["id"]))
         await ctx.send("Registered you into the database.")
 
 

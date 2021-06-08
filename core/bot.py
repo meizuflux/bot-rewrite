@@ -1,5 +1,6 @@
 import logging
 from asyncio import AbstractEventLoop, Event
+from random import SystemRandom
 from typing import List, Union
 
 import discord
@@ -31,6 +32,8 @@ class CustomBot(commands.Bot):
         self.loop.create_task(self.__prep())
         self.prepped = Event()
 
+        self.random = SystemRandom()
+
         self.context = commands.Context
 
     async def __prep(self):
@@ -42,7 +45,7 @@ class CustomBot(commands.Bot):
         self.prepped.set()
 
     def load_extensions(self):
-        extensions = ["jishaku", "core.context", "extensions.osu", "extensions.errorhandler"]
+        extensions = ["jishaku", "core.context", "extensions.osu", "extensions.errorhandler", "extensions.interactions"]
         for ext in extensions:
             self.load_extension(ext)
         log.info("Loaded extensions")
@@ -63,7 +66,7 @@ class CustomBot(commands.Bot):
         return discord.Embed(**kwargs, color=color)
 
     async def paste(self, data: str, url="https://mystb.in"):
-        async with self.bot.post(url + "/documents", data=bytes(str(data), "utf-8")) as r:
+        async with self.session.post(url + "/documents", data=bytes(str(data), "utf-8")) as r:
             res = await r.json()
         key = res["key"]
         return url + f"/{key}"

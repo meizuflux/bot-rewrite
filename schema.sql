@@ -10,6 +10,21 @@ CREATE TABLE IF NOT EXISTS prefixes (
 CREATE TABLE IF NOT EXISTS games (
     game TEXT,
     snowflake BIGINT,
-    id BIGINT,
+    id VARCHAR,
     PRIMARY KEY (game, snowflake)
+);
+
+CREATE TABLE IF NOT EXISTS interactions (
+    method TEXT,
+    initiator BIGINT,
+    receiver BIGINT,
+    count BIGINT,
+    PRIMARY KEY (method, initiator, receiver)
+);
+
+CREATE TABLE IF NOT EXISTS totals (
+    method TEXT,
+    snowflake BIGINT,
+    count BIGINT,
+    PRIMARY KEY (method, snowflake)
 )

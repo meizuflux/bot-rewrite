@@ -8,7 +8,7 @@ class CustomPool(Pool):
 
         self.cache = {}
 
-    async def register_user(self, game: str, snowflake: int, _id: int):
+    async def register_user(self, game: str, snowflake: int, _id: str):
         query = """
             INSERT INTO
                 games
