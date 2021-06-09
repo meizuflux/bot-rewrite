@@ -51,7 +51,7 @@ class CustomBot(commands.Bot):
             "extensions.osu",
             "extensions.errorhandler",
             "extensions.interactions",
-            "extensions.reminders"
+            "extensions.reminders",
         ]
         for ext in extensions:
             self.load_extension(ext)

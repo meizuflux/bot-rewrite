@@ -17,5 +17,6 @@ class Reminders(commands.Cog):
         when = parse_time(ctx, time)
         await ctx.send(f"I'll remind you in {when.isoformat()} for: {thing}")
 
+
 def setup(bot):
     bot.add_cog(Reminders(bot))
