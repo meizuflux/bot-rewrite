@@ -71,7 +71,7 @@ class ErrorHandler(commands.Cog):
             traceback = await self.bot.paste(traceback)
         else:
             traceback = "```py\n" + traceback + "```"
-        await ctx.send("Oops, and error occured. Here's some info on it: \n" + traceback)
+        await ctx.send("Oops, an error occured. Here's some info on it: \n" + traceback)
 
 
 def setup(bot):

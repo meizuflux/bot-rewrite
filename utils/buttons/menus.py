@@ -1,6 +1,29 @@
-from discord import ui, Interaction
+from collections import OrderedDict
+
 import discord
+from discord import Interaction, ui
+from discord.ext import commands
+
 from utils.buttons import StopButton
+
+
+class MenuError(Exception):
+    pass
+
+
+class CannotEmbedLinks(MenuError):
+    def __init__(self):
+        super().__init__('Bot does not have embed links permission in this channel.')
+
+
+class CannotSendMessages(MenuError):
+    def __init__(self):
+        super().__init__('Bot cannot send messages in this channel.')
+
+
+class CannotReadMessageHistory(MenuError):
+    def __init__(self):
+        super().__init__('Bot does not have Read Message History permissions in this channel.')
 
 
 class ButtonSource:
@@ -47,62 +70,113 @@ class ListButtonSource(ButtonSource):
     async def get_page(self, page_number):
         if self.per_page == 1:
             return self.entries[page_number]
-        else:
-            base = page_number * self.per_page
-            return self.entries[base : base + self.per_page]
+        base = page_number * self.per_page
+        return self.entries[base: base + self.per_page]
 
 
-class PageButton(ui.Button["ButtonPages"]):
-    def __init__(self, func, *args, **kwargs) -> None:
+class MenuButton(ui.Button):
+    def __init__(self, func, **kwargs) -> None:
+        self.cls = None
         self.func = func
-        super().__init__(style=discord.ButtonStyle.blurple, *args, **kwargs)
+        super().__init__(style=discord.ButtonStyle.blurple, **kwargs)
 
     async def callback(self, interaction: Interaction):
-        await self.func()
+        await self.func(self.cls, interaction)
 
 
-class ButtonPages(ui.View):
-    def __init__(self, source: ButtonSource, timeout: int = None):
+def button(**kwargs):
+    def decorator(func):
+        func.__button_kwargs__ = kwargs
+        return func
+
+    return decorator
+
+
+class _MenuMeta(type):
+    @classmethod
+    def __prepare__(cls, name, bases, **kwargs):
+        # This is needed to maintain member order for the buttons
+        return OrderedDict()
+
+    def __new__(cls, name, bases, attrs, **kwargs):
+        buttons = []
+        new_cls = super().__new__(cls, name, bases, attrs)
+
+        for elem, value in attrs.items():
+            try:
+                value.__button_kwargs__
+            except AttributeError:
+                continue
+            else:
+                buttons.append(value)
+
+        new_cls.__buttons__ = buttons
+        return new_cls
+
+    def get_buttons(cls):
+        return [MenuButton(func, **func.__button_kwargs__) for func in cls.__buttons__]
+
+
+class ButtonMenu(ui.View, metaclass=_MenuMeta):
+    ctx: commands.Context
+
+    def __init__(self, *, timeout=180.0, delete_message_after=False):
+        super().__init__(timeout)
+        self.delete_message_after = delete_message_after
+        self.message = None
+
+        self._buttons = self.__class__.get_buttons()
+
+        for _button in self._buttons:
+            _button.cls = self
+            self.add_item(_button)
+
+    def should_add_reactions(self):
+        return len(self._buttons)
+
+    def _verify_permissions(self, ctx, channel, permissions):
+        if not permissions.send_messages:
+            raise CannotSendMessages()
+
+        if self.should_add_reactions() and not permissions.read_message_history:
+            raise CannotReadMessageHistory()
+
+    async def start(self, ctx: commands.Context, *, channel=None, **send_kwargs):
+        self.ctx = ctx
+
+        channel = channel or ctx.channel
+        is_guild = isinstance(channel, discord.abc.GuildChannel)
+        me = channel.guild.me if is_guild else ctx.bot.user
+        permissions = channel.permissions_for(me)
+        self._verify_permissions(ctx, channel, permissions)
+
+        self.message = await self.send_initial_message(channel, **send_kwargs)
+
+    async def send_initial_message(self, channel, **send_kwargs):
+        view = send_kwargs.pop("view", self)
+        await channel.send(**send_kwargs, view=view)
+
+
+class ButtonPages(ButtonMenu):
+    def __init__(self, source: ButtonSource, **kwargs):
         self._source = source
         self.current_page = 0
-        super().__init__(timeout)
-
-        async def func():
-            await self.show_page(0)
-
-        self.add_item(PageButton(func=func, label="First"))
-
-        async def func():
-            await self.show_checked_page(self.current_page - 1)
-
-        self.add_item(PageButton(func=func, label="Previous"))
-
-        async def func():
-            await self.show_checked_page(self.current_page + 1)
-
-        self.add_item(PageButton(func=func, label="Next"))
-
-        async def func():
-            await self.show_page(self._source.get_max_pages() - 1)
-
-        self.add_item(PageButton(func=func, label="Last"))
+        super().__init__(**kwargs)
 
         self.add_item(StopButton())
 
-    async def show_page(self, page_number):
+    async def show_page(self, interaction, page_number):
         page = await self._source.get_page(page_number)
         self.current_page = page_number
         kwargs = await self._get_kwargs_from_page(page)
-        await self.message.edit(**kwargs)
+        await interaction.response.edit_message(**kwargs)
 
-    async def show_checked_page(self, page_number):
+    async def show_checked_page(self, interaction, page_number):
         max_pages = self._source.get_max_pages()
         try:
-            if max_pages is None:
+            if max_pages is None or max_pages > page_number >= 0:
                 # If it doesn't give maximum pages, it cannot be checked
-                await self.show_page(page_number)
-            elif max_pages > page_number >= 0:
-                await self.show_page(page_number)
+                await self.show_page(interaction, page_number)
         except IndexError:
             # An error happened that can be handled, so ignore it.
             pass
@@ -110,22 +184,38 @@ class ButtonPages(ui.View):
     async def interaction_check(self, interaction: Interaction):
         return interaction.user == self.ctx.author
 
-    async def start(self, ctx):
+    async def start(self, ctx, *, channel=None):
         self.ctx = ctx
         await self._source._prepare_once()
 
         page = await self._source.get_page(0)
         kwargs = await self._get_kwargs_from_page(page)
-        self.message = await ctx.send(**kwargs, view=self)
+        await super().start(ctx, channel=channel or ctx.channel, **kwargs)
 
     async def _get_kwargs_from_page(self, page):
         value = await discord.utils.maybe_coroutine(self._source.format_page, self, page)
+        kwargs = {}
         if isinstance(value, dict):
-            return value
+            kwargs = value
         elif isinstance(value, str):
-            return {"content": value, "embed": None}
+            kwargs = {"content": value, "embed": None}
         elif isinstance(value, discord.Embed):
-            return {"embed": value, "content": None}
+            kwargs = {"embed": value, "content": None}
+        if kwargs:
+            kwargs['view'] = self
+        return kwargs
+
+    @button(label="<<")
+    async def first(self, interaction: Interaction):
+        await self.show_page(interaction, 0)
+
+    @button(label="<")
+    async def previous(self, interaction: Interaction):
+        await self.show_checked_page(interaction, self.current_page - 1)
+
+    @button(label=">")
+    async def next(self, interaction: Interaction):
+        await self.show_checked_page(interaction, self.current_page + 1)
 
 
 class TestSource(ListButtonSource):

@@ -76,7 +76,7 @@ class Interactions(commands.Cog):
         if initiator == receiver:
             raise commands.BadArgument(f"You can't {verb} yourself!")
         if receiver.bot is True and receiver.id != self.bot.user.id:
-            raise commands.BadArgument(f"Bots don't like to be {verb}ed!")
+            raise commands.BadArgument(f"You can't {verb} a bot! They don't like it!")
 
     @core.command()
     async def bonk(self, ctx: CustomContext, user: discord.User):
