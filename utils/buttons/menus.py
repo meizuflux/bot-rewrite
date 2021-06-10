@@ -13,17 +13,17 @@ class MenuError(Exception):
 
 class CannotEmbedLinks(MenuError):
     def __init__(self):
-        super().__init__('Bot does not have embed links permission in this channel.')
+        super().__init__("Bot does not have embed links permission in this channel.")
 
 
 class CannotSendMessages(MenuError):
     def __init__(self):
-        super().__init__('Bot cannot send messages in this channel.')
+        super().__init__("Bot cannot send messages in this channel.")
 
 
 class CannotReadMessageHistory(MenuError):
     def __init__(self):
-        super().__init__('Bot does not have Read Message History permissions in this channel.')
+        super().__init__("Bot does not have Read Message History permissions in this channel.")
 
 
 class ButtonSource:
@@ -71,7 +71,7 @@ class ListButtonSource(ButtonSource):
         if self.per_page == 1:
             return self.entries[page_number]
         base = page_number * self.per_page
-        return self.entries[base: base + self.per_page]
+        return self.entries[base : base + self.per_page]
 
 
 class MenuButton(ui.Button):
@@ -202,7 +202,7 @@ class ButtonPages(ButtonMenu):
         elif isinstance(value, discord.Embed):
             kwargs = {"embed": value, "content": None}
         if kwargs:
-            kwargs['view'] = self
+            kwargs["view"] = self
         return kwargs
 
     @button(label="<<")
