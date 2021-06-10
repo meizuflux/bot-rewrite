@@ -80,12 +80,19 @@ class Osu(commands.Cog):
             data = await r.json()
         return data
 
-    @core.group()
+    @core.group(usage="<subcommand>")
     async def osu(self, ctx: CustomContext):
         if ctx.invoked_subcommand is None:
             await ctx.send_help(ctx.command)
 
-    @osu.command(name="profile")
+    @osu.command(
+        name="profile",
+        examples=(
+            "whitecat",
+            "https://osu.ppy.sh/u/4504101",
+            "@ppotatoo#9688"
+        )
+    )
     async def osu_profile(self, ctx: CustomContext, query: str = None):
         data = await self.get_user(await OsuUserConverter().convert(ctx, query))
 
@@ -141,7 +148,13 @@ class Osu(commands.Cog):
         view = OsuProfileView(ctx, data)
         await view.start()
 
-    @osu.command(name="register")
+    @osu.command(
+        name="register",
+        examples=(
+            "whitecat",
+            "https://osu.ppy.sh/u/4504101",
+        )
+    )
     async def osu_register(self, ctx: CustomContext, query: OsuUserConverter):
         data = await self.get_user(query)
 

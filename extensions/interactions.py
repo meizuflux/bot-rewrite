@@ -15,20 +15,30 @@ bonk_messages = (
 )
 bonk_fmt = "You've bonked {user} {amount} times! They've been bonked a total of {total} times."
 
+bite_messages = (
+    "*bites {user}*",
+)
+bite_fmt = "You've bitten {user} {amount} times! They've been bitten a total of {total} times."
+
+cuddle_messages = (
+    "*you and {user} share a nice cuddle*",
+)
+cuddle_fmt = "You've cuddled with {user} {amount} times, and they've been cuddled with a total of {total} times"
+
 
 class Interactions(commands.Cog):
     def __init__(self, bot: CustomBot):
         self.bot = bot
 
     def construct_embed(
-        self, user: discord.User, *, _type: str
-    ) -> Tuple[discord.File, discord.Embed]:
+        self, method: str, _, user: discord.User) -> Tuple[discord.File, discord.Embed]:
         embed = self.bot.embed(
-            title=self.bot.random.choice(globals()[_type + "_messages"]).format(
+            title=self.bot.random.choice(globals()[method + "_messages"]).format(
                 user=user.display_name
             )
         )
-        path = "./assets/" + _type
+
+        path = "./assets/" + method
         fn = self.bot.random.choice(listdir(path))
         file = discord.File(path + "/" + fn, filename=fn)
         embed.set_image(url="attachment://" + fn)
@@ -76,8 +86,26 @@ class Interactions(commands.Cog):
         values = ("bonk", ctx.author, user)
         self.invoke_check(*values)
         await self.update(*values)
-        file, embed = self.construct_embed(user, _type="bonk")
+        file, embed = self.construct_embed(*values)
         embed.set_footer(text=bonk_fmt.format_map(await self.get_totals(*values)))
+        await ctx.send(embed=embed, file=file)
+
+    @core.command()
+    async def bite(self, ctx: CustomContext, user: discord.User):
+        values = ("bite", ctx.author, user)
+        self.invoke_check(*values)
+        await self.update(*values)
+        file, embed = self.construct_embed(*values)
+        embed.set_footer(text=bite_fmt.format_map(await self.get_totals(*values)))
+        await ctx.send(embed=embed, file=file)
+
+    @core.command()
+    async def cuddle(self, ctx: CustomContext, user: discord.User):
+        values = ("cuddle", ctx.author, user)
+        self.invoke_check(*values)
+        await self.update(*values)
+        file, embed = self.construct_embed(*values)
+        embed.set_footer(text=cuddle_fmt.format_map(await self.get_totals(*values)))
         await ctx.send(embed=embed, file=file)
 
 
