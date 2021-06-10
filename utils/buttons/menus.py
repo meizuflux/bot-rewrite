@@ -2,6 +2,7 @@ from discord import ui, Interaction
 import discord
 from utils.buttons import StopButton
 
+
 class ButtonSource:
     async def _prepare_once(self):
         try:
@@ -25,8 +26,8 @@ class ButtonSource:
     async def format_page(self, menu, page):
         raise NotImplementedError
 
-class ListButtonSource(ButtonSource):
 
+class ListButtonSource(ButtonSource):
     def __init__(self, entries, *, per_page):
         self.entries = entries
         self.per_page = per_page
@@ -48,7 +49,8 @@ class ListButtonSource(ButtonSource):
             return self.entries[page_number]
         else:
             base = page_number * self.per_page
-            return self.entries[base:base + self.per_page]
+            return self.entries[base : base + self.per_page]
+
 
 class PageButton(ui.Button["ButtonPages"]):
     def __init__(self, func, *args, **kwargs) -> None:
@@ -58,30 +60,34 @@ class PageButton(ui.Button["ButtonPages"]):
     async def callback(self, interaction: Interaction):
         await self.func()
 
+
 class ButtonPages(ui.View):
-    def __init__(self, source: ButtonSource, timeout: int=None):
+    def __init__(self, source: ButtonSource, timeout: int = None):
         self._source = source
         self.current_page = 0
         super().__init__(timeout)
 
         async def func():
             await self.show_page(0)
+
         self.add_item(PageButton(func=func, label="First"))
 
         async def func():
             await self.show_checked_page(self.current_page - 1)
+
         self.add_item(PageButton(func=func, label="Previous"))
 
         async def func():
             await self.show_checked_page(self.current_page + 1)
+
         self.add_item(PageButton(func=func, label="Next"))
 
         async def func():
             await self.show_page(self._source.get_max_pages() - 1)
+
         self.add_item(PageButton(func=func, label="Last"))
 
         self.add_item(StopButton())
-
 
     async def show_page(self, page_number):
         page = await self._source.get_page(page_number)
@@ -117,13 +123,16 @@ class ButtonPages(ui.View):
         if isinstance(value, dict):
             return value
         elif isinstance(value, str):
-            return { 'content': value, 'embed': None }
+            return {"content": value, "embed": None}
         elif isinstance(value, discord.Embed):
-            return { 'embed': value, 'content': None }
+            return {"embed": value, "content": None}
+
 
 class TestSource(ListButtonSource):
     async def format_page(self, menu, page):
         return page
 
-test = TestSource([discord.Embed(title='1'), discord.Embed(title="2"), discord.Embed(title="3")], per_page=1)
 
+test = TestSource(
+    [discord.Embed(title="1"), discord.Embed(title="2"), discord.Embed(title="3")], per_page=1
+)

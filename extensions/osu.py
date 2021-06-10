@@ -86,12 +86,7 @@ class Osu(commands.Cog):
             await ctx.send_help(ctx.command)
 
     @osu.command(
-        name="profile",
-        examples=(
-            "whitecat",
-            "https://osu.ppy.sh/u/4504101",
-            "@ppotatoo#9688"
-        )
+        name="profile", examples=("whitecat", "https://osu.ppy.sh/u/4504101", "@ppotatoo#9688")
     )
     async def osu_profile(self, ctx: CustomContext, query: str = None):
         data = await self.get_user(await OsuUserConverter().convert(ctx, query))
@@ -153,7 +148,7 @@ class Osu(commands.Cog):
         examples=(
             "whitecat",
             "https://osu.ppy.sh/u/4504101",
-        )
+        ),
     )
     async def osu_register(self, ctx: CustomContext, query: OsuUserConverter):
         data = await self.get_user(query)
