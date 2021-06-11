@@ -1,18 +1,15 @@
-from datetime import datetime as dt, timezone, timedelta
-
-from discord.ext import commands
-from humanize import precisedelta, naturaltime
-from utils.time import human_timedelta
-
 import asyncio
-import discord
+import logging
+from datetime import datetime as dt, timedelta
+
 import asyncpg
-from dateutil.relativedelta import relativedelta
+import discord
+from discord.ext import commands
+
 import core
 from core.bot import CustomBot
 from core.context import CustomContext
-import logging
-from utils.time import parse_time
+from utils.time import human_timedelta, parse_time
 
 log = logging.getLogger(__name__)
 
@@ -22,7 +19,7 @@ class Reminders(commands.Cog):
         self.bot = bot
 
         self._current_reminder = None
-        self._waitable = asyncio.Event(loop=self.bot.loop)
+        self._event = asyncio.Event(loop=self.bot.loop)
 
         self._task = self.bot.loop.create_task(self._reminder_dispatch())
 
@@ -41,20 +38,20 @@ class Reminders(commands.Cog):
         conn = connection or self.bot.pool
 
         ret = await conn.fetchrow(query, timedelta(days=days))
-        return ret if ret else None
+        return ret or None
 
     async def wait_for_reminders(self, *, days=10):
         async with self.bot.pool.acquire() as conn:
             reminder = await self.get_active_reminder(days, connection=conn)
             if reminder is not None:
-                self._waitable.set()
+                self._event.set()
                 return reminder
 
-            self._waitable.clear()
+            self._event.clear()
 
             self._current_reminder = None
 
-            await self._waitable.wait()
+            await self._event.wait()
 
             return await self.get_active_reminder(days, connection=conn)
 
@@ -82,7 +79,7 @@ class Reminders(commands.Cog):
             self._task = self.bot.loop.create_task(self._reminder_dispatch())
 
     async def create_timer(
-        self, ctx: CustomContext, content, expires: dt, created: dt = dt.utcnow()
+            self, ctx: CustomContext, content, expires: dt, created: dt = dt.utcnow()
     ):
         query = """
             INSERT INTO
@@ -103,7 +100,7 @@ class Reminders(commands.Cog):
         delta = (expires - created).total_seconds()
 
         if delta <= (86400 * 10):
-            self._waitable.set()
+            self._event.set()
 
         if self._current_reminder and expires < self._current_reminder["expires"]:
             self._task.cancel()
@@ -111,14 +108,29 @@ class Reminders(commands.Cog):
 
         return True
 
-    @core.command()
+    @core.command(
+        examples=(
+            "1w take out the trash",
+            '"4 months and 2 days" william\'s birthday',
+            '1week',
+            "1week2days fix this code"
+        ),
+        params={
+            "time": "The time when you want me to remind you for something.",
+            "thing": "The thing you want me to remind you to do."
+        },
+        returns="Confirmation that I have registered your reminder."
+    )
     async def remind(self, ctx: CustomContext, time: str, *, thing: str = "Nothing"):
+        """A command to remind yourself of things
+        Times are in UTC.
+        """
         expires = parse_time(ctx, time)
 
         await self.create_timer(ctx, thing, expires, created=ctx.message.created_at)
 
         delta = human_timedelta(expires, source=ctx.message.created_at)
-        await ctx.send(f"I'll remind you in {delta} to: {thing}")
+        await ctx.send(f"In {delta}: {thing}")
 
     @commands.Cog.listener()
     async def on_reminder_complete(self, reminder):
@@ -132,8 +144,8 @@ class Reminders(commands.Cog):
 
         msg = f"<@{reminder['author']}>, {delta}: {reminder['content']}"
         msg += (
-            "\n\n"
-            + f"<https://discord.com/channels/{channel.guild.id}/{channel.id}/{reminder['message']}>"
+                "\n\n"
+                + f"<https://discord.com/channels/{channel.guild.id}/{channel.id}/{reminder['message']}>"
         )
 
         try:

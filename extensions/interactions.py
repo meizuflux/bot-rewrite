@@ -78,8 +78,19 @@ class Interactions(commands.Cog):
         if receiver.bot is True and receiver.id != self.bot.user.id:
             raise commands.BadArgument(f"You can't {verb} a bot! They don't like it!")
 
-    @core.command()
+    @core.command(
+        examples=(
+            "@ppotatoo",
+        ),
+        params={
+            "user": "The user you want to bonk 🔨"
+        },
+        returns="You bonking a user",
+    )
     async def bonk(self, ctx: CustomContext, user: discord.User):
+        """Bonk!
+        You can view how many times you have bonked the user, and how many times they have been bonked in total.
+        """
         values = ("bonk", ctx.author, user)
         self.invoke_check(*values)
         await self.update(*values)
@@ -87,8 +98,19 @@ class Interactions(commands.Cog):
         embed.set_footer(text=bonk_fmt.format_map(await self.get_totals(*values)))
         await ctx.send(embed=embed, file=file)
 
-    @core.command()
+    @core.command(
+        examples=(
+            "@ppotatoo",
+        ),
+        params={
+            "user": "The user you want to bite 😳"
+        },
+        returns="You biting a user",
+    )
     async def bite(self, ctx: CustomContext, user: discord.User):
+        """A command that lets you bite another user!
+        You can view how many times you've bitten this user, and how many times they've been bitten
+        """
         values = ("bite", ctx.author, user)
         self.invoke_check(*values)
         await self.update(*values)
@@ -96,8 +118,19 @@ class Interactions(commands.Cog):
         embed.set_footer(text=bite_fmt.format_map(await self.get_totals(*values)))
         await ctx.send(embed=embed, file=file)
 
-    @core.command()
+    @core.command(
+        examples=(
+            "@ppotatoo",
+        ),
+        params={
+            "user": "The user you want to cuddle"
+        },
+        returns="A cuddle between friends ❤️",
+    )
     async def cuddle(self, ctx: CustomContext, user: discord.User):
+        """A command to hug a user.
+        You can view how many times you have cuddled this user, and how many times they have been cuddled with.
+        """
         values = ("cuddle", ctx.author, user)
         self.invoke_check(*values)
         await self.update(*values)

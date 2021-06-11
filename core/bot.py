@@ -54,6 +54,7 @@ class CustomBot(commands.Bot):
         extensions = [
             "jishaku",
             "core.context",
+            "extensions.help"
             "extensions.osu",
             "extensions.errorhandler",
             "extensions.interactions",

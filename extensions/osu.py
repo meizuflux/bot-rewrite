@@ -86,9 +86,22 @@ class Osu(commands.Cog):
             await ctx.send_help(ctx.command)
 
     @osu.command(
-        name="profile", examples=("whitecat", "https://osu.ppy.sh/u/4504101", "@ppotatoo#9688")
+        name="profile",
+        examples=(
+                "whitecat",
+                "https://osu.ppy.sh/u/4504101",
+                "@ppotatoo#9688"
+        ),
+        params={
+            "query": "The profile you want to look up, this can be a username, profile link, or a user. "
+                     "Leave blank to view your own stats."
+        },
+        returns="An interactive view that showcases an osu! user's profile."
     )
     async def osu_profile(self, ctx: CustomContext, query: str = None):
+        """A command to view someone's osu! profile.
+        You can view the user's stats and socials through an interactive button menu.
+        """
         data = await self.get_user(await OsuUserConverter().convert(ctx, query))
 
         stats = data.get("statistics", {})
@@ -149,8 +162,15 @@ class Osu(commands.Cog):
             "whitecat",
             "https://osu.ppy.sh/u/4504101",
         ),
+        params={
+            "query": "The user you want to register yourself to."
+        },
+        returns="Confirmation that you got registered."
     )
     async def osu_register(self, ctx: CustomContext, query: OsuUserConverter):
+        """Simple command that registers you to an osu! profile
+        Two users can have the same profile.
+        """
         data = await self.get_user(query)
 
         await self.bot.pool.register_user("osu", ctx.author.id, str(data["id"]))
