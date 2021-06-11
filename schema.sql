@@ -27,4 +27,21 @@ CREATE TABLE IF NOT EXISTS totals (
     snowflake BIGINT,
     count BIGINT DEFAULT 1,
     PRIMARY KEY (method, snowflake)
-)
+);
+
+CREATE TABLE IF NOT EXISTS reminders (
+    id SERIAL PRIMARY KEY,
+
+    guild BIGINT REFERENCES guilds (id) ON DELETE CASCADE,
+    author BIGINT,
+    channel BIGINT,
+    message BIGINT,
+
+    expires TIMESTAMP,
+    created TIMESTAMP DEFAULT (now() AT TIME ZONE 'UTC'),
+
+    content TEXT
+);
+
+CREATE INDEX IF NOT EXISTS reminder_expire ON reminders (expires)
+

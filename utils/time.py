@@ -17,7 +17,7 @@ TIME_REGEX = re.compile(
 
 
 def parse_time(ctx: CustomContext, time: str):
-    argument = time.replace(" ", "")
+    argument = time.replace(" and ", "").replace(" ", "")
     match = TIME_REGEX.match(argument)
     if match is None or not match.group(0):
         raise commands.BadArgument("Invalid time provided.")
