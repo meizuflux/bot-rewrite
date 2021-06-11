@@ -21,9 +21,8 @@ class Reminders(commands.Cog):
 
         self._task = self.bot.loop.create_task(self._reminder_dispatch())
 
-    async def get_active_reminder(self, days: int=10, *, connection=None):
-        query = (
-            """
+    async def get_active_reminder(self, days: int = 10, *, connection=None):
+        query = """
             SELECT * 
             FROM 
                 reminders 
@@ -34,7 +33,6 @@ class Reminders(commands.Cog):
             LIMIT
                 1
             """
-        )
         conn = connection or self.bot.pool
 
         ret = await conn.fetchrow(query, timedelta(days=days))
@@ -48,7 +46,7 @@ class Reminders(commands.Cog):
                 return reminder
 
             self._waitable.clear()
-            
+
             self._current_reminder = None
 
             await self._waitable.wait()
@@ -69,7 +67,6 @@ class Reminders(commands.Cog):
                     to_sleep = (expires - now).total_seconds()
                     await asyncio.sleep(to_sleep)
 
-                
                 await self.call_reminder(reminder)
         except asyncio.CancelledError:
             raise
@@ -99,7 +96,7 @@ class Reminders(commands.Cog):
 
         delta = (expires - created).total_seconds()
 
-        if delta <= (86400 * 10): # 10 days
+        if delta <= (86400 * 10):  # 10 days
             self._waitable.set()
 
         if self._current_reminder and expires < self._current_reminder.expires:
