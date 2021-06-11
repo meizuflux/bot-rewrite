@@ -131,7 +131,10 @@ class Reminders(commands.Cog):
         delta = human_timedelta(reminder["created"])
 
         msg = f"<@{reminder['author']}>, {delta}: {reminder['content']}"
-        msg += "\n\n" + f"<https://discord.com/channels/{channel.guild.id}/{channel.id}/{reminder['message']}>"
+        msg += (
+            "\n\n"
+            + f"<https://discord.com/channels/{channel.guild.id}/{channel.id}/{reminder['message']}>"
+        )
 
         try:
             await channel.send(msg)

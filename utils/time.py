@@ -25,7 +25,8 @@ def parse_time(ctx: CustomContext, time: str):
     data = {k: int(v) for k, v in match.groupdict(default=0).items()}
     return ctx.message.created_at + relativedelta(**data)
 
-# from rapptz 
+
+# from rapptz
 def human_timedelta(dt, *, source=None, accuracy=3, suffix=True):
     now = source or dt.utcnow()
     # Microsecond free zone
@@ -39,27 +40,27 @@ def human_timedelta(dt, *, source=None, accuracy=3, suffix=True):
     # A query like "11 months" can be interpreted as "!1 months and 6 days"
     if dt > now:
         delta = relativedelta(dt, now)
-        suffix = ''
+        suffix = ""
     else:
         delta = relativedelta(now, dt)
-        suffix = ' ago' if suffix else ''
+        suffix = " ago" if suffix else ""
 
     attrs = [
-        'year',
-        'month',
-        'day',
-        'hour',
-        'minute',
-        'second',
+        "year",
+        "month",
+        "day",
+        "hour",
+        "minute",
+        "second",
     ]
 
     output = []
     for attr in attrs:
-        elem = getattr(delta, attr + 's')
+        elem = getattr(delta, attr + "s")
         if not elem:
             continue
 
-        if attr == 'day':
+        if attr == "day":
             weeks = delta.weeks
             if weeks:
                 elem -= weeks * 7
@@ -68,13 +69,12 @@ def human_timedelta(dt, *, source=None, accuracy=3, suffix=True):
         if elem <= 0:
             continue
 
-        
         output.append(plural(f"{elem} {attr}(s)", elem))
 
     if accuracy is not None:
         output = output[:accuracy]
 
     if len(output) == 0:
-        return 'now'
+        return "now"
     else:
-        return str(human_join(output, final='and')) + suffix
+        return str(human_join(output, final="and")) + suffix
