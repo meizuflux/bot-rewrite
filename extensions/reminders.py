@@ -1,15 +1,20 @@
 from datetime import datetime as dt, timezone, timedelta
 
 from discord.ext import commands
-from humanize import precisedelta
+from humanize import precisedelta, naturaltime
+from utils.time import human_timedelta
 
 import asyncio
 import discord
 import asyncpg
+from dateutil.relativedelta import relativedelta
 import core
 from core.bot import CustomBot
 from core.context import CustomContext
+import logging
 from utils.time import parse_time
+
+log = logging.getLogger(__name__)
 
 
 class Reminders(commands.Cog):
@@ -56,9 +61,10 @@ class Reminders(commands.Cog):
     async def call_reminder(self, reminder):
         await self.bot.pool.execute("DELETE FROM reminders WHERE id = $1", reminder["id"])
 
-        print("calling timer")
+        self.bot.dispatch("reminder_complete", reminder)
 
     async def _reminder_dispatch(self):
+        await self.bot.wait_until_ready()
         try:
             while not self.bot.is_closed():
                 reminder = self._current_reminder = await self.wait_for_reminders()
@@ -88,19 +94,18 @@ class Reminders(commands.Cog):
             ctx.author.id,
             ctx.channel.id,
             ctx.message.id,
-            expires,
-            created,
+            expires.replace(tzinfo=None),
+            created.replace(tzinfo=None),
             content,
         )
         await self.bot.pool.execute(query, *values)
 
         delta = (expires - created).total_seconds()
 
-        if delta <= (86400 * 10):  # 10 days
+        if delta <= (86400 * 10):
             self._waitable.set()
 
-        if self._current_reminder and expires < self._current_reminder.expires:
-            # re-run the loop
+        if self._current_reminder and expires < self._current_reminder["expires"]:
             self._task.cancel()
             self._task = self.bot.loop.create_task(self._reminder_dispatch())
 
@@ -108,11 +113,30 @@ class Reminders(commands.Cog):
 
     @core.command()
     async def remind(self, ctx: CustomContext, time: str, *, thing: str = "Nothing"):
-        when = parse_time(ctx, time).replace(tzinfo=None)
-        delta = precisedelta(when - dt.utcnow())
-        await self.create_timer(ctx, thing, when)
+        expires = parse_time(ctx, time)
 
+        await self.create_timer(ctx, thing, expires, created=ctx.message.created_at)
+
+        delta = human_timedelta(expires, source=ctx.message.created_at)
         await ctx.send(f"I'll remind you in {delta} to: {thing}")
+
+    @commands.Cog.listener()
+    async def on_reminder_complete(self, reminder):
+        channel_id = reminder["channel"]
+        try:
+            channel = self.bot.get_channel(channel_id) or (await self.bot.fetch_channel(channel_id))
+        except discord.HTTPException:
+            return
+
+        delta = human_timedelta(reminder["created"])
+
+        msg = f"<@{reminder['author']}>, {delta}: {reminder['content']}"
+        msg += "\n\n" + f"<https://discord.com/channels/{channel.guild.id}/{channel.id}/{reminder['message']}>"
+
+        try:
+            await channel.send(msg)
+        except discord.HTTPException:
+            return
 
 
 def setup(bot):

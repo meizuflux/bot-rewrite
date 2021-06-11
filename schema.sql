@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS reminders (
     message BIGINT,
 
     expires TIMESTAMP,
-    created TIMESTAMP DEFAULT (now() AT TIME ZONE 'UTC'),
+    created TIMESTAMP,
 
     content TEXT
 );
