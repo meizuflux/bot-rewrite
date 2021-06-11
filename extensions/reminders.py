@@ -1,11 +1,9 @@
-import discord
 from discord.ext import commands
 
 import core
 from core.bot import CustomBot
 from core.context import CustomContext
 from utils.time import parse_time
-from humanize import precisedelta
 
 
 class Reminders(commands.Cog):
