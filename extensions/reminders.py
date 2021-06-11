@@ -13,14 +13,14 @@ class Reminders(commands.Cog):
     def __init__(self, bot: CustomBot):
         self.bot = bot
 
-    async def create_timer(self, ctx: CustomContext, content, expires: datetime, created: datetime=datetime.utcnow()):
-        query = (
-            """
+    async def create_timer(
+        self, ctx: CustomContext, content, expires: datetime, created: datetime = datetime.utcnow()
+    ):
+        query = """
             INSERT INTO
                 reminders (guild, author, channel, message, expires, created, content)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
             """
-        )
         values = (
             ctx.guild.id,
             ctx.author.id,
@@ -28,7 +28,7 @@ class Reminders(commands.Cog):
             ctx.message.id,
             expires,
             created,
-            content
+            content,
         )
         await self.bot.pool.execute(query, *values)
 

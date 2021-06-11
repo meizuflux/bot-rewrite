@@ -46,7 +46,7 @@ class CustomBot(commands.Bot):
         async with self.pool.acquire() as conn:
             await conn.executemany(
                 "INSERT INTO guilds (id) VALUES ($1) ON CONFLICT DO NOTHING",
-                tuple((g.id,) for g in self.guilds)
+                tuple((g.id,) for g in self.guilds),
             )
         self.prepped.set()
 
