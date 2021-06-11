@@ -79,12 +79,8 @@ class Interactions(commands.Cog):
             raise commands.BadArgument(f"You can't {verb} a bot! They don't like it!")
 
     @core.command(
-        examples=(
-            "@ppotatoo",
-        ),
-        params={
-            "user": "The user you want to bonk 🔨"
-        },
+        examples=("@ppotatoo",),
+        params={"user": "The user you want to bonk 🔨"},
         returns="You bonking a user",
     )
     async def bonk(self, ctx: CustomContext, user: discord.User):
@@ -99,12 +95,8 @@ class Interactions(commands.Cog):
         await ctx.send(embed=embed, file=file)
 
     @core.command(
-        examples=(
-            "@ppotatoo",
-        ),
-        params={
-            "user": "The user you want to bite 😳"
-        },
+        examples=("@ppotatoo",),
+        params={"user": "The user you want to bite 😳"},
         returns="You biting a user",
     )
     async def bite(self, ctx: CustomContext, user: discord.User):
@@ -119,12 +111,8 @@ class Interactions(commands.Cog):
         await ctx.send(embed=embed, file=file)
 
     @core.command(
-        examples=(
-            "@ppotatoo",
-        ),
-        params={
-            "user": "The user you want to cuddle"
-        },
+        examples=("@ppotatoo",),
+        params={"user": "The user you want to cuddle"},
         returns="A cuddle between friends ❤️",
     )
     async def cuddle(self, ctx: CustomContext, user: discord.User):

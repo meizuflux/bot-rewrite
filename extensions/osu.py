@@ -87,16 +87,12 @@ class Osu(commands.Cog):
 
     @osu.command(
         name="profile",
-        examples=(
-                "whitecat",
-                "https://osu.ppy.sh/u/4504101",
-                "@ppotatoo#9688"
-        ),
+        examples=("whitecat", "https://osu.ppy.sh/u/4504101", "@ppotatoo#9688"),
         params={
             "query": "The profile you want to look up, this can be a username, profile link, or a user. "
-                     "Leave blank to view your own stats."
+            "Leave blank to view your own stats."
         },
-        returns="An interactive view that showcases an osu! user's profile."
+        returns="An interactive view that showcases an osu! user's profile.",
     )
     async def osu_profile(self, ctx: CustomContext, query: str = None):
         """A command to view someone's osu! profile.
@@ -162,10 +158,8 @@ class Osu(commands.Cog):
             "whitecat",
             "https://osu.ppy.sh/u/4504101",
         ),
-        params={
-            "query": "The user you want to register yourself to."
-        },
-        returns="Confirmation that you got registered."
+        params={"query": "The user you want to register yourself to."},
+        returns="Confirmation that you got registered.",
     )
     async def osu_register(self, ctx: CustomContext, query: OsuUserConverter):
         """Simple command that registers you to an osu! profile

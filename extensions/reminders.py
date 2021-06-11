@@ -79,7 +79,7 @@ class Reminders(commands.Cog):
             self._task = self.bot.loop.create_task(self._reminder_dispatch())
 
     async def create_timer(
-            self, ctx: CustomContext, content, expires: dt, created: dt = dt.utcnow()
+        self, ctx: CustomContext, content, expires: dt, created: dt = dt.utcnow()
     ):
         query = """
             INSERT INTO
@@ -112,14 +112,14 @@ class Reminders(commands.Cog):
         examples=(
             "1w take out the trash",
             '"4 months and 2 days" william\'s birthday',
-            '1week',
-            "1week2days fix this code"
+            "1week",
+            "1week2days fix this code",
         ),
         params={
             "time": "The time when you want me to remind you for something.",
-            "thing": "The thing you want me to remind you to do."
+            "thing": "The thing you want me to remind you to do.",
         },
-        returns="Confirmation that I have registered your reminder."
+        returns="Confirmation that I have registered your reminder.",
     )
     async def remind(self, ctx: CustomContext, time: str, *, thing: str = "Nothing"):
         """A command to remind yourself of things
@@ -144,8 +144,8 @@ class Reminders(commands.Cog):
 
         msg = f"<@{reminder['author']}>, {delta}: {reminder['content']}"
         msg += (
-                "\n\n"
-                + f"<https://discord.com/channels/{channel.guild.id}/{channel.id}/{reminder['message']}>"
+            "\n\n"
+            + f"<https://discord.com/channels/{channel.guild.id}/{channel.id}/{reminder['message']}>"
         )
 
         try:
