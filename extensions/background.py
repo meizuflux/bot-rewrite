@@ -1,6 +1,7 @@
 import asyncio
 from collections import defaultdict
 from logging import getLogger
+from json import dumps
 
 from discord.ext import commands, tasks
 
@@ -15,7 +16,7 @@ class BackgroundEvents(commands.Cog):
     def __init__(self, bot: CustomBot):
         self.bot = bot
         self._lock = asyncio.Lock(loop=self.bot.loop)
-        self._data = {"commands": []}
+        self._commands = []
 
         self.bulk_command_insert.start()
 
@@ -25,11 +26,11 @@ class BackgroundEvents(commands.Cog):
     @tasks.loop(seconds=10)
     @wait_until_prepped()
     async def bulk_command_insert(self):
-        if self._data["commands"] is not []:
-            total = len(self._data["commands"])
+        if self._commands != []:
+            total = len(self._commands)
             async with self._lock:
-                await self.bot.pool.command_insert(self._data["commands"])
-                self._data["commands"].clear()
+                await self.bot.pool.command_insert(dumps(self._commands))
+                self._commands.clear()
             log.info(f"Inserted {total} commands.")
 
     @commands.Cog.listener()
@@ -38,7 +39,7 @@ class BackgroundEvents(commands.Cog):
             return
 
         async with self._lock:
-            self._data["commands"].append(
+            self._commands.append(
                 {
                     "guild": getattr(ctx.guild, "id", None),
                     "channel": ctx.channel.id,
