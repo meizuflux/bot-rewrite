@@ -21,7 +21,7 @@ OsuConverterResponse = NamedTuple("ConverterResponse", [("search", Union[int, st
 
 
 class OsuUserConverter(commands.Converter):
-    async def convert(self, ctx: CustomContext, argument):
+    async def convert(self, ctx: CustomContext, argument) -> OsuConverterResponse:
         if argument is None:
             _id = await ctx.bot.pool.fetchval(
                 "SELECT id FROM games WHERE game = 'osu' AND snowflake = $1", ctx.author.id
