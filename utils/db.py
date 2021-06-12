@@ -17,12 +17,12 @@ class CustomPool(Pool):
             "FETCHROW": 0,
         }
 
-    async def execute(self, query: str, *args, timeout: float=None) -> str:
+    async def execute(self, query: str, *args, timeout: float = None) -> str:
         self.calls["EXECUTE"] += 1
         async with self.acquire() as con:
             return await con.execute(query, *args, timeout=timeout)
 
-    async def executemany(self, command: str, args, *, timeout: float=None):
+    async def executemany(self, command: str, args, *, timeout: float = None):
         self.calls["EXECUTEMANY"] += 1
         async with self.acquire() as con:
             return await con.executemany(command, args, timeout=timeout)
@@ -35,8 +35,7 @@ class CustomPool(Pool):
     async def fetchval(self, query, *args, column=0, timeout=None):
         self.calls["FETCHVAL"] += 1
         async with self.acquire() as con:
-            return await con.fetchval(
-                query, *args, column=column, timeout=timeout)
+            return await con.fetchval(query, *args, column=column, timeout=timeout)
 
     async def fetchrow(self, query, *args, timeout=None):
         self.calls["FETCHROW"] += 1
