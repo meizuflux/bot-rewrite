@@ -11,7 +11,7 @@ class ErrorHandler(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_command_error(self, ctx: CustomContext, error: Exception) -> None:
+    async def on_command_error(self, ctx: CustomContext, error: Exception):
         owner_errors = (
             commands.MissingAnyRole,
             commands.MissingPermissions,
@@ -21,11 +21,10 @@ class ErrorHandler(commands.Cog):
         )
         if await self.bot.is_owner(ctx.author) and isinstance(error, owner_errors):
             return await ctx.reinvoke()
-        if ctx.command:
-            if ctx.command.has_error_handler():
-                return
-            if ctx.cog.has_error_handler():
-                return
+        if ctx.command and ctx.command.has_error_handler():
+            return
+        if ctx.cog and ctx.cog.has_error_handler():
+            return
 
         error = getattr(error, "original", error)
 

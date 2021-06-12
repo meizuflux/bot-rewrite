@@ -5,8 +5,8 @@ class CommandMixin:
     def __init__(self, func, name, **attrs):
         super().__init__(func, name=name, **attrs)
         self.examples: tuple = attrs.pop("examples", (None,))
-        self.params: dict = attrs.pop("params", {})
-        self.returns: str = attrs.pop("returns", "I guess nothing?")
+        self.params_: dict = attrs.pop("params", {})
+        self.returns: str = attrs.pop("returns", "This command takes no parameters")
 
 
 class Command(CommandMixin, commands.Command):
@@ -14,7 +14,24 @@ class Command(CommandMixin, commands.Command):
 
 
 class Group(Command, commands.Group):
-    pass
+    def group(self, *args, **kwargs):
+        def decorator(func):
+            kwargs.setdefault('parent', self)
+            kwargs.setdefault('cls', self)
+            result = group(*args, **kwargs)(func)
+            self.add_command(result)
+            return result
+
+        return decorator
+
+    def command(self, *args, **kwargs):
+        def decorator(func):
+            kwargs.setdefault('parent', self)
+            result = command(*args, **kwargs)(func)
+            self.add_command(result)
+            return result
+
+        return decorator
 
 
 def command(name=None, cls=None, **attrs):

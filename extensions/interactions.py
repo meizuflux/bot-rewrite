@@ -25,6 +25,7 @@ cuddle_fmt = "You've cuddled with {user} {amount} times, and they've been cuddle
 class Interactions(commands.Cog):
     def __init__(self, bot: CustomBot):
         self.bot = bot
+        self.emoji = "<:mitsuri_pleading:853237551262466108>"
 
     def construct_embed(
         self, method: str, _, user: discord.User
