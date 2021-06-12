@@ -1,3 +1,5 @@
+import asyncio
+
 from asyncpg import Connection, Pool, Record
 
 
@@ -20,6 +22,26 @@ class CustomPool(Pool):
                         id = $3
             """
         await self.execute(query, game, snowflake, _id)
+
+    async def command_insert(self, data: list):
+        query = (
+            """
+            INSERT INTO
+                commands (guild, channel, author, used, prefix, command, failed)
+            SELECT x.guild, x.channel, x.author, x.used, x.prefix, x.command, x.failed
+                   FROM JSONB_TO_RECORDSET($1::jsonb) AS
+                   x(
+                        guild BIGINT,
+                        channel BIGINT,
+                        author BIGINT,
+                        used TIMESTAMP,
+                        prefix TEXT,
+                        command TEXT,
+                        failed BOOLEAN
+                )
+            """
+        )
+        await self.execute(query, data)
 
 
 def create_pool(

@@ -17,6 +17,8 @@ log = logging.getLogger(__name__)
 class Reminders(commands.Cog):
     def __init__(self, bot: CustomBot):
         self.bot = bot
+        self.emoji = "<a:pikawink:853236064991182909>"
+        self.show_subcommands = True
 
         self._current_reminder = None
         self._event = asyncio.Event(loop=self.bot.loop)

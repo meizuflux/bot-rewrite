@@ -29,3 +29,13 @@ def wait_until_ready(bot=None):
         return True
 
     return event(predicate)
+
+def wait_until_prepped(bot=None):
+    async def predicate(*args, **_):
+        self = args[0] if args else None
+        if isinstance(self, commands.Cog):
+            _bot = bot or self.bot
+        await _bot.prepped.wait()
+        return True
+
+    return event(predicate)

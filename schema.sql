@@ -43,5 +43,22 @@ CREATE TABLE IF NOT EXISTS reminders (
     content TEXT
 );
 
-CREATE INDEX IF NOT EXISTS reminder_expire ON reminders (expires)
+CREATE INDEX IF NOT EXISTS reminder_expire ON reminders (expires);
+
+CREATE TABLE IF NOT EXISTS commands (
+    id SERIAL PRIMARY KEY,
+
+    guild BIGINT,
+    channel BIGINT,
+    author BIGINT,
+    used TIMESTAMP,
+    prefix TEXT,
+    command TEXT,
+
+    failed BOOLEAN
+);
+
+CREATE INDEX IF NOT EXISTS commands_guildx ON commands (guild);
+CREATE INDEX IF NOT EXISTS commands_authorx ON commands (author);
+CREATE INDEX IF NOT EXISTS commands_commandx ON commands (command);
 
