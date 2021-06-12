@@ -22,24 +22,30 @@ class CustomHelp(commands.HelpCommand):
     def get_sig(self, command):
         sig = command.signature
         if not sig and not command.parent:
-            return f'`{self.context.clean_prefix}{command.name}`'
+            return f"`{self.context.clean_prefix}{command.name}`"
         if not command.parent:
-            return f'`{self.context.clean_prefix}{command.name}` `{sig}`'
+            return f"`{self.context.clean_prefix}{command.name}` `{sig}`"
         if not sig:
-            return f'`{self.context.clean_prefix}{command.parent}` `{command.name}`'
-        return f'`{self.context.clean_prefix}{command.parent}` `{command.name}` `{sig}`'
+            return f"`{self.context.clean_prefix}{command.parent}` `{command.name}`"
+        return f"`{self.context.clean_prefix}{command.parent}` `{command.name}` `{sig}`"
 
     async def send(self, **send_kwargs):
         if not send_kwargs.get("view"):
             view = ui.View()
-            view.add_item(ui.Button(label="Invite Me", url="https://google.com", style=discord.ButtonStyle.grey))
+            view.add_item(
+                ui.Button(
+                    label="Invite Me", url="https://google.com", style=discord.ButtonStyle.grey
+                )
+            )
 
             send_kwargs["view"] = view
 
         destination = self.get_destination()
         await destination.send(**send_kwargs)
 
-    async def send_bot_help(self, mapping: Mapping[commands.Cog, List[Union[core.command, commands.Command]]]):
+    async def send_bot_help(
+        self, mapping: Mapping[commands.Cog, List[Union[core.command, commands.Command]]]
+    ):
         cogs = [
             f"{cog.emoji} `{self.context.clean_prefix}help` `{cog.qualified_name}`"
             for cog in mapping
@@ -49,13 +55,10 @@ class CustomHelp(commands.HelpCommand):
             "`<argument>` means the argument is required",
             "`[argument]` means the argument is optional\n",
             f"Send `{self.context.clean_prefix}help` `[command]` for more info on a command.",
-            f"You can also send `{self.context.clean_prefix}help` `[module]` for more info on a particular module."
+            f"You can also send `{self.context.clean_prefix}help` `[module]` for more info on a particular module.",
         )
         embed = self.context.bot.embed(title=f"Bot Help", description="\n".join(description))
-        embed.add_field(
-            name="Modules",
-            value="\n".join(cogs)
-        )
+        embed.add_field(name="Modules", value="\n".join(cogs))
         await self.send(embed=embed)
 
     async def send_cog_help(self, cog: commands.Cog):
@@ -69,12 +72,16 @@ class CustomHelp(commands.HelpCommand):
 
         filtered = await self.filter_commands(_commands)
         _fmt = [self.get_sig(command) + f" " for command in filtered]
-        embed = self.context.bot.embed(title=f"{cog.emoji} {cog.qualified_name}", description="\n".join(_fmt))
+        embed = self.context.bot.embed(
+            title=f"{cog.emoji} {cog.qualified_name}", description="\n".join(_fmt)
+        )
 
         await self.send(embed=embed)
 
     async def send_command_help(self, command: Union[core.Command, commands.Command]):
-        if not hasattr(command.cog, "emoji") and not await self.context.bot.is_owner(self.context.author):
+        if not hasattr(command.cog, "emoji") and not await self.context.bot.is_owner(
+            self.context.author
+        ):
             return await self.send_error_message(self.command_not_found(command.qualified_name))
 
         ctx = self.context
@@ -88,18 +95,10 @@ class CustomHelp(commands.HelpCommand):
         if returns := getattr(command, "returns", None):
             usage += "\nReturns: " + returns
 
-        embed.add_field(
-            name="Usage",
-            value=usage,
-            inline=False
-        )
+        embed.add_field(name="Usage", value=usage, inline=False)
 
         if aliases := command.aliases:
-            embed.add_field(
-                name="Aliases",
-                value="`" + "`, `".join(aliases) + "`",
-                inline=True
-            )
+            embed.add_field(name="Aliases", value="`" + "`, `".join(aliases) + "`", inline=True)
 
         if isinstance(command, core.Command):
             params = command.params_
@@ -108,17 +107,16 @@ class CustomHelp(commands.HelpCommand):
             else:
                 _formatted = params
 
-            embed.add_field(
-                name="Parameters",
-                value=_formatted
-            )
+            embed.add_field(name="Parameters", value=_formatted)
 
             embed.add_field(
                 name="Examples",
                 value="\n".join(
-                    f'`{ctx.clean_prefix}{command.qualified_name}` `{example}`' if example else f'`{ctx.clean_prefix}{command.qualified_name}`'
+                    f"`{ctx.clean_prefix}{command.qualified_name}` `{example}`"
+                    if example
+                    else f"`{ctx.clean_prefix}{command.qualified_name}`"
                     for example in command.examples
-                )
+                ),
             )
 
         await self.send(embed=embed)
