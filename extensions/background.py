@@ -15,9 +15,7 @@ class BackgroundEvents(commands.Cog):
     def __init__(self, bot: CustomBot):
         self.bot = bot
         self._lock = asyncio.Lock(loop=self.bot.loop)
-        self._data = {
-            "commands": []
-        }
+        self._data = {"commands": []}
 
         self.bulk_command_insert.start()
 
@@ -48,13 +46,9 @@ class BackgroundEvents(commands.Cog):
                     "used": ctx.message.created_at.isoformat(),
                     "prefix": ctx.clean_prefix,
                     "command": ctx.command.qualified_name,
-                    "failed": ctx.command_failed
+                    "failed": ctx.command_failed,
                 }
             )
-
-
-
-
 
 
 def setup(bot):

@@ -30,6 +30,7 @@ def wait_until_ready(bot=None):
 
     return event(predicate)
 
+
 def wait_until_prepped(bot=None):
     async def predicate(*args, **_):
         self = args[0] if args else None

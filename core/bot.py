@@ -59,7 +59,7 @@ class CustomBot(commands.Bot):
             "extensions.errorhandler",
             "extensions.interactions",
             "extensions.reminders",
-            "extensions.background"
+            "extensions.background",
         ]
         for ext in extensions:
             self.load_extension(ext)

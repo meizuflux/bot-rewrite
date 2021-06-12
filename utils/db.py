@@ -24,8 +24,7 @@ class CustomPool(Pool):
         await self.execute(query, game, snowflake, _id)
 
     async def command_insert(self, data: list):
-        query = (
-            """
+        query = """
             INSERT INTO
                 commands (guild, channel, author, used, prefix, command, failed)
             SELECT x.guild, x.channel, x.author, x.used, x.prefix, x.command, x.failed
@@ -40,7 +39,6 @@ class CustomPool(Pool):
                         failed BOOLEAN
                 )
             """
-        )
         await self.execute(query, data)
 
 
