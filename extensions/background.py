@@ -65,12 +65,8 @@ class BackgroundEvents(commands.Cog):
     async def bulk_socket_insert(self):
         if self._socket_cache:
             async with self._lock:
-                items = [
-                    (name, count)
-                    for name, count in self._socket_cache.most_common()
-                ]
-                query = (
-                    """
+                items = [(name, count) for name, count in self._socket_cache.most_common()]
+                query = """
                     INSERT INTO 
                         socket
                     VALUES ($1, $2)
@@ -78,7 +74,6 @@ class BackgroundEvents(commands.Cog):
                     DO UPDATE SET 
                         count = socket.count + $2
                     """
-                )
                 await self.bot.pool.executemany(query, items)
                 self._socket_cache.clear()
 
