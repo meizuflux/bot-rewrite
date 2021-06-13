@@ -1,9 +1,6 @@
 from discord.ext import commands
 
-__all__ = (
-    "command",
-    "group"
-)
+__all__ = ("command", "group")
 
 
 class CommandMixin:

@@ -2,15 +2,7 @@ from typing import NamedTuple
 
 from yaml import safe_load
 
-__all__ = (
-    "token",
-    "prefix",
-    "postgres_uri",
-    "osu",
-    "finnhub_key",
-    "nasa_key",
-    "perspective_key"
-)
+__all__ = ("token", "prefix", "postgres_uri", "osu", "finnhub_key", "nasa_key", "perspective_key")
 
 with open("config.yml") as f:
     _config = safe_load(f)
@@ -22,8 +14,7 @@ postgres_uri = _config["postgres_uri"]
 _keys = _config["keys"]
 
 osu = NamedTuple("Osu", [("client_id", int), ("client_secret", int)])(
-    _keys["osu"]["client_id"],
-    _keys["osu"]["client_secret"]
+    _keys["osu"]["client_id"], _keys["osu"]["client_secret"]
 )
 
 finnhub_key = _keys["finnhub_key"]

@@ -15,7 +15,6 @@ __all__ = ("setup",)
 log = getLogger(__name__)
 
 
-
 class BackgroundEvents(commands.Cog):
     def __init__(self, bot: CustomBot):
         self.bot = bot
