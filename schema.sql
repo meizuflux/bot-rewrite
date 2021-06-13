@@ -62,3 +62,8 @@ CREATE INDEX IF NOT EXISTS commands_guildx ON commands (guild);
 CREATE INDEX IF NOT EXISTS commands_authorx ON commands (author);
 CREATE INDEX IF NOT EXISTS commands_commandx ON commands (command);
 
+CREATE TABLE IF NOT EXISTS socket (
+    name TEXT PRIMARY KEY,
+    count BIGINT
+)
+

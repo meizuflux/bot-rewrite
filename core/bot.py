@@ -1,6 +1,8 @@
 import logging
 from asyncio import AbstractEventLoop, Event
+from collections import Counter, deque
 from random import SystemRandom
+from statistics import mean
 from typing import List, Union
 
 import discord
@@ -18,6 +20,16 @@ def get_prefix(bot: "CustomBot", message: discord.Message) -> Union[List[str], s
     return commands.when_mentioned_or(*config.prefix)(bot, message)
 
 
+class Extra:
+    def __init__(self):
+        self.message_latencies = deque(maxlen=500)
+        self.socket_stats = Counter()
+
+    @property
+    def message_latency(self):
+        return 1000 * mean(lat.total_seconds() for lat in self.message_latencies)
+
+
 class CustomBot(commands.Bot):
     loop: AbstractEventLoop
 
@@ -33,6 +45,7 @@ class CustomBot(commands.Bot):
         self.prepped = Event()
 
         self.random = SystemRandom()
+        self.extra = Extra()
 
         self.context = commands.Context
 
