@@ -10,7 +10,10 @@ from core.bot import CustomBot
 from core.context import CustomContext
 from utils.decos import wait_until_prepped
 
+__all__ = ("setup",)
+
 log = getLogger(__name__)
+
 
 
 class BackgroundEvents(commands.Cog):

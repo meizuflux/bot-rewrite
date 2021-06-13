@@ -2,7 +2,7 @@ import os
 
 import discord
 
-from core.bot import CustomBot, get_prefix
+from core.bot import CustomBot
 from core.config import token
 
 if __name__ == "__main__":
@@ -13,7 +13,7 @@ if __name__ == "__main__":
     flags = discord.MemberCacheFlags.from_intents(intents)
 
     bot = CustomBot(
-        command_prefix=get_prefix,
+        skip_after_prefix=True,
         case_insensitive=True,
         intents=intents,
         member_cache_flags=flags,

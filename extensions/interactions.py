@@ -8,6 +8,8 @@ import core
 from core.bot import CustomBot
 from core.context import CustomContext
 
+__all__ = ("setup",)
+
 bonk_messages = (
     "*bonks {user} on the nose lol*",
     "*sneaks behind {user} and bonks them!*",

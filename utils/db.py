@@ -1,6 +1,6 @@
-import asyncio
-
 from asyncpg import Connection, Pool, Record
+
+__all__ = ("CustomPool", "create_pool")
 
 
 class CustomPool(Pool):
@@ -75,19 +75,19 @@ class CustomPool(Pool):
 
 
 def create_pool(
-    bot,
-    dsn=None,
-    *,
-    min_size=10,
-    max_size=10,
-    max_queries=50000,
-    max_inactive_connection_lifetime=300.0,
-    setup=None,
-    init=None,
-    loop=None,
-    connection_class=Connection,
-    record_class=Record,
-    **connect_kwargs,
+        bot,
+        dsn=None,
+        *,
+        min_size=10,
+        max_size=10,
+        max_queries=50000,
+        max_inactive_connection_lifetime=300.0,
+        setup=None,
+        init=None,
+        loop=None,
+        connection_class=Connection,
+        record_class=Record,
+        **connect_kwargs,
 ) -> CustomPool:
     return CustomPool(
         bot,

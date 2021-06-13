@@ -7,6 +7,8 @@ from discord.ext import commands
 import core
 from core.context import CustomContext
 
+__all__ = ("setup",)
+
 
 class CustomHelp(commands.HelpCommand):
     context: CustomContext

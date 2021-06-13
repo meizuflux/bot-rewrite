@@ -3,6 +3,8 @@ import functools
 import discord
 from discord.ext import commands
 
+__all__ = ("wait_until_prepped", "wait_until_ready")
+
 
 def event(func):
     def check(method):

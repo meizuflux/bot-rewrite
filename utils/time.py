@@ -1,8 +1,12 @@
 import re
-from core.context import CustomContext
-from discord.ext import commands
+
 from dateutil.relativedelta import relativedelta
+from discord.ext import commands
+
+from core.context import CustomContext
 from .formats import human_join, plural
+
+__all__ = ("parse_time",)
 
 TIME_REGEX = re.compile(
     """(?:(?P<years>[0-9])(?:years?|y))?             # e.g. 2y

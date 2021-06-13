@@ -11,6 +11,8 @@ from core.bot import CustomBot
 from core.context import CustomContext
 from utils.time import human_timedelta, parse_time
 
+__all__ = ("setup",)
+
 log = logging.getLogger(__name__)
 
 
@@ -81,7 +83,7 @@ class Reminders(commands.Cog):
             self._task = self.bot.loop.create_task(self._reminder_dispatch())
 
     async def create_timer(
-        self, ctx: CustomContext, content, expires: dt, created: dt = dt.utcnow()
+            self, ctx: CustomContext, content, expires: dt, created: dt = dt.utcnow()
     ):
         query = """
             INSERT INTO
@@ -112,10 +114,10 @@ class Reminders(commands.Cog):
 
     @core.command(
         examples=(
-            "1w take out the trash",
-            '"4 months and 2 days" william\'s birthday',
-            "1week",
-            "1week2days fix this code",
+                "1w take out the trash",
+                '"4 months and 2 days" william\'s birthday',
+                "1week",
+                "1week2days fix this code",
         ),
         params={
             "time": "The time when you want me to remind you for something.",
@@ -146,8 +148,8 @@ class Reminders(commands.Cog):
 
         msg = f"<@{reminder['author']}>, {delta}: {reminder['content']}"
         msg += (
-            "\n\n"
-            + f"<https://discord.com/channels/{channel.guild.id}/{channel.id}/{reminder['message']}>"
+                "\n\n"
+                + f"<https://discord.com/channels/{channel.guild.id}/{channel.id}/{reminder['message']}>"
         )
 
         try:

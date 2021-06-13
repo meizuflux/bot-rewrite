@@ -15,6 +15,8 @@ from utils.db import CustomPool, create_pool
 log = logging.getLogger("bot")
 logging.basicConfig(level=logging.INFO)
 
+__all__ = ("CustomBot",)
+
 
 def get_prefix(bot: "CustomBot", message: discord.Message) -> Union[List[str], str]:
     return commands.when_mentioned_or(*config.prefix)(bot, message)
@@ -34,7 +36,8 @@ class CustomBot(commands.Bot):
     loop: AbstractEventLoop
 
     def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+        _prefix = kwargs.pop("command_prefix", get_prefix)
+        super().__init__(*args, **kwargs, command_prefix=_prefix)
 
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
 

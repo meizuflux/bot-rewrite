@@ -1,5 +1,10 @@
 from discord.ext import commands
 
+__all__ = (
+    "command",
+    "group"
+)
+
 
 class CommandMixin:
     def __init__(self, func, name, **attrs):

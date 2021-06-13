@@ -8,7 +8,7 @@ from humanize import precisedelta
 
 import core
 from core.bot import CustomBot
-from core.config import osu_client_id, osu_client_secret
+from core.config import osu
 from core.context import CustomContext
 from utils import MENTION_REGEX
 from utils.buttons.osu import OsuProfileView
@@ -61,8 +61,8 @@ class Osu(commands.Cog):
     async def acquire_bearer_token(self):
         url = "https://osu.ppy.sh/oauth/token"
         data = {
-            "client_id": osu_client_id,
-            "client_secret": osu_client_secret,
+            "client_id": osu.client_id,
+            "client_secret": osu.client_secret,
             "grant_type": "client_credentials",
             "scope": "public",
         }

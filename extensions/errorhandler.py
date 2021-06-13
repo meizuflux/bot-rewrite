@@ -1,9 +1,13 @@
-import discord
 import asyncio
+from traceback import format_exception
+
+import discord
 from discord.ext import commands
+
 from core.bot import CustomBot
 from core.context import CustomContext
-from traceback import format_exception
+
+__all__ = ("setup",)
 
 
 class ErrorHandler(commands.Cog):
