@@ -78,6 +78,8 @@ CREATE TABLE IF NOT EXISTS nicknames (
 CREATE TABLE IF NOT EXISTS usernames (
     id SERIAL PRIMARY KEY,
 
-    user BIGINT,
+    snowflake BIGINT,
     username TEXT
-);
+)
+
+

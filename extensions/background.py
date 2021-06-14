@@ -70,10 +70,10 @@ class BackgroundEvents(commands.Cog):
                 async with self._lock:
                     query = """
                         INSERT INTO
-                            usernames (user, username)
-                        SELECT x.user, x.name
+                            usernames (snowflake, username)
+                        SELECT x.snowflake, x.username
                         FROM JSONB_TO_RECORDSET($1::JSONB)
-                        AS x(user BIGINT, name TEXT)
+                        AS x(snowflake BIGINT, username TEXT)
                         """
                     await conn.execute(query, dumps(self._usernames_cache))
                     self._usernames_cache.clear()
@@ -112,7 +112,6 @@ class BackgroundEvents(commands.Cog):
 
     @commands.Cog.listener()
     async def on_socket_response(self, data):
-        self.bot.extra.socket_stats["TOTAL"] += 1
         if event := data.get("t"):
             self.bot.extra.socket_stats[event] += 1
 
@@ -130,7 +129,7 @@ class BackgroundEvents(commands.Cog):
     async def on_user_update(self, before: discord.User, after: discord.User):
         if before.name != after.name:
             async with self._lock:
-                self._usernames_cache.append({"user": after.id, "username": after.name})
+                self._usernames_cache.append({"snowflake": after.id, "username": after.name})
 
 
 def setup(bot):
