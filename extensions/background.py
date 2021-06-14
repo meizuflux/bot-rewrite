@@ -56,29 +56,25 @@ class BackgroundEvents(commands.Cog):
 
             if self._nicknames_cache:
                 async with self._lock:
-                    query = (
-                        """
+                    query = """
                         INSERT INTO
                             nicknames (guild, member, nickname)
                         SELECT x.guild, x.member, x.nickname
                         FROM JSONB_TO_RECORDSET($1::JSONB)
                         AS x(guild BIGINT, member BIGINT, nickname TEXT)
                         """
-                    )
                     await conn.execute(query, dumps(self._nicknames_cache))
                     self._nicknames_cache.clear()
 
             if self._usernames_cache:
                 async with self._lock:
-                    query = (
-                        """
+                    query = """
                         INSERT INTO
                             usernames (user, username)
                         SELECT x.user, x.name
                         FROM JSONB_TO_RECORDSET($1::JSONB)
                         AS x(user BIGINT, name TEXT)
                         """
-                    )
                     await conn.execute(query, dumps(self._usernames_cache))
                     self._usernames_cache.clear()
 
@@ -95,7 +91,6 @@ class BackgroundEvents(commands.Cog):
                         """
                     await conn.executemany(query, items)
                     self._socket_cache.clear()
-
 
     @commands.Cog.listener()
     async def on_command_completion(self, ctx: CustomContext):
@@ -128,24 +123,14 @@ class BackgroundEvents(commands.Cog):
         if before.display_name != after.display_name and after.nick is not None:
             async with self._lock:
                 self._nicknames_cache.append(
-                    {
-                        "guild": after.guild.id,
-                        "member": after.id,
-                        "nickname": after.nick
-                    }
+                    {"guild": after.guild.id, "member": after.id, "nickname": after.nick}
                 )
 
-    
     @commands.Cog.listener()
     async def on_user_update(self, before: discord.User, after: discord.User):
         if before.name != after.name:
             async with self._lock:
-                self._usernames_cache.append(
-                    {
-                        "user": after.id,
-                        "username": after.name
-                    }
-                )
+                self._usernames_cache.append({"user": after.id, "username": after.name})
 
 
 def setup(bot):
