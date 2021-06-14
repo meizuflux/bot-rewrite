@@ -65,5 +65,19 @@ CREATE INDEX IF NOT EXISTS commands_commandx ON commands (command);
 CREATE TABLE IF NOT EXISTS socket (
     name TEXT PRIMARY KEY,
     count BIGINT
-)
+);
 
+CREATE TABLE IF NOT EXISTS nicknames (
+    id SERIAL PRIMARY KEY,
+
+    guild BIGINT REFERENCES guilds (id) ON DELETE CASCADE,
+    member BIGINT,
+    nickname TEXT
+);
+
+CREATE TABLE IF NOT EXISTS usernames (
+    id SERIAL PRIMARY KEY,
+
+    user BIGINT,
+    username TEXT
+);
