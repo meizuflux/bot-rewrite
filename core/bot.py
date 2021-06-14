@@ -49,6 +49,7 @@ class CustomBot(commands.Bot):
 
         self.random = SystemRandom()
         self.extra = Extra()
+        self.start_time = None
 
         self.context = commands.Context
 
@@ -65,6 +66,7 @@ class CustomBot(commands.Bot):
                 tuple((g.id,) for g in self.guilds),
             )
         self.prepped.set()
+        log.info("Completed preperation.")
 
     def load_extensions(self):
         extensions = [
@@ -76,6 +78,7 @@ class CustomBot(commands.Bot):
             "extensions.interactions",
             "extensions.reminders",
             "extensions.background",
+            "extensions.general",
         ]
         for ext in extensions:
             self.load_extension(ext)
@@ -83,6 +86,10 @@ class CustomBot(commands.Bot):
 
     async def get_context(self, message, *, cls=None):
         return await super().get_context(message, cls=cls or self.context)
+
+    async def login(self, token: str):
+        self.start_time = discord.utils.utcnow()
+        await super().login(token)
 
     def run(self, *args, **kwargs):
         self.load_extensions()
