@@ -48,13 +48,13 @@ class ConfirmationButton(discord.ui.Button["ComfirmationView"]):
 
 
 class ConfirmationView(discord.ui.View):
-    event = asyncio.Event()
     message: discord.Message = None
     value: bool = False
 
     def __init__(self, values, *, user: discord.User, delete_after=True):
         self.delete_after = delete_after
         self.user = user
+        self.event = asyncio.Event()
 
         super().__init__()
 

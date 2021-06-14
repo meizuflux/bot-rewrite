@@ -39,6 +39,11 @@ class CustomHelp(commands.HelpCommand):
                     label="Invite Me", url="https://google.com", style=discord.ButtonStyle.grey
                 )
             )
+            view.add_item(
+                ui.Button(
+                    label="Join the Support Server", url="https://google.com", style=discord.ButtonStyle.grey
+                )
+            )
 
             send_kwargs["view"] = view
 
@@ -46,7 +51,7 @@ class CustomHelp(commands.HelpCommand):
         await destination.send(**send_kwargs)
 
     async def send_bot_help(
-        self, mapping: Mapping[commands.Cog, List[Union[core.command, commands.Command]]]
+        self, mapping: Mapping[commands.Cog, List[Union[core.Command, commands.Command]]]
     ):
         cogs = [
             f"{cog.emoji} `{self.context.clean_prefix}help` `{cog.qualified_name}`"
