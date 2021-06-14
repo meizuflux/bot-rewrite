@@ -7,8 +7,8 @@ class CommandMixin:
     def __init__(self, func, name, **attrs):
         super().__init__(func, name=name, **attrs)
         self.examples: tuple = attrs.pop("examples", (None,))
-        self.params_: dict = attrs.pop("params", {})
-        self.returns: str = attrs.pop("returns", "This command takes no parameters")
+        self.params_: dict = attrs.pop("params", "This command takes no parameters")
+        self.returns: str = attrs.pop("returns", "I guess nothing?")
 
 
 class Command(CommandMixin, commands.Command):
