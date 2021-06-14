@@ -1,4 +1,3 @@
-
 from typing import Counter
 from discord.ext import commands
 import discord
@@ -12,15 +11,17 @@ from core.context import CustomContext
 
 __all__ = ("setup",)
 
+
 class General(commands.Cog):
     """
     General commands, about the bot etc
     """
+
     def __init__(self, bot: CustomBot):
         self.bot = bot
         self.emoji = "<a:pop_cat:854027957878390784>"
 
-    async def send_socket_stats(self, ctx, stats, *, omit_minutes: bool=False) -> None:
+    async def send_socket_stats(self, ctx, stats, *, omit_minutes: bool = False) -> None:
         minutes = (discord.utils.utcnow() - self.bot.start_time).total_seconds() / 60
         total = 0
         lines = []
@@ -31,8 +32,8 @@ class General(commands.Cog):
                 lines.append(f"{name:<30}{count:<18}{round(count / minutes)} / minute\n")
             else:
                 lines.append(f"{name:<30}{count:<18}\n")
-                
-        if omit_minutes is False:        
+
+        if omit_minutes is False:
             msg = f"{''.join(lines)}\n{'TOTAL':<30}{total:<18}{round(total / minutes)} / minute"
         else:
             msg = f"{''.join(lines)}\n{'TOTAL':<30}{total:<18}"
@@ -53,6 +54,6 @@ class General(commands.Cog):
         stats = [(i["name"], i["count"]) for i in raw]
         await self.send_socket_stats(ctx, stats, omit_minutes=True)
 
-    
+
 def setup(bot: CustomBot):
     bot.add_cog(General(bot))

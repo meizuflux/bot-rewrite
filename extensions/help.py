@@ -41,7 +41,9 @@ class CustomHelp(commands.HelpCommand):
             )
             view.add_item(
                 ui.Button(
-                    label="Join the Support Server", url="https://google.com", style=discord.ButtonStyle.grey
+                    label="Join the Support Server",
+                    url="https://google.com",
+                    style=discord.ButtonStyle.grey,
                 )
             )
 
