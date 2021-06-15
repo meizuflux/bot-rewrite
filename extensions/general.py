@@ -11,6 +11,7 @@ __all__ = ("setup",)
 
 class General(commands.Cog):
     """General commands, about the bot etc"""
+
     def __init__(self, bot: CustomBot):
         self.bot = bot
         self.emoji = "<a:pop_cat:854027957878390784>"
