@@ -28,12 +28,12 @@ class General(commands.Cog):
 
         for name, count in stats:
             total += count
-            if omit_minutes is False:
+            if not omit_minutes:
                 lines.append(f"{name:<30}{count:<18}{round(count / minutes)} / minute\n")
             else:
                 lines.append(f"{name:<30}{count:<18}\n")
 
-        if omit_minutes is False:
+        if not omit_minutes:
             msg = f"{''.join(lines)}\n{'TOTAL':<30}{total:<18}{round(total / minutes)} / minute"
         else:
             msg = f"{''.join(lines)}\n{'TOTAL':<30}{total:<18}"

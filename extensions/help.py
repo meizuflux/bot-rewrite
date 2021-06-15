@@ -130,6 +130,9 @@ class CustomHelp(commands.HelpCommand):
 
         await self.send(embed=embed)
 
+        async def on_help_command_error(self, ctx, error):
+            print(error)
+
 
 def setup(bot):
     bot.help_command = CustomHelp()
