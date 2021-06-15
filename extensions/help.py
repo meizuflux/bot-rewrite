@@ -53,7 +53,7 @@ class CustomHelp(commands.HelpCommand):
         await destination.send(**send_kwargs)
 
     async def send_bot_help(
-        self, mapping: Mapping[commands.Cog, List[Union[core.Command, commands.Command]]]
+            self, mapping: Mapping[commands.Cog, List[Union[core.Command, commands.Command]]]
     ):
         cogs = [
             f"{cog.emoji} `{self.context.clean_prefix}help` `{cog.qualified_name}`"
@@ -89,7 +89,7 @@ class CustomHelp(commands.HelpCommand):
 
     async def send_command_help(self, command: Union[core.Command, commands.Command]):
         if not hasattr(command.cog, "emoji") and not await self.context.bot.is_owner(
-            self.context.author
+                self.context.author
         ):
             return await self.send_error_message(self.command_not_found(command.qualified_name))
 

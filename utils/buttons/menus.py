@@ -71,7 +71,7 @@ class ListButtonSource(ButtonSource):
         if self.per_page == 1:
             return self.entries[page_number]
         base = page_number * self.per_page
-        return self.entries[base : base + self.per_page]
+        return self.entries[base: base + self.per_page]
 
 
 class MenuButton(ui.Button):

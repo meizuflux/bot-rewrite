@@ -1,13 +1,8 @@
-from typing import Counter
 from discord.ext import commands
 import discord
 
-from utils import codeblock
-
-import core
-from core.bot import CustomBot
 from core.context import CustomContext
-
+from utils import codeblock
 
 __all__ = ("setup",)
 

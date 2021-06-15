@@ -2,7 +2,7 @@ __all__ = ("human_join", "plural")
 
 
 # from rapptz
-def human_join(seq, delim=", ", final="or"):
+def human_join(seq, deliminator=", ", final="or"):
     size = len(seq)
     if size == 0:
         return ""
@@ -13,7 +13,7 @@ def human_join(seq, delim=", ", final="or"):
     if size == 2:
         return f"{seq[0]} {final} {seq[1]}"
 
-    return delim.join(seq[:-1]) + f" {final} {seq[-1]}"
+    return deliminator.join(seq[:-1]) + f" {final} {seq[-1]}"
 
 
 # https://github.com/InterStella0/stella_bot/blob/master/utils/useful.py#L199-L205

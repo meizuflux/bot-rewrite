@@ -1,5 +1,5 @@
 import asyncio
-from collections import Counter, deque
+from collections import Counter
 from json import dumps
 from logging import getLogger
 
