@@ -79,7 +79,7 @@ class CustomBot(commands.Bot):
             "extensions.reminders",
             "extensions.background",
             "extensions.general",
-            "extensions.owner"
+            "extensions.owner",
         ]
         for ext in extensions:
             self.load_extension(ext)
