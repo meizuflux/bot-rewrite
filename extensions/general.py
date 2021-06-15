@@ -43,12 +43,16 @@ class General(commands.Cog):
     @core.group(
         aliases=("socketstats", "socket_stats", "events"),
         returns="A chart showing socket stats of this bot.",
-        invoke_without_subcommand=True,
+        invoke_without_command=True,
     )
     async def socket(self, ctx: CustomContext):
         await self.send_socket_stats(ctx, self.bot.extra.socket_stats.most_common())
 
-    @socket.command(name="total")
+    @socket.command(
+        name="total",
+        aliases=("all",),
+        returns="A table showing the total socket stats"
+    )
     async def socket_total(self, ctx: CustomContext):
         raw = await self.bot.pool.fetch("SELECT name, count FROM socket ORDER BY count DESC")
         stats = [(i["name"], i["count"]) for i in raw]
