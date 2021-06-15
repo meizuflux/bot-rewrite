@@ -147,9 +147,7 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
         if isinstance(error, commands.CommandInvokeError):
             error = error.original
             if isinstance(error, asyncpg.exceptions.PostgresSyntaxError):
-                return await ctx.send(
-                    embed=self.bot.embed(description=f"Syntax error:```\n {error} ```")
-                )
+                return await ctx.send(embed=self.bot.embed(description=f"Syntax error:```\n {error} ```"))
         await ctx.send(error)
 
     @fetch.error

@@ -82,9 +82,7 @@ class Reminders(commands.Cog):
             self._task.cancel()
             self._task = self.bot.loop.create_task(self._reminder_dispatch())
 
-    async def create_timer(
-        self, ctx: CustomContext, content, expires: dt, created: dt = dt.utcnow()
-    ):
+    async def create_timer(self, ctx: CustomContext, content, expires: dt, created: dt = dt.utcnow()):
         query = """
             INSERT INTO
                 reminders (guild, author, channel, message, expires, created, content)
@@ -148,8 +146,7 @@ class Reminders(commands.Cog):
 
         msg = f"<@{reminder['author']}>, {delta}: {reminder['content']}"
         msg += (
-            "\n\n"
-            + f"<https://discord.com/channels/{channel.guild.id}/{channel.id}/{reminder['message']}>"
+            "\n\n" + f"<https://discord.com/channels/{channel.guild.id}/{channel.id}/{reminder['message']}>"
         )
 
         try:

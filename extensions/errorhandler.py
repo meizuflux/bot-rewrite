@@ -38,9 +38,7 @@ class ErrorHandler(commands.Cog):
         if isinstance(error, commands.NoPrivateMessage):
             try:
                 return await ctx.author.send(
-                    embed=self.bot.embed(
-                        description=f"{ctx.invoked_with} can only be used in servers."
-                    )
+                    embed=self.bot.embed(description=f"{ctx.invoked_with} can only be used in servers.")
                 )
             except discord.HTTPException:
                 pass
@@ -65,9 +63,7 @@ class ErrorHandler(commands.Cog):
             return await ctx.send(embed=self.bot.embed(title=str(error)))
 
         if isinstance(error, asyncio.TimeoutError):
-            return await ctx.send(
-                embed=self.bot.embed(description=f"{ctx.invoked_with} timed out.")
-            )
+            return await ctx.send(embed=self.bot.embed(description=f"{ctx.invoked_with} timed out."))
 
         traceback = "".join(format_exception(type(error), error, error.__traceback__))
         if len(traceback) > 1000:

@@ -38,9 +38,7 @@ class OsuUserConverter(commands.Converter):
             )
             if _id is None:
                 raise commands.BadArgument(
-                    "That user is not registered."
-                    if _id != ctx.author.id
-                    else "You are not registered."
+                    "That user is not registered." if _id != ctx.author.id else "You are not registered."
                 )
             return OsuConverterResponse(search=_id, type="id")
 
@@ -116,9 +114,7 @@ class Osu(commands.Cog):
         data = {
             "username": username,
             "url": "https://osu.ppy.sh/users/" + str(data.get("id")),
-            "avatar_url": data.get(
-                "avatar_url", "https://osu.ppy.sh/images/layout/avatar-guest.png"
-            ),
+            "avatar_url": data.get("avatar_url", "https://osu.ppy.sh/images/layout/avatar-guest.png"),
             "footer": f"{username} started playing osu! on {join}",
             "Main": (
                 f"**PP:** `{stats.get('pp')}`\n"

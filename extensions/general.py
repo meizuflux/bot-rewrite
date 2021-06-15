@@ -43,9 +43,7 @@ class General(commands.Cog):
     async def socket(self, ctx: CustomContext):
         await self.send_socket_stats(ctx, self.bot.extra.socket_stats.most_common())
 
-    @socket.command(
-        name="total", aliases=("all",), returns="A table showing the total socket stats"
-    )
+    @socket.command(name="total", aliases=("all",), returns="A table showing the total socket stats")
     async def socket_total(self, ctx: CustomContext):
         raw = await self.bot.pool.fetch("SELECT name, count FROM socket ORDER BY count DESC")
         stats = [(i["name"], i["count"]) for i in raw]

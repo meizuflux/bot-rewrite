@@ -223,6 +223,4 @@ class TestSource(ListButtonSource):
         return page
 
 
-test = TestSource(
-    [discord.Embed(title="1"), discord.Embed(title="2"), discord.Embed(title="3")], per_page=1
-)
+test = TestSource([discord.Embed(title="1"), discord.Embed(title="2"), discord.Embed(title="3")], per_page=1)

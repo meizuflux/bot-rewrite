@@ -35,9 +35,7 @@ class CustomHelp(commands.HelpCommand):
         if not send_kwargs.get("view"):
             view = ui.View()
             view.add_item(
-                ui.Button(
-                    label="Invite Me", url="https://google.com", style=discord.ButtonStyle.grey
-                )
+                ui.Button(label="Invite Me", url="https://google.com", style=discord.ButtonStyle.grey)
             )
             view.add_item(
                 ui.Button(
@@ -81,22 +79,16 @@ class CustomHelp(commands.HelpCommand):
 
         filtered = await self.filter_commands(_commands)
         _fmt = [self.get_sig(command) + f" " for command in filtered]
-        embed = self.context.bot.embed(
-            title=f"{cog.emoji} {cog.qualified_name}", description="\n".join(_fmt)
-        )
+        embed = self.context.bot.embed(title=f"{cog.emoji} {cog.qualified_name}", description="\n".join(_fmt))
 
         await self.send(embed=embed)
 
     async def send_command_help(self, command: Union[core.Command, commands.Command]):
-        if not hasattr(command.cog, "emoji") and not await self.context.bot.is_owner(
-            self.context.author
-        ):
+        if not hasattr(command.cog, "emoji") and not await self.context.bot.is_owner(self.context.author):
             return await self.send_error_message(self.command_not_found(command.qualified_name))
 
         ctx = self.context
-        embed = ctx.bot.embed(
-            title=f"{command.cog.qualified_name.lower()}:{command.qualified_name}"
-        )
+        embed = ctx.bot.embed(title=f"{command.cog.qualified_name.lower()}:{command.qualified_name}")
         help_string = command.help or "No help was provided for this command ._."
         embed.description = help_string.format(prefix=ctx.clean_prefix)
 

@@ -21,7 +21,9 @@ bite_messages = ("*bites {user}*",)
 bite_fmt = "You've bitten {user} {amount} times! They've been bitten a total of {total} times."
 
 cuddle_messages = ("*you and {user} share a nice cuddle*",)
-cuddle_fmt = "You've cuddled with {user} {amount} times, and they've been cuddled with a total of {total} times"
+cuddle_fmt = (
+    "You've cuddled with {user} {amount} times, and they've been cuddled with a total of {total} times"
+)
 
 
 class Interactions(commands.Cog):
@@ -29,13 +31,9 @@ class Interactions(commands.Cog):
         self.bot = bot
         self.emoji = "<:mitsuri_pleading:853237551262466108>"
 
-    def construct_embed(
-        self, method: str, _, user: discord.User
-    ) -> Tuple[discord.File, discord.Embed]:
+    def construct_embed(self, method: str, _, user: discord.User) -> Tuple[discord.File, discord.Embed]:
         embed = self.bot.embed(
-            title=self.bot.random.choice(globals()[method + "_messages"]).format(
-                user=user.display_name
-            )
+            title=self.bot.random.choice(globals()[method + "_messages"]).format(user=user.display_name)
         )
 
         path = "./assets/" + method
@@ -45,9 +43,7 @@ class Interactions(commands.Cog):
 
         return file, embed
 
-    async def get_totals(
-        self, method: str, initiator: discord.User, receiver: discord.User
-    ) -> dict:
+    async def get_totals(self, method: str, initiator: discord.User, receiver: discord.User) -> dict:
         query = """
             SELECT
                 interactions.count AS amount, totals.count AS total
