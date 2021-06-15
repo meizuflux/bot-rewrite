@@ -1,4 +1,5 @@
 import re
+import time
 
 from dateutil.relativedelta import relativedelta
 from discord.ext import commands
@@ -6,7 +7,7 @@ from discord.ext import commands
 from core.context import CustomContext
 from .formats import human_join, plural
 
-__all__ = ("parse_time",)
+__all__ = ("parse_time", "Timer")
 
 TIME_REGEX = re.compile(
     """(?:(?P<years>[0-9])(?:years?|y))?             # e.g. 2y
@@ -82,3 +83,30 @@ def human_timedelta(dt, *, source=None, accuracy=3, suffix=True):
         return "now"
     else:
         return str(human_join(output, final="and")) + suffix
+
+
+class Timer:
+    def __init__(self):
+        self._start = None
+        self._end = None
+
+    def __enter__(self):
+        self._start = time.perf_counter()
+        return self
+
+    def __exit__(self, *args):
+        self._end = time.perf_counter()
+        self.elapsed = self._end - self._start
+        self.ms = self.elapsed * 1000
+
+    def __int__(self):
+        return round(self.elapsed)
+
+    def __float__(self):
+        return self.elapsed
+
+    def __str__(self):
+        return str(self.__float__())
+
+    def __repr__(self):
+        return f"<Timer elapsed={self.elapsed}, ms={self.ms}>"
