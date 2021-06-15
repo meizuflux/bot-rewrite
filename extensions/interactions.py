@@ -29,7 +29,9 @@ class Interactions(commands.Cog):
         self.bot = bot
         self.emoji = "<:mitsuri_pleading:853237551262466108>"
 
-    def construct_embed(self, method: str, _, user: discord.User) -> Tuple[discord.File, discord.Embed]:
+    def construct_embed(
+        self, method: str, _, user: discord.User
+    ) -> Tuple[discord.File, discord.Embed]:
         embed = self.bot.embed(
             title=self.bot.random.choice(globals()[method + "_messages"]).format(
                 user=user.display_name
@@ -44,7 +46,7 @@ class Interactions(commands.Cog):
         return file, embed
 
     async def get_totals(
-            self, method: str, initiator: discord.User, receiver: discord.User
+        self, method: str, initiator: discord.User, receiver: discord.User
     ) -> dict:
         query = """
             SELECT

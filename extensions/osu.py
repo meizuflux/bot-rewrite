@@ -90,7 +90,7 @@ class Osu(commands.Cog):
         examples=("whitecat", "https://osu.ppy.sh/u/4504101", "@ppotatoo#9688"),
         params={
             "query": "The profile you want to look up, this can be a username, profile link, or a user. "
-                     "Leave blank to view your own stats."
+            "Leave blank to view your own stats."
         },
         returns="An interactive view that showcases an osu! user's profile.",
     )
@@ -155,8 +155,8 @@ class Osu(commands.Cog):
     @osu.command(
         name="register",
         examples=(
-                "whitecat",
-                "https://osu.ppy.sh/u/4504101",
+            "whitecat",
+            "https://osu.ppy.sh/u/4504101",
         ),
         params={"query": "The user you want to register yourself to."},
         returns="Confirmation that you got registered.",
