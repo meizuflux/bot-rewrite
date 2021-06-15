@@ -77,9 +77,11 @@ class CustomHelp(commands.HelpCommand):
         else:
             _commands = cog.get_commands()
 
+        emoji = getattr(cog, "emoji", "")
+
         filtered = await self.filter_commands(_commands)
         _fmt = [self.get_sig(command) + f" " for command in filtered]
-        embed = self.context.bot.embed(title=f"{cog.emoji} {cog.qualified_name}", description="\n".join(_fmt))
+        embed = self.context.bot.embed(title=f"{emoji} {cog.qualified_name}", description="\n".join(_fmt))
 
         await self.send(embed=embed)
 
