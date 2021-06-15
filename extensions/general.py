@@ -1,17 +1,16 @@
 from discord.ext import commands
 import discord
 
+import core
 from core.context import CustomContext
+from core.bot import CustomBot
 from utils import codeblock
 
 __all__ = ("setup",)
 
 
 class General(commands.Cog):
-    """
-    General commands, about the bot etc
-    """
-
+    """General commands, about the bot etc"""
     def __init__(self, bot: CustomBot):
         self.bot = bot
         self.emoji = "<a:pop_cat:854027957878390784>"

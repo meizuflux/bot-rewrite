@@ -80,6 +80,7 @@ class CustomBot(commands.Bot):
             "extensions.background",
             "extensions.general",
             "extensions.owner",
+            "extensions.casino"
         ]
         for ext in extensions:
             self.load_extension(ext)

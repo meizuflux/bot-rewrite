@@ -3,6 +3,7 @@ import re
 from datetime import datetime, timedelta
 from typing import NamedTuple, Union
 
+from discord import ButtonStyle, Embed, Interaction, ui
 from discord.ext import commands
 from humanize import precisedelta
 
@@ -11,8 +12,50 @@ from core.bot import CustomBot
 from core.config import osu
 from core.context import CustomContext
 from utils import MENTION_REGEX
-from utils.buttons.osu import OsuProfileView
+from utils.buttons import StopButton
 from utils.decos import wait_until_ready
+
+EMOJIS = {
+    "Main": "<:osu:850783495386300416>",
+    "Socials": "<:socials:851127959758176256>",
+    "Scores": "<:catshrug:851131304736194600>",
+}
+
+
+class OsuButton(ui.Button["OsuProfileView"]):
+    def __init__(self, label: str):
+        super().__init__(label=label, emoji=EMOJIS[label], style=ButtonStyle.blurple)
+
+    async def callback(self, interaction: Interaction):
+        self.view.embed.description = self.view.data[self.label]
+        await interaction.response.edit_message(embed=self.view.embed)
+
+
+class OsuProfileView(ui.View):
+    embed: Embed
+
+    def __init__(self, ctx: CustomContext, messages: dict):
+        super().__init__()
+        self.ctx = ctx
+        self.data = messages
+
+        for i in EMOJIS:
+            self.add_item(OsuButton(label=i))
+        self.add_item(StopButton())
+
+    def construct_embed(self):
+        self.embed = self.ctx.bot.embed(
+            title=f"{self.data['username']}'s osu! profile",
+            description=self.data["Main"],
+            url=self.data["url"],
+        )
+        self.embed.set_footer(text=self.data["footer"])
+        self.embed.set_thumbnail(url=self.data["avatar_url"])
+
+    async def start(self):
+        self.construct_embed()
+        await self.ctx.send(embed=self.embed, view=self)
+
 
 API_URL = "https://osu.ppy.sh/api/v2"
 OSU_PROFILE_REGEX = re.compile(r"https?://osu\.ppy\.sh/users/(?P<id>[0-9]+)")
@@ -21,7 +64,7 @@ OsuConverterResponse = NamedTuple("ConverterResponse", [("search", Union[int, st
 
 
 class OsuUserConverter(commands.Converter):
-    async def convert(self, ctx: CustomContext, argument) -> OsuConverterResponse:
+    async def convert(self, ctx: 'CustomContext', argument) -> OsuConverterResponse:
         if argument is None:
             _id = await ctx.bot.pool.fetchval(
                 "SELECT id FROM games WHERE game = 'osu' AND snowflake = $1", ctx.author.id
