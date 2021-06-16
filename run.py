@@ -18,7 +18,7 @@ if __name__ == "__main__":
         intents=intents,
         member_cache_flags=flags,
         max_messages=750,
-        owner_ids={809587169520910346},
+        owner_id=809587169520910346,
     )
 
     os.environ["JISHAKU_NO_UNDERSCORE"] = "True"

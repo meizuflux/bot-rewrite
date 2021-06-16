@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+from pathlib import Path
+
 from discord.ext import commands
 import discord
 
@@ -7,6 +10,43 @@ from core.bot import CustomBot
 from utils import codeblock
 
 __all__ = ("setup",)
+
+@dataclass
+class LineCounter:
+    files: int
+    lines: int
+    characters: int
+    classes: int
+    functions: int
+    coroutines: int
+    comments: int
+
+    @classmethod
+    def project(cls, path="./"):
+        files = lines = characters = classes = functions = coroutines = comments = 0
+        for f in Path(path):
+            if str(f).startswith("venv"):
+                continue
+            files += 1
+            with open(f, 'w') as of:
+                _lines = of.readlines()
+                lines += len(_lines)
+                for line in _lines:
+                    line = line.strip()
+                    characters += len(line)
+                    if line.startswith("class"):
+                        classes += 1
+                    if line.startswith("def"):
+                        functions += 1
+                    if line.startswith("async def"):
+                        coroutines += 1
+                    if "#" in line:
+                        comments += 1
+
+        return cls(
+
+        )
+
 
 
 class General(commands.Cog):

@@ -97,6 +97,7 @@ class BackgroundEvents(commands.Cog):
         if ctx.command is None:
             return
 
+        self.bot.extra.command_stats[ctx.command.qualified_name] += 1
         async with self._lock:
             self._command_cache.append(
                 {

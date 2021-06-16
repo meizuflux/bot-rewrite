@@ -26,6 +26,7 @@ class Extra:
     def __init__(self):
         self.message_latencies = deque(maxlen=500)
         self.socket_stats = Counter()
+        self.command_stats = Counter()
 
     @property
     def message_latency(self):
@@ -111,3 +112,9 @@ class CustomBot(commands.Bot):
             res = await r.json()
         key = res["key"]
         return url + f"/{key}"
+
+    async def getch_user(self, user_id: int) -> discord.User:
+        user = self.get_user(user_id)
+        if user is None:
+            user = await self.fetch_user(user_id)
+        return user
