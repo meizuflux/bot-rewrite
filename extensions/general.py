@@ -11,6 +11,7 @@ from utils import codeblock
 
 __all__ = ("setup",)
 
+
 @dataclass
 class LineCounter:
     files: int
@@ -28,7 +29,7 @@ class LineCounter:
             if str(f).startswith("venv"):
                 continue
             files += 1
-            with open(f, 'w') as of:
+            with open(f, "w") as of:
                 _lines = of.readlines()
                 lines += len(_lines)
                 for line in _lines:
@@ -43,10 +44,7 @@ class LineCounter:
                     if "#" in line:
                         comments += 1
 
-        return cls(
-
-        )
-
+        return cls()
 
 
 class General(commands.Cog):
