@@ -10,11 +10,7 @@ from core.context import CustomContext
 
 __all__ = ("setup",)
 
-COLORS = {
-    "win": discord.Color.green(),
-    "lose": discord.Color.red(),
-    "draw": discord.Color.gold()
-}
+COLORS = {"win": discord.Color.green(), "lose": discord.Color.red(), "draw": discord.Color.gold()}
 DEFAULT_DESC = "`Hit`: Add another card\n`Stand`: End the game"
 suits = ("♥", "♦", "♠️", "♣")
 
@@ -195,29 +191,21 @@ class Blackjack(ui.View):
 
         some = self.playing
 
-        embed = self.ctx.bot.embed(
-            description=description,
-            color=color
-        )
+        embed = self.ctx.bot.embed(description=description, color=color)
         embed.set_footer(text=f"Cards remaining: {len(self.deck.cards)}/52")
 
         embed.add_field(
             name="Your hand:",
-            value=(
-                f"`{'`, `'.join(str(card) for card in player.cards)}`\n"
-                f"Value: `{player.value}`"
-            )
+            value=(f"`{'`, `'.join(str(card) for card in player.cards)}`\n" f"Value: `{player.value}`"),
         )
-        dealer_cards = f"`{'`, `'.join(str(card) for card in dealer.cards)}`" if some is False else f"`?`, `{dealer.cards[1]}`"
+        dealer_cards = (
+            f"`{'`, `'.join(str(card) for card in dealer.cards)}`"
+            if some is False
+            else f"`?`, `{dealer.cards[1]}`"
+        )
         dealer_value = dealer.value if some is False else int(dealer.cards[1])
 
-        embed.add_field(
-            name="Dealer's hand:",
-            value=(
-                f"{dealer_cards}\n"
-                f"Value: `{dealer_value}`"
-            )
-        )
+        embed.add_field(name="Dealer's hand:", value=(f"{dealer_cards}\n" f"Value: `{dealer_value}`"))
 
         return embed
 
