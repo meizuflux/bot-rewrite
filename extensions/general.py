@@ -49,9 +49,7 @@ class General(commands.Cog):
         stats = [(i["name"], i["count"]) for i in raw]
         await self.send_socket_stats(ctx, stats, omit_minutes=True)
 
-    @core.command(
-        returns="Things about the bot."
-    )
+    @core.command(returns="Things about the bot.")
     async def about(self, ctx: CustomContext):
         embed = self.bot.embed(color=discord.Color.og_blurple())
 
@@ -62,7 +60,8 @@ class General(commands.Cog):
         guilds = users = bots = text = voice = 0
         for guild in self.bot.guilds:
             guilds += 1
-            if guild.unavailable is True: continue
+            if guild.unavailable is True:
+                continue
 
             for user in guild.members:
                 if user.bot is True:
@@ -71,14 +70,14 @@ class General(commands.Cog):
                     users += 1
 
             for channel in guild.channels:
-                if isinstance(channel, discord.TextChannel): text += 1
-                if isinstance(channel, discord.VoiceChannel): voice += 1
+                if isinstance(channel, discord.TextChannel):
+                    text += 1
+                if isinstance(channel, discord.VoiceChannel):
+                    voice += 1
 
-        query = (
-            """
+        query = """
             SELECT COUNT(*) FROM commands  
             """
-        )
         cmds = await self.bot.pool.fetchval(query)
         since_restart = sum(self.bot.extra.command_stats.values())
 
@@ -86,15 +85,13 @@ class General(commands.Cog):
             ("Users", f"{users + bots} total\n{users} humands\n{bots} robots", False),
             ("Channels", f"{text + voice} total\n{text} text\n{voice} voice", False),
             ("Guilds", f"{guilds}", False),
-            ("Command Usage", f"{cmds} total\n{since_restart} since restart", False)
+            ("Command Usage", f"{cmds} total\n{since_restart} since restart", False),
         )
 
         for title, desc, inline in fields:
             embed.add_field(name=title, value=desc, inline=inline)
 
         await ctx.send(embed=embed)
-
-        
 
 
 def setup(bot: CustomBot):
