@@ -58,9 +58,7 @@ CREATE TABLE IF NOT EXISTS commands (
     failed BOOLEAN
 );
 
-CREATE INDEX IF NOT EXISTS commands_guildx ON commands (guild);
-CREATE INDEX IF NOT EXISTS commands_authorx ON commands (author);
-CREATE INDEX IF NOT EXISTS commands_commandx ON commands (command);
+CREATE INDEX IF NOT EXISTS commands_guild_author ON commands (guild, author);
 
 CREATE TABLE IF NOT EXISTS socket (
     name TEXT PRIMARY KEY,

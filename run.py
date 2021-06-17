@@ -23,5 +23,6 @@ if __name__ == "__main__":
     os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
     os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True"
     os.environ["JISHAKU_HIDE"] = "True"
+    os.environ["PYTHONIOENCODING"] = "UTF-8"
 
     bot.run(token)

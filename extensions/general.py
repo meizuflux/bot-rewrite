@@ -29,7 +29,7 @@ class LineCounter:
             if str(f).startswith("venv"):
                 continue
             files += 1
-            with f.open() as of:
+            with f.open(encoding="utf-8") as of:
                 _lines = of.readlines()
                 lines += len(_lines)
                 for l in _lines:
