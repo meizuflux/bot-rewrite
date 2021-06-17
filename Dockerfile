@@ -11,5 +11,5 @@ WORKDIR /src
 RUN pip install -r requirements.txt
 COPY . .
 
-# run the bot. 
-CMD ["python", "run.py"]
+# run the bot.
+CMD ["python", "run.py", "--run"]

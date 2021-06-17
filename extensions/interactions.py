@@ -46,14 +46,14 @@ class Interactions(commands.Cog):
     async def get_totals(self, method: str, initiator: discord.User, receiver: discord.User) -> dict:
         query = """
             SELECT
-                interactions.count AS amount, totals.count AS total
+                users.interactions.count AS amount, users.totals.count AS total
             FROM
-               interactions
+               users.interactions
             INNER JOIN
-                totals
-                ON interactions.receiver = totals.snowflake
+                users.totals
+                ON users.interactions.receiver = users.totals.snowflake
             WHERE
-                initiator = $1 AND receiver = $2 AND interactions.method = $3 AND totals.method = $3
+                initiator = $1 AND receiver = $2 AND users.interactions.method = $3 AND users.totals.method = $3
             """
         data = dict(await self.bot.pool.fetchrow(query, initiator.id, receiver.id, method))
         data.update({"user": receiver.display_name})
@@ -62,10 +62,10 @@ class Interactions(commands.Cog):
     async def update(self, method: str, initiator: discord.User, receiver: discord.User):
         query = """
             WITH total_update AS (
-                INSERT INTO totals (method, snowflake) VALUES ($1, $3)
+                INSERT INTO users.totals (method, snowflake) VALUES ($1, $3)
                 ON CONFLICT (method, snowflake) DO UPDATE SET count = totals.count + 1
             )
-            INSERT INTO interactions (method, initiator, receiver) VALUES ($1, $2, $3)
+            INSERT INTO users.interactions (method, initiator, receiver) VALUES ($1, $2, $3)
             ON CONFLICT (method, initiator, receiver) DO UPDATE
             SET count = interactions.count + 1
             """

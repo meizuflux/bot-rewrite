@@ -67,7 +67,7 @@ class OsuUserConverter(commands.Converter):
     async def convert(self, ctx: "CustomContext", argument) -> OsuConverterResponse:
         if argument is None:
             _id = await ctx.bot.pool.fetchval(
-                "SELECT id FROM games WHERE game = 'osu' AND snowflake = $1", ctx.author.id
+                "SELECT id FROM users.games WHERE game = 'osu' AND snowflake = $1", ctx.author.id
             )
             if _id is None:
                 raise commands.BadArgument("You are not registered.")
@@ -77,7 +77,7 @@ class OsuUserConverter(commands.Converter):
         if mention_match := MENTION_REGEX.fullmatch(argument):
             snowflake = int(mention_match["id"])
             _id = await ctx.bot.pool.fetchval(
-                "SELECT id FROM games WHERE game = 'osu' AND snowflake = $1", snowflake
+                "SELECT id FROM users.games WHERE game = 'osu' AND snowflake = $1", snowflake
             )
             if _id is None:
                 raise commands.BadArgument(

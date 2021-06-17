@@ -31,10 +31,10 @@ class Reminders(commands.Cog):
         query = """
             SELECT * 
             FROM 
-                reminders 
+                events.reminders 
             WHERE
                 expires < (CURRENT_DATE + $1::interval) 
-            ORDER BY 
+            ORDER BY
                 expires 
             LIMIT
                 1

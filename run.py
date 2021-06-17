@@ -1,11 +1,11 @@
-import asyncio
 import os
-from asyncio import gather
-from traceback import format_exception
+import sys
+from asyncio import get_event_loop
+from traceback import format_exc
 
 import click
 import discord
-from asyncpg import create_pool
+from asyncpg import Pool, create_pool
 
 from core.bot import CustomBot
 from core.config import postgres_uri, token
@@ -34,35 +34,52 @@ def run_bot():
     bot.run(token)
 
 
-@click.group(invoke_without_command=True)
+@click.group(invoke_without_command=True, options_metavar='[options]')
 @click.pass_context
 def main(ctx):
+    """Launches the bot."""
     if ctx.invoked_subcommand is None:
         run_bot()
 
 
-@main.group()
+@main.group(short_help='database stuff', options_metavar='[options]')
 def db():
     pass
 
 
-@db.command()
-def init():
-    run = asyncio.get_event_loop().run_until_complete
+@db.command(short_help='initialises the databases for the bot', options_metavar='[options]')
+@click.option('-s', '--show', help='show the output', is_flag=True)
+@click.option('-r', '--run', help='run bot after', is_flag=True)
+def init(show: bool, run: bool):
+    run = get_event_loop().run_until_complete
     try:
-        pool = run(create_pool(dsn=postgres_uri))
+        pool: Pool = run(create_pool(dsn=postgres_uri))
     except Exception as err:
-        tb = format_exception(type(err), err.__traceback__, err)
-        click.echo(f"Could not create database connection.\n{tb}", err=True)
+        click.echo(f"Could not create database connection.\n{format_exc()}", err=True)
         return
 
     files = (
         "general.sql",
-        "twitch.sql",
+        "users.sql",
+        "events.sql",
+        "stats.sql",
         "indexes.sql",
     )
-    coros = []
     for file in files:
         with open("scripts/sql/" + file, encoding="utf8") as f:
-            coros.append(pool.execute(f.read()))
-    gather(coros)
+            read = f.read()
+            if show:
+                print(read)
+            try:
+                run(pool.execute(read))
+            except Exception:
+                click.echo(f'Failed on file {file}.\n{format_exc()}', err=True)
+
+    click.echo("Created tables.", file=sys.stderr)
+
+    if run:
+        run_bot()
+
+
+if __name__ == "__main__":
+    main()

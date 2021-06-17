@@ -58,12 +58,10 @@ class CustomBot(commands.Bot):
         self.session = ClientSession(
             headers={"User-Agent": "Walrus (https://github.com/ppotatoo/bot-rewrite)"}
         )
-        with open("schema.sql") as f:
-            await self.pool.execute(f.read())
         await self.wait_until_ready()
         async with self.pool.acquire() as conn:
             await conn.executemany(
-                "INSERT INTO guilds (id) VALUES ($1) ON CONFLICT DO NOTHING",
+                "INSERT INTO public.guilds (id) VALUES ($1) ON CONFLICT DO NOTHING",
                 tuple((g.id,) for g in self.guilds),
             )
         self.prepped.set()

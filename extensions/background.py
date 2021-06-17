@@ -38,7 +38,7 @@ class BackgroundEvents(commands.Cog):
                 async with self._lock:
                     query = """
                         INSERT INTO
-                            commands (guild, channel, author, used, prefix, command, failed)
+                            stats.commands (guild, channel, author, used, prefix, command, failed)
                         SELECT x.guild, x.channel, x.author, x.used, x.prefix, x.command, x.failed
                             FROM JSONB_TO_RECORDSET($1::JSONB) AS
                             x(
@@ -58,7 +58,7 @@ class BackgroundEvents(commands.Cog):
                 async with self._lock:
                     query = """
                         INSERT INTO
-                            nicknames (guild, member, nickname)
+                            users.nicknames (guild, member, nickname)
                         SELECT x.guild, x.member, x.nickname
                         FROM JSONB_TO_RECORDSET($1::JSONB)
                         AS x(guild BIGINT, member BIGINT, nickname TEXT)
@@ -70,7 +70,7 @@ class BackgroundEvents(commands.Cog):
                 async with self._lock:
                     query = """
                         INSERT INTO
-                            usernames (snowflake, username)
+                            users.usernames (snowflake, username)
                         SELECT x.snowflake, x.username
                         FROM JSONB_TO_RECORDSET($1::JSONB)
                         AS x(snowflake BIGINT, username TEXT)
@@ -83,7 +83,7 @@ class BackgroundEvents(commands.Cog):
                     items = [(name, count) for name, count in self._socket_cache.most_common()]
                     query = """
                         INSERT INTO 
-                            socket
+                            stats.socket
                         VALUES ($1, $2)
                         ON CONFLICT (name)
                         DO UPDATE SET 

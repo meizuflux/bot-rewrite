@@ -91,7 +91,7 @@ class General(commands.Cog):
 
     @socket.command(name="total", aliases=("all",), returns="A table showing the total socket stats")
     async def socket_total(self, ctx: CustomContext):
-        raw = await self.bot.pool.fetch("SELECT name, count FROM socket ORDER BY count DESC")
+        raw = await self.bot.pool.fetch("SELECT name, count FROM stats.socket ORDER BY count DESC")
         stats = [(i["name"], i["count"]) for i in raw]
         await self.send_socket_stats(ctx, stats, omit_minutes=True)
 
@@ -122,7 +122,7 @@ class General(commands.Cog):
                     voice += 1
 
         query = """
-            SELECT COUNT(*) FROM commands  
+            SELECT COUNT(*) FROM stats.commands  
             """
         cmds = await self.bot.pool.fetchval(query)
         since_restart = sum(self.bot.extra.command_stats.values())
