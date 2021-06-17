@@ -51,7 +51,7 @@ class LineCounter:
             classes=classes,
             functions=functions,
             coroutines=coroutines,
-            comments=comments
+            comments=comments,
         )
 
 
@@ -139,10 +139,7 @@ class General(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @core.command(
-        aliases=("codestats", "lines"),
-        returns="Various code stats about me!"
-    )
+    @core.command(aliases=("codestats", "lines"), returns="Various code stats about me!")
     async def code_stats(self, ctx: CustomContext):
         stats = LineCounter.project()
         await ctx.send(
@@ -155,10 +152,10 @@ class General(commands.Cog):
                         f"Classes: {stats.classes:,}",
                         f"Functions: {stats.functions:,}",
                         f"Coroutines: {stats.coroutines}",
-                        f"Comments: {stats.comments:,}"
+                        f"Comments: {stats.comments:,}",
                     )
                 ),
-                lang="prolog"
+                lang="prolog",
             )
         )
 
