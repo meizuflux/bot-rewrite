@@ -42,12 +42,7 @@ def main(ctx):
         run_bot()
 
 
-@main.group(short_help="database stuff", options_metavar="[options]")
-def db():
-    pass
-
-
-@db.command(short_help="initialises the databases for the bot", options_metavar="[options]")
+@main.command(short_help="initialises the databases for the bot", options_metavar="[options]")
 @click.option("-s", "--show", help="show the output", is_flag=True)
 @click.option("-r", "--run", help="run bot after", is_flag=True)
 def init(show: bool, run: bool):
