@@ -111,28 +111,21 @@ class Reminders(commands.Cog):
         return True
 
     async def _create_timer(self, event: str, created: dt, expires: dt, *args):
-        query = (
-            """
+        query = """
             INSERT INTO
                 timers (event, created, expires, data)
             VALUES 
                 ($1, $2, $3, $4)
             """
-        )
-        values = (
-            event,
-            created,
-            expires,
-            [*args]
-        )
+        values = (event, created, expires, [*args])
         await self.bot.pool.execute(query, *values)
 
     @core.command(
         examples=(
-                "1w take out the trash",
-                '"4 months and 2 days" william\'s birthday',
-                "1week",
-                "1week2days fix this code",
+            "1w take out the trash",
+            '"4 months and 2 days" william\'s birthday',
+            "1week",
+            "1week2days fix this code",
         ),
         params={
             "time": "The time when you want me to remind you for something.",
@@ -163,7 +156,7 @@ class Reminders(commands.Cog):
 
         msg = f"<@{reminder['author']}>, {delta}: {reminder['content']}"
         msg += (
-                "\n\n" + f"<https://discord.com/channels/{channel.guild.id}/{channel.id}/{reminder['message']}>"
+            "\n\n" + f"<https://discord.com/channels/{channel.guild.id}/{channel.id}/{reminder['message']}>"
         )
 
         try:
