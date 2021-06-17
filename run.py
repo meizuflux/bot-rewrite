@@ -34,7 +34,7 @@ def run_bot():
     bot.run(token)
 
 
-@click.group(invoke_without_command=True, options_metavar='[options]')
+@click.group(invoke_without_command=True, options_metavar="[options]")
 @click.pass_context
 def main(ctx):
     """Launches the bot."""
@@ -42,14 +42,14 @@ def main(ctx):
         run_bot()
 
 
-@main.group(short_help='database stuff', options_metavar='[options]')
+@main.group(short_help="database stuff", options_metavar="[options]")
 def db():
     pass
 
 
-@db.command(short_help='initialises the databases for the bot', options_metavar='[options]')
-@click.option('-s', '--show', help='show the output', is_flag=True)
-@click.option('-r', '--run', help='run bot after', is_flag=True)
+@db.command(short_help="initialises the databases for the bot", options_metavar="[options]")
+@click.option("-s", "--show", help="show the output", is_flag=True)
+@click.option("-r", "--run", help="run bot after", is_flag=True)
 def init(show: bool, run: bool):
     run = get_event_loop().run_until_complete
     try:
@@ -73,7 +73,7 @@ def init(show: bool, run: bool):
             try:
                 run(pool.execute(read))
             except Exception:
-                click.echo(f'Failed on file {file}.\n{format_exc()}', err=True)
+                click.echo(f"Failed on file {file}.\n{format_exc()}", err=True)
 
     click.echo("Created tables.", file=sys.stderr)
 
