@@ -1,6 +1,7 @@
 import re
 import time
 
+from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 from discord.ext import commands
 
@@ -110,3 +111,32 @@ class Timer:
 
     def __repr__(self):
         return f"<Timer elapsed={self.elapsed}, ms={self.ms}>"
+
+def format_string(argument):
+    to_replace = (
+        ["-", "/"],
+        [" ", ""],
+        [",", ""],
+        ["st", ""],
+        ["th", ""]
+    )
+    for x, y in to_replace:
+        argument = argument.replace(x, y)
+    return argument
+
+def convert_date(argument):
+    argument = format_string(argument)
+    formats = (
+        "%m/%d/%Y",
+        "%m/%d/%y",
+        '%d/%m/%Y',
+        '%d/%m/%Y',
+        "%b%d%y",
+        "%b%d%Y"
+    )
+
+    for fmt in formats:
+        try:
+            return dt.strptime(argument, fmt)
+        except ValueError:
+            continue
