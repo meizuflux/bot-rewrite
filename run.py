@@ -46,9 +46,9 @@ def main(ctx):
 @click.option("-s", "--show", help="show the output", is_flag=True)
 @click.option("-r", "--run", help="run bot after", is_flag=True)
 def init(show: bool, run: bool):
-    run = get_event_loop().run_until_complete
+    _run = get_event_loop().run_until_complete
     try:
-        pool: Pool = run(create_pool(dsn=postgres_uri))
+        pool: Pool = _run(create_pool(dsn=postgres_uri))
     except Exception as err:
         click.echo(f"Could not create database connection.\n{format_exc()}", err=True)
         return
@@ -66,9 +66,10 @@ def init(show: bool, run: bool):
             if show:
                 print(read)
             try:
-                run(pool.execute(read))
+                _run(pool.execute(read))
             except Exception:
                 click.echo(f"Failed on file {file}.\n{format_exc()}", err=True)
+                return
 
     click.echo("Created tables.", file=sys.stderr)
 

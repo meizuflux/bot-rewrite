@@ -13,3 +13,12 @@ CREATE TABLE IF NOT EXISTS events.reminders (
 
     content TEXT
 );
+
+CREATE TABLE IF NOT EXISTS events.timers (
+    id SERIAL PRIMARY KEY,
+
+    event TEXT NOT NULL,
+    created TIMESTAMPTZ NOT NULL,
+    expires TIMESTAMPTZ NOT NULL,
+    data JSONB NOT NULL
+)
