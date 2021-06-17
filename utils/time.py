@@ -1,7 +1,7 @@
 import re
 import time
-
 from datetime import datetime as dt
+
 from dateutil.relativedelta import relativedelta
 from discord.ext import commands
 
@@ -33,22 +33,17 @@ def parse_time(ctx: CustomContext, time: str):
 
 
 # from rapptz
-def human_timedelta(dt, *, source=None, accuracy=3, suffix=True):
-    now = source or dt.utcnow()
+def human_timedelta(_dt, *, source=None, accuracy=3, suffix=True):
+    now = source or _dt.utcnow()
     # Microsecond free zone
     now = now.replace(microsecond=0)
-    dt = dt.replace(microsecond=0)
+    _dt = _dt.replace(microsecond=0)
 
-    # This implementation uses relativedelta instead of the much more obvious
-    # divmod approach with seconds because the seconds approach is not entirely
-    # accurate once you go over 1 week in terms of accuracy since you have to
-    # hardcode a month as 30 or 31 days.
-    # A query like "11 months" can be interpreted as "!1 months and 6 days"
-    if dt > now:
-        delta = relativedelta(dt, now)
+    if _dt > now:
+        delta = relativedelta(_dt, now)
         suffix = ""
     else:
-        delta = relativedelta(now, dt)
+        delta = relativedelta(now, _dt)
         suffix = " ago" if suffix else ""
 
     attrs = [
@@ -114,7 +109,7 @@ class Timer:
 
 
 def format_string(argument):
-    to_replace = (["-", "/"], [" ", ""], [",", ""], ["st", ""], ["th", ""])
+    to_replace = (["-", "/"], [" ", ""], [",", ""])
     for x, y in to_replace:
         argument = argument.replace(x, y)
     return argument
@@ -122,10 +117,12 @@ def format_string(argument):
 
 def convert_date(argument):
     argument = format_string(argument)
-    formats = ("%m/%d/%Y", "%m/%d/%y", "%d/%m/%Y", "%d/%m/%Y", "%b%d%y", "%b%d%Y")
+    formats = ("%m/%d/%Y", "%m/%d/%y", "%d/%m/%Y", "%d/%m/%Y", "%b%d%y", "%b%d%Y", "%B%d%y", "%B%d%Y")
 
     for fmt in formats:
         try:
             return dt.strptime(argument, fmt)
         except ValueError:
             continue
+
+    raise commands.BadArgument("I could not figure out a date from your input.")
