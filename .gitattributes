@@ -1,0 +1,4 @@
+* text=auto
+
+*.sql linguist-language=PLpgSQL
+*.yml.example linguist-language=YAML
