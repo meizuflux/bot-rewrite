@@ -8,7 +8,6 @@ from core.config import token
 if __name__ == "__main__":
     intents = discord.Intents.default()
     intents.members = True
-    intents.voice_states = False
 
     flags = discord.MemberCacheFlags.from_intents(intents)
 

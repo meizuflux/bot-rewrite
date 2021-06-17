@@ -1,15 +1,16 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from discord.ext import commands
 import discord
+from discord.ext import commands
 
 import core
-from core.context import CustomContext
 from core.bot import CustomBot
+from core.context import CustomContext
 from utils import codeblock
 
 __all__ = ("setup",)
+
 
 @dataclass
 class LineCounter:
@@ -24,29 +25,34 @@ class LineCounter:
     @classmethod
     def project(cls, path="./"):
         files = lines = characters = classes = functions = coroutines = comments = 0
-        for f in Path(path):
+        for f in Path(path).rglob("*.py"):
             if str(f).startswith("venv"):
                 continue
             files += 1
-            with open(f, 'w') as of:
+            with f.open() as of:
                 _lines = of.readlines()
                 lines += len(_lines)
-                for line in _lines:
-                    line = line.strip()
-                    characters += len(line)
-                    if line.startswith("class"):
+                for l in _lines:
+                    l = l.strip()
+                    characters += len(l)
+                    if l.startswith("class"):
                         classes += 1
-                    if line.startswith("def"):
+                    if l.startswith("def"):
                         functions += 1
-                    if line.startswith("async def"):
+                    if l.startswith("async def"):
                         coroutines += 1
-                    if "#" in line:
+                    if "#" in l:
                         comments += 1
 
         return cls(
-
+            files=files,
+            lines=lines,
+            characters=characters,
+            classes=classes,
+            functions=functions,
+            coroutines=coroutines,
+            comments=comments
         )
-
 
 
 class General(commands.Cog):
@@ -132,6 +138,29 @@ class General(commands.Cog):
             embed.add_field(name=title, value=desc, inline=inline)
 
         await ctx.send(embed=embed)
+
+    @core.command(
+        aliases=("codestats", "lines"),
+        returns="Various code stats about me!"
+    )
+    async def code_stats(self, ctx: CustomContext):
+        stats = LineCounter.project()
+        await ctx.send(
+            codeblock(
+                text="\n".join(
+                    (
+                        f"Files: {stats.files:,}",
+                        f"Lines: {stats.lines:,}",
+                        f"Characters: {stats.characters:,}",
+                        f"Classes: {stats.classes:,}",
+                        f"Functions: {stats.functions:,}",
+                        f"Coroutines: {stats.coroutines}",
+                        f"Comments: {stats.comments:,}"
+                    )
+                ),
+                lang="prolog"
+            )
+        )
 
 
 def setup(bot: CustomBot):

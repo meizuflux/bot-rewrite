@@ -60,7 +60,7 @@ class Useful(commands.Cog):
         )
         if data.get("guild") is None or data.get("message") is not None:
             return await ctx.send("Something went wrong when creating the invite.")
-        await ctx.send("https://discord.com/invite" + data["code"])
+        await ctx.send("https://discord.com/invite/" + data["code"])
 
 
 def setup(bot: CustomBot):
