@@ -31,7 +31,7 @@ def parse_time(ctx: CustomContext, arg: str):
     parsed = parse_date(argument)
 
     if parsed is None and (match is not None and match.group(0)):
-        data = {k: int(v) for k, v in match.groupdict(default='0').items()}
+        data = {k: int(v) for k, v in match.groupdict(default="0").items()}
         parsed = ctx.message.created_at + relativedelta(**data)
 
     if parsed is None:

@@ -104,15 +104,14 @@ class Reminders(commands.Cog):
             self._task.cancel()
             self._task = self.bot.loop.create_task(self._reminder_dispatch())
 
-        print('created timer')
         return True
 
     @core.command(
         examples=(
-                "1w take out the trash",
-                '"4 months and 2 days" william\'s birthday',
-                "1week",
-                "1week2days fix this code",
+            "1w take out the trash",
+            '"4 months and 2 days" william\'s birthday',
+            "1week",
+            "1week2days fix this code",
         ),
         params={
             "time": "The time when you want me to remind you for something.",
@@ -126,8 +125,9 @@ class Reminders(commands.Cog):
         """
         expires = parse_time(ctx, time)
 
-        await self._create_timer("reminder", ctx.message.created_at, expires,
-                                 ctx.author.id, ctx.channel.id, ctx.message.id, thing)
+        await self._create_timer(
+            "reminder", ctx.message.created_at, expires, ctx.author.id, ctx.channel.id, ctx.message.id, thing
+        )
 
         delta = human_timedelta(expires, source=ctx.message.created_at)
         await ctx.send(f"In {delta}: {thing}")
@@ -143,9 +143,7 @@ class Reminders(commands.Cog):
         delta = human_timedelta(reminder["created"])
 
         msg = f"<@{author_id}>, {delta}: {thing}"
-        msg += (
-                "\n\n" + f"<https://discord.com/channels/{channel.guild.id}/{channel.id}/{message_id}>"
-        )
+        msg += "\n\n" + f"<https://discord.com/channels/{channel.guild.id}/{channel.id}/{message_id}>"
 
         try:
             await channel.send(msg)
