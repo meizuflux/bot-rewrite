@@ -29,7 +29,7 @@ def parse_time(ctx: CustomContext, arg: str):
     match = TIME_REGEX.match(argument)
     parsed = convert_date(argument)
     if parsed is None and (match is not None or match.group(0)):
-        print('here?')
+        print("here?")
         data = {k: int(v) for k, v in match.groupdict(default=0).items()}
         parsed = ctx.message.created_at + relativedelta(**data)
     if parsed is None:
