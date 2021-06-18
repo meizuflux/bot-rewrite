@@ -1,6 +1,7 @@
 import asyncio
 import logging
 from datetime import datetime as dt, timedelta
+from json import dumps, loads
 
 import asyncpg
 import discord
@@ -9,7 +10,7 @@ from discord.ext import commands
 import core
 from core.bot import CustomBot
 from core.context import CustomContext
-from utils.time import human_timedelta, parse_time
+from utils.time import human_timedelta, parse_time, utcnow
 
 __all__ = ("setup",)
 
@@ -22,7 +23,7 @@ class Reminders(commands.Cog):
         self.emoji = "<a:pikawink:853236064991182909>"
         self.show_subcommands = True
 
-        self._current_reminder = None
+        self._current_timer = None
         self._event = asyncio.Event(loop=self.bot.loop)
 
         self._task = self.bot.loop.create_task(self._reminder_dispatch())
@@ -31,7 +32,7 @@ class Reminders(commands.Cog):
         query = """
             SELECT * 
             FROM 
-                events.reminders 
+                events.timers
             WHERE
                 expires < (CURRENT_DATE + $1::interval) 
             ORDER BY
@@ -53,62 +54,36 @@ class Reminders(commands.Cog):
 
             self._event.clear()
 
-            self._current_reminder = None
+            self._current_timer = None
 
             await self._event.wait()
 
             return await self.get_active_reminder(days, connection=conn)
 
-    async def call_reminder(self, reminder):
-        await self.bot.pool.execute("DELETE FROM events.reminders WHERE id = $1", reminder["id"])
+    async def call_timer(self, reminder):
+        await self.bot.pool.execute("DELETE FROM events.timers WHERE id = $1", reminder["id"])
+        reminder = dict(reminder)
+        reminder["data"] = loads(reminder["data"])
 
-        self.bot.dispatch("reminder_complete", reminder)
+        self.bot.dispatch(f"{reminder['event']}_complete", reminder)
 
     async def _reminder_dispatch(self):
         await self.bot.wait_until_ready()
         try:
             while not self.bot.is_closed():
-                reminder = self._current_reminder = await self.wait_for_reminders()
+                reminder = self._current_timer = await self.wait_for_reminders()
 
-                if (expires := reminder["expires"]) >= (now := dt.utcnow()):
+                if (expires := reminder["expires"]) >= (now := utcnow()):
                     to_sleep = (expires - now).total_seconds()
                     await asyncio.sleep(to_sleep)
 
-                await self.call_reminder(reminder)
+                await self.call_timer(reminder)
         except asyncio.CancelledError:
             raise
         except (OSError, discord.ConnectionClosed, asyncpg.PostgresConnectionError):
             # re-run the loop
             self._task.cancel()
             self._task = self.bot.loop.create_task(self._reminder_dispatch())
-
-    async def create_timer(self, ctx: CustomContext, content, expires: dt, created: dt = dt.utcnow()):
-        query = """
-            INSERT INTO
-                events.reminders (guild, author, channel, message, expires, created, content)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
-            """
-        values = (
-            ctx.guild.id,
-            ctx.author.id,
-            ctx.channel.id,
-            ctx.message.id,
-            expires.replace(tzinfo=None),
-            created.replace(tzinfo=None),
-            content,
-        )
-        await self.bot.pool.execute(query, *values)
-
-        delta = (expires - created).total_seconds()
-
-        if delta <= (86400 * 10):
-            self._event.set()
-
-        if self._current_reminder and expires < self._current_reminder["expires"]:
-            self._task.cancel()
-            self._task = self.bot.loop.create_task(self._reminder_dispatch())
-
-        return True
 
     async def _create_timer(self, event: str, created: dt, expires: dt, *args):
         query = """
@@ -117,15 +92,27 @@ class Reminders(commands.Cog):
             VALUES 
                 ($1, $2, $3, $4)
             """
-        values = (event, created, expires, [*args])
+        values = (event, created, expires, dumps([*args]))
         await self.bot.pool.execute(query, *values)
+
+        delta = (expires - created).total_seconds()
+
+        if delta <= (86400 * 10):
+            self._event.set()
+
+        if self._current_timer and expires < self._current_timer["expires"]:
+            self._task.cancel()
+            self._task = self.bot.loop.create_task(self._reminder_dispatch())
+
+        print('created timer')
+        return True
 
     @core.command(
         examples=(
-            "1w take out the trash",
-            '"4 months and 2 days" william\'s birthday',
-            "1week",
-            "1week2days fix this code",
+                "1w take out the trash",
+                '"4 months and 2 days" william\'s birthday',
+                "1week",
+                "1week2days fix this code",
         ),
         params={
             "time": "The time when you want me to remind you for something.",
@@ -139,14 +126,15 @@ class Reminders(commands.Cog):
         """
         expires = parse_time(ctx, time)
 
-        await self.create_timer(ctx, thing, expires, created=ctx.message.created_at)
+        await self._create_timer("reminder", ctx.message.created_at, expires,
+                                 ctx.author.id, ctx.channel.id, ctx.message.id, thing)
 
         delta = human_timedelta(expires, source=ctx.message.created_at)
         await ctx.send(f"In {delta}: {thing}")
 
     @commands.Cog.listener()
     async def on_reminder_complete(self, reminder):
-        channel_id = reminder["channel"]
+        author_id, channel_id, message_id, thing = reminder["data"]
         try:
             channel = self.bot.get_channel(channel_id) or (await self.bot.fetch_channel(channel_id))
         except discord.HTTPException:
@@ -154,9 +142,9 @@ class Reminders(commands.Cog):
 
         delta = human_timedelta(reminder["created"])
 
-        msg = f"<@{reminder['author']}>, {delta}: {reminder['content']}"
+        msg = f"<@{author_id}>, {delta}: {thing}"
         msg += (
-            "\n\n" + f"<https://discord.com/channels/{channel.guild.id}/{channel.id}/{reminder['message']}>"
+                "\n\n" + f"<https://discord.com/channels/{channel.guild.id}/{channel.id}/{message_id}>"
         )
 
         try:

@@ -4,7 +4,6 @@ from datetime import datetime as dt, timezone
 
 from dateutil.relativedelta import relativedelta
 from discord.ext import commands
-from discord.utils import utcnow
 
 from core.context import CustomContext
 from .formats import human_join, plural
@@ -25,25 +24,33 @@ TIME_REGEX = re.compile(
 
 
 def parse_time(ctx: CustomContext, arg: str):
+    now = utcnow()
     argument = arg.replace(" and ", "").replace(" ", "")
+
     match = TIME_REGEX.match(argument)
-    parsed = convert_date(argument)
-    if parsed is None and (match is not None or match.group(0)):
-        print('here?')
-        data = {k: int(v) for k, v in match.groupdict(default=0).items()}
+    parsed = parse_date(argument)
+
+    if parsed is None and (match is not None and match.group(0)):
+        data = {k: int(v) for k, v in match.groupdict(default='0').items()}
         parsed = ctx.message.created_at + relativedelta(**data)
+
     if parsed is None:
         raise commands.BadArgument("Could not discern a date from your input.")
-    if utcnow() > parsed:
+
+    if now > parsed:
         raise commands.BadArgument("Time must be in the future, sorry.")
 
     return parsed.replace(tzinfo=timezone.utc)
 
 
+def utcnow() -> dt:
+    return dt.now(timezone.utc)
+
+
 # from rapptz
 def human_timedelta(_dt, *, source=None, accuracy=3, suffix=True):
-    now = source or _dt.utcnow()
-    # Microsecond free zone
+    now = source or dt.now(timezone.utc)
+
     now = now.replace(microsecond=0)
     _dt = _dt.replace(microsecond=0)
 
@@ -123,7 +130,7 @@ def format_string(argument):
     return argument
 
 
-def convert_date(argument):
+def parse_date(argument):
     argument = format_string(argument)
     formats = ("%m/%d/%Y", "%m/%d/%y", "%d/%m/%Y", "%d/%m/%Y", "%b%d%y", "%b%d%Y", "%B%d%y", "%B%d%Y")
 
