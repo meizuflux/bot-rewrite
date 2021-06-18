@@ -60,7 +60,7 @@ class Reminders(commands.Cog):
             return await self.get_active_reminder(days, connection=conn)
 
     async def call_reminder(self, reminder):
-        await self.bot.pool.execute("DELETE FROM reminders WHERE id = $1", reminder["id"])
+        await self.bot.pool.execute("DELETE FROM events.reminders WHERE id = $1", reminder["id"])
 
         self.bot.dispatch("reminder_complete", reminder)
 
@@ -85,7 +85,7 @@ class Reminders(commands.Cog):
     async def create_timer(self, ctx: CustomContext, content, expires: dt, created: dt = dt.utcnow()):
         query = """
             INSERT INTO
-                reminders (guild, author, channel, message, expires, created, content)
+                events.reminders (guild, author, channel, message, expires, created, content)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
             """
         values = (
@@ -114,7 +114,7 @@ class Reminders(commands.Cog):
         query = (
             """
             INSERT INTO
-                timers (event, created, expires, data)
+                events.timers (event, created, expires, data)
             VALUES 
                 ($1, $2, $3, $4)
             """

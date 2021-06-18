@@ -1,9 +1,10 @@
 import re
 import time
-from datetime import datetime as dt
+from datetime import datetime as dt, timezone
 
 from dateutil.relativedelta import relativedelta
 from discord.ext import commands
+from discord.utils import utcnow
 
 from core.context import CustomContext
 from .formats import human_join, plural
@@ -23,13 +24,20 @@ TIME_REGEX = re.compile(
 )
 
 
-def parse_time(ctx: CustomContext, time: str):
-    argument = time.replace(" and ", "").replace(" ", "")
+def parse_time(ctx: CustomContext, arg: str):
+    argument = arg.replace(" and ", "").replace(" ", "")
     match = TIME_REGEX.match(argument)
-    if match is None or not match.group(0):
-        raise commands.BadArgument("Invalid time provided.")
-    data = {k: int(v) for k, v in match.groupdict(default=0).items()}
-    return ctx.message.created_at + relativedelta(**data)
+    parsed = convert_date(argument)
+    if parsed is None and (match is not None or match.group(0)):
+        print('here?')
+        data = {k: int(v) for k, v in match.groupdict(default=0).items()}
+        parsed = ctx.message.created_at + relativedelta(**data)
+    if parsed is None:
+        raise commands.BadArgument("Could not discern a date from your input.")
+    if utcnow() > parsed:
+        raise commands.BadArgument("Time must be in the future, sorry.")
+
+    return parsed.replace(tzinfo=timezone.utc)
 
 
 # from rapptz
@@ -109,7 +117,7 @@ class Timer:
 
 
 def format_string(argument):
-    to_replace = (["-", "/"], [" ", ""], [",", ""])
+    to_replace = (["-", "/"], [",", ""])
     for x, y in to_replace:
         argument = argument.replace(x, y)
     return argument
@@ -121,8 +129,8 @@ def convert_date(argument):
 
     for fmt in formats:
         try:
-            return dt.strptime(argument, fmt)
+            return dt.strptime(argument, fmt).replace(tzinfo=timezone.utc)
         except ValueError:
             continue
 
-    raise commands.BadArgument("I could not figure out a date from your input.")
+    return None
