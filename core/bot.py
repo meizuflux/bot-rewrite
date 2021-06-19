@@ -97,6 +97,11 @@ class CustomBot(commands.Bot):
         self.load_extensions()
         super().run(*args, **kwargs)
 
+    async def close(self):
+        await self.session.close()
+        await self.pool.close()
+        await super().close()
+
     async def on_ready(self):
         log.info("Connected to Discord.")
 

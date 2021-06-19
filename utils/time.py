@@ -64,6 +64,7 @@ def human_timedelta(_dt, *, source=None, accuracy=3, suffix=True):
     attrs = [
         "year",
         "month",
+        "week",
         "day",
         "hour",
         "minute",
@@ -76,11 +77,8 @@ def human_timedelta(_dt, *, source=None, accuracy=3, suffix=True):
         if not elem:
             continue
 
-        if attr == "day":
-            weeks = delta.weeks
-            if weeks:
-                elem -= weeks * 7
-                output.append(plural(f"{elem} week(s)", elem))
+        if attr == "week":
+            delta.days -= elem * 7
 
         if elem <= 0:
             continue
