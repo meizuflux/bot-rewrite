@@ -35,11 +35,7 @@ class ErrorHandler(commands.Cog):
         if ctx.command and not isinstance(error, commands.CommandOnCooldown):
             ctx.command.reset_cooldown(ctx)
 
-        simple_errors = (
-            commands.BadArgument,
-            commands.BotMissingPermissions,
-            commands.MissingPermissions
-        )
+        simple_errors = (commands.BadArgument, commands.BotMissingPermissions, commands.MissingPermissions)
 
         if isinstance(error, simple_errors):
             return await ctx.send(embed=self.bot.embed(title=str(error)))
