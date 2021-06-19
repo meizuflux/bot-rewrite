@@ -1,5 +1,9 @@
-from discord.ext.commands import bot_has_permissions
+from discord.ext import commands
 
 __all__ = ("can_run",)
 
-can_run = bot_has_permissions
+from core.context import CustomContext
+
+can_run = commands.bot_has_permissions
+
+has_permissions = commands.has_permissions

@@ -91,9 +91,10 @@ class Reminders(commands.Cog):
                 events.timers (event, created, expires, data)
             VALUES 
                 ($1, $2, $3, $4)
+            RETURNING * 
             """
         values = (event, created, expires, dumps([*args]))
-        await self.bot.pool.execute(query, *values)
+        timer = await self.bot.pool.fetchrow(query, *values)
 
         delta = (expires - created).total_seconds()
 
@@ -104,7 +105,7 @@ class Reminders(commands.Cog):
             self._task.cancel()
             self._task = self.bot.loop.create_task(self._reminder_dispatch())
 
-        return True
+        return timer
 
     @core.command(
         examples=(

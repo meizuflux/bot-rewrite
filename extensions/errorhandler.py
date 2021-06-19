@@ -35,6 +35,15 @@ class ErrorHandler(commands.Cog):
         if ctx.command and not isinstance(error, commands.CommandOnCooldown):
             ctx.command.reset_cooldown(ctx)
 
+        simple_errors = (
+            commands.BadArgument,
+            commands.BotMissingPermissions,
+            commands.MissingPermissions
+        )
+
+        if isinstance(error, simple_errors):
+            return await ctx.send(embed=self.bot.embed(title=str(error)))
+
         if isinstance(error, commands.NoPrivateMessage):
             try:
                 return await ctx.author.send(
@@ -45,28 +54,22 @@ class ErrorHandler(commands.Cog):
 
         if isinstance(error, commands.MissingRequiredArgument):
             errors = str(error).split(" ", maxsplit=1)
-            return await ctx.send(
-                embed=self.bot.embed(
-                    description=(
-                        f"`{errors[0]}` {errors[1]}\n"
-                        f"You can view the help for this command with `{ctx.clean_prefix}help` `{ctx.invoked_with}`"
-                    )
-                )
+            desc = (
+                f"`{errors[0]}` {errors[1]}\n"
+                f"You can view the help for this command with `{ctx.clean_prefix}help` `{ctx.invoked_with}`"
             )
+            return await ctx.send(embed=self.bot.embed(description=desc))
 
         if isinstance(error, commands.DisabledCommand):
             return await ctx.send(
                 embed=self.bot.embed(description=f"`{ctx.invoked_with}` has been disabled.")
             )
 
-        if isinstance(error, commands.BadArgument):
-            return await ctx.send(embed=self.bot.embed(title=str(error)))
-
         if isinstance(error, asyncio.TimeoutError):
             return await ctx.send(embed=self.bot.embed(description=f"{ctx.invoked_with} timed out."))
 
         traceback = "".join(format_exception(type(error), error, error.__traceback__))
-        if len(traceback) > 1000:
+        if len(traceback) > 2000:
             traceback = await self.bot.paste(traceback)
         else:
             traceback = "```py\n" + traceback + "```"
