@@ -129,12 +129,10 @@ class Reminders(commands.Cog):
             "author": ctx.author.id,
             "channel": ctx.channel.id,
             "message": ctx.message.id,
-            "reminder_content": thing
+            "reminder_content": thing,
         }
 
-        await self.create_timer(
-            "reminder", ctx.message.created_at, expires, data
-        )
+        await self.create_timer("reminder", ctx.message.created_at, expires, data)
 
         delta = human_timedelta(expires, source=ctx.message.created_at)
         await ctx.send(f"In {delta}: {thing}")
