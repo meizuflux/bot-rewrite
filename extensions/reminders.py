@@ -85,15 +85,15 @@ class Reminders(commands.Cog):
             self._task.cancel()
             self._task = self.bot.loop.create_task(self._reminder_dispatch())
 
-    async def _create_timer(self, event: str, created: dt, expires: dt, *args):
+    async def create_timer(self, event: str, created: dt, expires: dt, data: dict):
         query = """
             INSERT INTO
                 events.timers (event, created, expires, data)
             VALUES 
-                ($1, $2, $3, $4)
+                ($1, $2, $3, $4::JSONB)
             RETURNING * 
             """
-        values = (event, created, expires, dumps([*args]))
+        values = (event, created, expires, dumps(data))
         timer = await self.bot.pool.fetchrow(query, *values)
 
         delta = (expires - created).total_seconds()
@@ -125,9 +125,15 @@ class Reminders(commands.Cog):
         Times are in UTC.
         """
         expires = parse_time(ctx, time)
+        data = {
+            "author": ctx.author.id,
+            "channel": ctx.channel.id,
+            "message": ctx.message.id,
+            "reminder_content": thing
+        }
 
-        await self._create_timer(
-            "reminder", ctx.message.created_at, expires, ctx.author.id, ctx.channel.id, ctx.message.id, thing
+        await self.create_timer(
+            "reminder", ctx.message.created_at, expires, data
         )
 
         delta = human_timedelta(expires, source=ctx.message.created_at)
@@ -135,16 +141,16 @@ class Reminders(commands.Cog):
 
     @commands.Cog.listener()
     async def on_reminder_complete(self, reminder):
-        author_id, channel_id, message_id, thing = reminder["data"]
+        data = reminder["data"]
         try:
-            channel = self.bot.get_channel(channel_id) or (await self.bot.fetch_channel(channel_id))
+            channel = self.bot.get_channel(data["channel"]) or (await self.bot.fetch_channel(data["channel"]))
         except discord.HTTPException:
             return
 
         delta = human_timedelta(reminder["created"])
 
-        msg = f"<@{author_id}>, {delta}: {thing}"
-        msg += "\n\n" + f"<https://discord.com/channels/{channel.guild.id}/{channel.id}/{message_id}>"
+        msg = f"<@{data['author']}>, {delta}: {data['reminder_content']}"
+        msg += "\n\n" + f"<https://discord.com/channels/{channel.guild.id}/{channel.id}/{data['message']}>"
 
         try:
             await channel.send(msg)
