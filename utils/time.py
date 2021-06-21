@@ -23,7 +23,7 @@ TIME_REGEX = re.compile(
 )
 
 
-def parse_time(ctx: CustomContext, arg: str):
+def parse_time(ctx: CustomContext, arg: str) -> dt:
     now = utcnow()
     argument = arg.replace(" and ", "").replace(" ", "")
 
