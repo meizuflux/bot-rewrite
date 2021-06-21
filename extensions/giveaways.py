@@ -9,11 +9,11 @@ import core
 from core.bot import CustomBot
 from core.context import CustomContext
 from utils.formats import plural
-from utils.time import parse_time
+from utils.time import parse_time, utcnow
 
 __all__ = ("setup",)
 
-TADA = "\uD83C\uDF89"
+TADA = "<a:tada:856337025666121768>"
 
 
 async def get_channel(ctx: CustomContext, argument: str) -> Optional[discord.TextChannel]:
@@ -99,7 +99,7 @@ class Giveaways(commands.Cog):
 
         await ctx.send(f"{TADA} Ok, lets create your giveaway. "
                        f"First, what channel do you want your giveaway to be in? "
-                       f"Also, you can type `cancel` at anytime to cancel the process.\n"
+                       f"Also, you can type `cancel` at anytime to cancel the process.\n\n"
                        f"`Please mention a channel in this server.`")
         resp = await wait_for(ctx)
         if resp is None:
@@ -109,28 +109,30 @@ class Giveaways(commands.Cog):
             return
 
         await ctx.send(f"{TADA} Nice, the giveaway will be in {channel.mention}. "
-                       f"Now, when do you want the giveaway to expire?\n"
-                       f"`Please send a time in the future when you want the giveaway to expire. You can send something like"
-                       f"2 weeks or a date in MM/DD/YY format. (I also accept a few more formats)`")
+                       f"Now, when do you want the giveaway to expire?\n\n"
+                       f"`Please send a time in the future when you want the giveaway to expire. You can send something like "
+                       f"'30 minutes' or a date in MM/DD/YY format. (I also accept a few more formats)`")
         resp = await wait_for(ctx)
         if resp is None:
             return
-        expires = await get_expiration(ctx, resp)
+        try:
+            expires = parse_time(ctx, resp)
+        except commands.BadArgument as err:
+            await ctx.send(f"{TADA} {str(err)}")
+            return
         if expires is None:
             return
 
         winners = 1
 
         await ctx.send(
-            f"{TADA} Sweet! {plural('winner(s)', winners)} winners it is. Lastly, please send the prize of this giveaway."
-            f"`Please send the giveaway prize. It must be less than 256 characters. "
+            f"{TADA} Sweet! {winners} {plural('winner(s)', winners)} it is. Lastly, please send the prize of this giveaway."
+            f"\n\n`Please send the giveaway prize. It must be less than 256 characters. "
             f"This will also start the game.`")
         resp = await wait_for(ctx)
         if resp is None:
             return
-        prize = await get_expiration(ctx, resp)
-        if prize is None:
-            return
+        prize = resp
 
         embed = self.bot.embed(
             title=prize,
@@ -141,7 +143,7 @@ class Giveaways(commands.Cog):
             color=discord.Color.blurple(),
             timestamp=expires
         )
-        embed.set_footer(f"Ends at ")
+        embed.set_footer(text=f"Ends at ")
         message = await channel.send(embed=embed)
         await message.add_reaction(TADA)
 
@@ -153,7 +155,7 @@ class Giveaways(commands.Cog):
             "prize": prize
         }
         await timer.create_timer(
-            "giveaway", ctx.message.created_at, expires, data
+            "giveaway", utcnow(), expires, data
         )
         await m.add_reaction("✅")
 
