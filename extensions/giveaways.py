@@ -25,16 +25,22 @@ async def get_channel(ctx: CustomContext, argument: str) -> Optional[discord.Tex
 
     permissions = channel.permissions_for(ctx.me)
     if permissions.send_messages is False:
-        await ctx.send(f"{TADA} I'm missing the permission to send messages in that channel, "
-                       f"please make sure that is enabled, then retry. ")
+        await ctx.send(
+            f"{TADA} I'm missing the permission to send messages in that channel, "
+            f"please make sure that is enabled, then retry. "
+        )
         return None
     if permissions.embed_links is False:
-        await ctx.send(f"{TADA} I'm missing the permission to send an embed in that channel, "
-                       f"please make sure that is enabled, then retry. ")
+        await ctx.send(
+            f"{TADA} I'm missing the permission to send an embed in that channel, "
+            f"please make sure that is enabled, then retry. "
+        )
         return None
     if permissions.embed_links is False:
-        await ctx.send(f"{TADA} I'm missing the permission to add reactions in that channel, "
-                       f"please make sure that is enabled, then retry. ")
+        await ctx.send(
+            f"{TADA} I'm missing the permission to add reactions in that channel, "
+            f"please make sure that is enabled, then retry. "
+        )
         return None
 
     return channel
@@ -75,10 +81,12 @@ async def wait_for(ctx: CustomContext) -> Optional[str]:
     try:
         message: discord.Message = await ctx.bot.wait_for("message", check=check, timeout=120)
     except asyncio.TimeoutError:
-        await ctx.send(f"{TADA} {ctx.author.mention}, hi, sorry, you need to answer each question within 2 minutes.")
+        await ctx.send(
+            f"{TADA} {ctx.author.mention}, hi, sorry, you need to answer each question within 2 minutes."
+        )
         return None
 
-    if message.content.lower().strip() == 'cancel':
+    if message.content.lower().strip() == "cancel":
         await ctx.send(f"{TADA} Cancelled.")
         return None
 
@@ -89,18 +97,18 @@ class Giveaways(commands.Cog):
     def __init__(self, bot: CustomBot):
         self.bot = bot
 
-    @core.command(
-        aliases=("gcreate", "giveawaycreate", "giveaway_create", "cgiveaway")
-    )
+    @core.command(aliases=("gcreate", "giveawaycreate", "giveaway_create", "cgiveaway"))
     async def create_giveaway(self, ctx: CustomContext):
         timer = self.bot.get_cog("Reminders")
         if timer is None:
             return await ctx.send("This functionality is not available currently.")
 
-        await ctx.send(f"{TADA} Ok, lets create your giveaway. "
-                       f"First, what channel do you want your giveaway to be in? "
-                       f"Also, you can type `cancel` at anytime to cancel the process.\n\n"
-                       f"`Please mention a channel in this server.`")
+        await ctx.send(
+            f"{TADA} Ok, lets create your giveaway. "
+            f"First, what channel do you want your giveaway to be in? "
+            f"Also, you can type `cancel` at anytime to cancel the process.\n\n"
+            f"`Please mention a channel in this server.`"
+        )
         resp = await wait_for(ctx)
         if resp is None:
             return
@@ -108,10 +116,12 @@ class Giveaways(commands.Cog):
         if channel is None:
             return
 
-        await ctx.send(f"{TADA} Nice, the giveaway will be in {channel.mention}. "
-                       f"Now, when do you want the giveaway to expire?\n\n"
-                       f"`Please send a time in the future when you want the giveaway to expire. You can send something like "
-                       f"'30 minutes' or a date in MM/DD/YY format. (I also accept a few more formats)`")
+        await ctx.send(
+            f"{TADA} Nice, the giveaway will be in {channel.mention}. "
+            f"Now, when do you want the giveaway to expire?\n\n"
+            f"`Please send a time in the future when you want the giveaway to expire. You can send something like "
+            f"'30 minutes' or a date in MM/DD/YY format. (I also accept a few more formats)`"
+        )
         resp = await wait_for(ctx)
         if resp is None:
             return
@@ -128,7 +138,8 @@ class Giveaways(commands.Cog):
         await ctx.send(
             f"{TADA} Sweet! {winners} {plural('winner(s)', winners)} it is. Lastly, please send the prize of this giveaway."
             f"\n\n`Please send the giveaway prize. It must be less than 256 characters. "
-            f"This will also start the game.`")
+            f"This will also start the game.`"
+        )
         resp = await wait_for(ctx)
         if resp is None:
             return
@@ -137,11 +148,10 @@ class Giveaways(commands.Cog):
         embed = self.bot.embed(
             title=prize,
             description=(
-                f"React with {TADA} to enter.\n"
-                f"There will be {winners} {plural('winner(s)', winners)}."
+                f"React with {TADA} to enter.\n" f"There will be {winners} {plural('winner(s)', winners)}."
             ),
             color=discord.Color.blurple(),
-            timestamp=expires
+            timestamp=expires,
         )
         embed.set_footer(text=f"Ends at ")
         message = await channel.send(embed=embed)
@@ -149,14 +159,8 @@ class Giveaways(commands.Cog):
 
         m = await ctx.send(f"{TADA} Giveaway has been started in {channel.mention}!")
 
-        data = {
-            "message": message.id,
-            "channel": channel.id,
-            "prize": prize
-        }
-        await timer.create_timer(
-            "giveaway", utcnow(), expires, data
-        )
+        data = {"message": message.id, "channel": channel.id, "prize": prize}
+        await timer.create_timer("giveaway", utcnow(), expires, data)
         await m.add_reaction("✅")
 
     @commands.Cog.listener()
