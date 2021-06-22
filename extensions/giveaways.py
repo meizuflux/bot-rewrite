@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime as dt
+from datetime import datetime as dt, timedelta
 from random import choice
 from typing import List, Optional
 
@@ -114,10 +114,18 @@ class Giveaways(commands.Cog):
         self.bot = bot
 
     @core.command(aliases=("gcreate", "giveawaycreate", "giveaway_create", "cgiveaway"))
+    @commands.max_concurrency(1, commands.BucketType.channel)
     async def create_giveaway(self, ctx: CustomContext):
         timer = self.bot.get_cog("Reminders")
         if timer is None:
             return await ctx.send("This functionality is not available currently.")
+
+        perms: discord.Permissions = ctx.author.guild_permissions
+        if not await self.bot.is_owner(ctx.author) and not perms.manage_guild:
+            giveaway_role = [role for role in ctx.author.roles if role.name.lower().startswith("giveaway")]
+            if not giveaway_role:
+                return await ctx.send(":( Sorry, but you either need to have `Manage Server` permission "
+                                      "or have a role named `Giveaways`.")
 
         await ctx.send(
             f"{random_tada()} Ok, lets create your giveaway. "
@@ -132,7 +140,17 @@ class Giveaways(commands.Cog):
         if channel is None:
             return
 
-        winners = 1
+        await ctx.send(
+            f"{random_tada()} Fantastic, the giveaway will be located in {channel.mention}. "
+            f"Now, how many winners do you want there to be for this giveaway?"
+            f"\n\n`Please send a number between 1 and 15 indicating the total number of winners.`"
+        )
+        resp = await wait_for(ctx)
+        if resp is None:
+            return
+        winners = await get_mex_winners(ctx, resp)
+        if winners is None:
+            return
 
         await ctx.send(
             f"{random_tada()} Sweet! {winners} {plural('winner(s)', winners)} it is. Lastly, please send the prize of this giveaway."
@@ -160,7 +178,6 @@ class Giveaways(commands.Cog):
         selected_tada = random_tada()
 
         embed = self.bot.embed(
-            title=prize,
             description=(
                 f"React with {selected_tada} to enter.\n"
                 f"There will be {winners} {plural('winner(s)', winners)}."
@@ -168,7 +185,12 @@ class Giveaways(commands.Cog):
             color=discord.Color.blurple(),
             timestamp=expires,
         )
+        embed.set_author(name=prize)
         embed.set_footer(text=f"Ends at ")
+        if utcnow() + timedelta(seconds=15) > expires:
+            embed.color = discord.Color.red()
+            embed.title = "Last chance to enter!"
+
         message = await channel.send(embed=embed)
         await message.add_reaction(selected_tada)
 
@@ -195,6 +217,12 @@ class Giveaways(commands.Cog):
 
         return self.bot.random.sample(users, min(len(users), winners))
 
+    @create_giveaway.error
+    async def create_giveaway_error(self, ctx: CustomContext, error: Exception):
+        if isinstance(error, commands.MaxConcurrencyReached):
+            return await ctx.send("Sorry, there is already a giveaway being created in this channel.")
+
+
     @commands.Cog.listener()
     async def on_giveaway_complete(self, reminder):
         print(reminder)
@@ -213,8 +241,42 @@ class Giveaways(commands.Cog):
         except discord.HTTPException:
             return
 
-        winners = await self.get_winners(message, emoji=data["emoji"], winners=data["winners"])
-        print(winners)
+        reaction = discord.utils.get(message.reactions, emoji__id=data["emoji"])
+        users = [user async for user in reaction.users() if user.bot is False]
+
+        winners = self.bot.random.sample(users, min(len(users), data["winners"]))
+        old = discord.Embed(color=discord.Color.green(), timestamp=reminder["expires"])
+        old.set_footer(text="Ended at")
+        old.set_author(name=data["prize"])
+        old_kwargs = {
+            "content": f"{random_tada()} __**GIVEAWAY ENDED**__ {random_tada()}",
+            "embed": old
+        }
+
+        if len(winners) == 0:
+            content = "Not enough entrants to determine a winner!"
+            old.description = "Nobody entered the giveaway! :("
+
+        elif len(winners) == 1:
+            content = f"{random_tada()} Giveaway finished! " \
+                      f"{winners[0].mention}, you win the **{data['prize']}**! Congratulations! "
+            old.description = f"Winner: {winners[0].mention}"
+
+        else:
+            winners = ', '.join(w.mention for w in winners)
+            content = f"{random_tada()} Giveaway ended! Winners: {winners} You all win the **{data['prize']}**! :tada:"
+            old.description = f"Winners: {winners}"
+
+        new_kwargs = {
+            "content": content
+        }
+
+        await message.edit(**old_kwargs)
+        await channel.send(**new_kwargs)
+
+
+
+
 
 
 def setup(bot: CustomBot):
