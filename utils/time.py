@@ -23,7 +23,7 @@ TIME_REGEX = re.compile(
 )
 
 
-def parse_time(ctx: CustomContext, arg: str) -> dt:
+def parse_time(ctx: CustomContext, arg: str, *, _add_now=False) -> dt:
     now = utcnow()
     argument = arg.replace(" and ", "").replace(" ", "")
 
@@ -32,7 +32,10 @@ def parse_time(ctx: CustomContext, arg: str) -> dt:
 
     if parsed is None and (match is not None and match.group(0)):
         data = {k: int(v) for k, v in match.groupdict(default="0").items()}
-        parsed = ctx.message.created_at + relativedelta(**data)
+        if _add_now is True:
+            parsed = now + relativedelta(**data)
+        else:
+            parsed = ctx.message.created_at + relativedelta(**data)
 
     if parsed is None:
         raise commands.BadArgument("Could not discern a date from your input.")
