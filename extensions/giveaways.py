@@ -15,9 +15,15 @@ from utils.time import parse_time, utcnow
 
 __all__ = ("setup",)
 
-tadas = ("<a:tada1:856337025666121768>", "<a:tada2:856679655117553695>", "<a:tada3:856679655225425921>",
-         "<a:tada4:856679655314685954>", "<a:tada5:856679655422427136>", "<a:tada6:856679655427801168>",
-         "<a:tada7:856679655535935518>")
+tadas = (
+    "<a:tada1:856337025666121768>",
+    "<a:tada2:856679655117553695>",
+    "<a:tada3:856679655225425921>",
+    "<a:tada4:856679655314685954>",
+    "<a:tada5:856679655422427136>",
+    "<a:tada6:856679655427801168>",
+    "<a:tada7:856679655535935518>",
+)
 
 
 def random_tada():
@@ -33,16 +39,22 @@ async def get_channel(ctx: CustomContext, argument: str) -> Optional[discord.Tex
 
     permissions = channel.permissions_for(ctx.me)
     if permissions.send_messages is False:
-        await ctx.send(f"{random_tada()} I'm missing the permission to send messages in that channel, "
-                       f"please make sure that is enabled, then retry. ")
+        await ctx.send(
+            f"{random_tada()} I'm missing the permission to send messages in that channel, "
+            f"please make sure that is enabled, then retry. "
+        )
         return None
     if permissions.embed_links is False:
-        await ctx.send(f"{random_tada()} I'm missing the permission to send an embed in that channel, "
-                       f"please make sure that is enabled, then retry. ")
+        await ctx.send(
+            f"{random_tada()} I'm missing the permission to send an embed in that channel, "
+            f"please make sure that is enabled, then retry. "
+        )
         return None
     if permissions.embed_links is False:
-        await ctx.send(f"{random_tada()} I'm missing the permission to add reactions in that channel, "
-                       f"please make sure that is enabled, then retry. ")
+        await ctx.send(
+            f"{random_tada()} I'm missing the permission to add reactions in that channel, "
+            f"please make sure that is enabled, then retry. "
+        )
         return None
 
     return channel
@@ -72,7 +84,9 @@ async def get_mex_winners(ctx: CustomContext, argument: str) -> Optional[int]:
         return None
     length = len(argument)
     if length > 15 or length < 1:
-        await ctx.send(f"{random_tada()} Max winners can't be more than 15, and must be greater or equal to 0.")
+        await ctx.send(
+            f"{random_tada()} Max winners can't be more than 15, and must be greater or equal to 0."
+        )
         return None
 
     return int(argument)
@@ -84,10 +98,11 @@ async def wait_for(ctx: CustomContext) -> Optional[str]:
         message: discord.Message = await ctx.bot.wait_for("message", check=check, timeout=120)
     except asyncio.TimeoutError:
         await ctx.send(
-            f"{random_tada()} {ctx.author.mention}, hi, sorry, you need to answer each question within 2 minutes.")
+            f"{random_tada()} {ctx.author.mention}, hi, sorry, you need to answer each question within 2 minutes."
+        )
         return None
 
-    if message.content.lower().strip() == 'cancel':
+    if message.content.lower().strip() == "cancel":
         await ctx.send(f"{random_tada()} Cancelled.")
         return None
 
@@ -98,18 +113,18 @@ class Giveaways(commands.Cog):
     def __init__(self, bot: CustomBot):
         self.bot = bot
 
-    @core.command(
-        aliases=("gcreate", "giveawaycreate", "giveaway_create", "cgiveaway")
-    )
+    @core.command(aliases=("gcreate", "giveawaycreate", "giveaway_create", "cgiveaway"))
     async def create_giveaway(self, ctx: CustomContext):
         timer = self.bot.get_cog("Reminders")
         if timer is None:
             return await ctx.send("This functionality is not available currently.")
 
-        await ctx.send(f"{random_tada()} Ok, lets create your giveaway. "
-                       f"First, what channel do you want your giveaway to be in? "
-                       f"Also, you can type `cancel` at anytime to cancel the process.\n\n"
-                       f"`Please mention a channel in this server.`")
+        await ctx.send(
+            f"{random_tada()} Ok, lets create your giveaway. "
+            f"First, what channel do you want your giveaway to be in? "
+            f"Also, you can type `cancel` at anytime to cancel the process.\n\n"
+            f"`Please mention a channel in this server.`"
+        )
         resp = await wait_for(ctx)
         if resp is None:
             return
@@ -122,16 +137,19 @@ class Giveaways(commands.Cog):
         await ctx.send(
             f"{random_tada()} Sweet! {winners} {plural('winner(s)', winners)} it is. Lastly, please send the prize of this giveaway."
             f"\n\n`Please send the giveaway prize. It must be less than 256 characters. "
-            f"You can also use basic markdown in your response.`")
+            f"You can also use basic markdown in your response.`"
+        )
         prize = await wait_for(ctx)
         if prize is None:
             return
 
-        await ctx.send(f"{random_tada()} Nice, the prize for the giveaway will be {prize}. "
-                       f"Now, when do you want the giveaway to expire?\n\n"
-                       f"`Please send a time in the future when you want the giveaway to expire. You can send something like "
-                       f"'30 minutes' or a date in MM/DD/YY format. (I also accept a few more formats). "
-                       f"This will start the game.`")
+        await ctx.send(
+            f"{random_tada()} Nice, the prize for the giveaway will be {prize}. "
+            f"Now, when do you want the giveaway to expire?\n\n"
+            f"`Please send a time in the future when you want the giveaway to expire. You can send something like "
+            f"'30 minutes' or a date in MM/DD/YY format. (I also accept a few more formats). "
+            f"This will start the game.`"
+        )
         resp = await wait_for(ctx)
         if resp is None:
             return
@@ -148,7 +166,7 @@ class Giveaways(commands.Cog):
                 f"There will be {winners} {plural('winner(s)', winners)}."
             ),
             color=discord.Color.blurple(),
-            timestamp=expires
+            timestamp=expires,
         )
         embed.set_footer(text=f"Ends at ")
         message = await channel.send(embed=embed)
@@ -161,14 +179,14 @@ class Giveaways(commands.Cog):
             "channel": channel.id,
             "prize": prize,
             "winners": winners,
-            "emoji": int(selected_tada.rstrip(">").split(":")[2])
+            "emoji": int(selected_tada.rstrip(">").split(":")[2]),
         }
-        await timer.create_timer(
-            "giveaway", utcnow(), expires, data
-        )
+        await timer.create_timer("giveaway", utcnow(), expires, data)
         await m.add_reaction("✅")
 
-    async def get_winners(self, message: discord.Message, *, emoji: str, winners: int) -> List[discord.Member]:
+    async def get_winners(
+        self, message: discord.Message, *, emoji: str, winners: int
+    ) -> List[discord.Member]:
         if not message.reactions:
             return []
 
@@ -183,13 +201,15 @@ class Giveaways(commands.Cog):
         data = reminder["data"]
         try:
             channel: discord.TextChannel = self.bot.get_channel(data["channel"]) or (
-                await self.bot.fetch_channel(data["channel"]))
+                await self.bot.fetch_channel(data["channel"])
+            )
         except discord.HTTPException:
             return
 
         try:
             message = utils.get(self.bot.cached_messages, id=data["message"]) or (
-                await channel.fetch_message(data["message"]))
+                await channel.fetch_message(data["message"])
+            )
         except discord.HTTPException:
             return
 
