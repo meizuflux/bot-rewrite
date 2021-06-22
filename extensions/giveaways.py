@@ -113,9 +113,13 @@ class Giveaways(commands.Cog):
     def __init__(self, bot: CustomBot):
         self.bot = bot
 
-    @core.command(aliases=("gcreate", "giveawaycreate", "giveaway_create", "cgiveaway"))
+    @core.group(aliases=("g", "raffle"), invoke_without_command=True)
+    async def giveaway(self, ctx: CustomContext):
+        await ctx.send_help(ctx.command)
+
+    @giveaway.command(name="create")
     @commands.max_concurrency(1, commands.BucketType.channel)
-    async def create_giveaway(self, ctx: CustomContext):
+    async def giveaway_create(self, ctx: CustomContext):
         timer = self.bot.get_cog("Reminders")
         if timer is None:
             return await ctx.send("This functionality is not available currently.")
@@ -208,6 +212,43 @@ class Giveaways(commands.Cog):
         await timer.create_timer("giveaway", utcnow(), expires, data)
         await m.add_reaction("✅")
 
+    @giveaway.command(name="reroll", aliases=("newwinner",))
+    async def giveaway_reroll(self, ctx: CustomContext, message: discord.Message=None):
+        if message is None:
+            async for msg in ctx.history(limit=100):
+                check = await self.validate_reroll_message(msg)
+                if check is False:
+                    continue
+                message = msg
+                break
+        emoji = message.content.split(" ")[0]
+        await ctx.send(emoji)
+
+    async def validate_reroll_message(self, message: discord.Message):
+        if not message.embeds or message.author != self.bot.user:
+            return False
+        embed = message.embeds[0]
+        if embed.footer != "Ended At":
+            return False
+
+        if " __**GIVEAWAY ENDED**__ " not in message.content:
+            return False
+
+        desc = embed.description.splitlines()
+        if len(desc) != 2:
+            return False
+        if not desc[0].startswith("Winner"):
+            return False
+
+        return True
+
+
+
+
+
+
+
+
     async def get_winners(
         self, message: discord.Message, *, emoji: str, winners: int
     ) -> List[discord.Member]:
@@ -219,10 +260,16 @@ class Giveaways(commands.Cog):
 
         return self.bot.random.sample(users, min(len(users), winners))
 
-    @create_giveaway.error
+    @giveaway_create.error
     async def create_giveaway_error(self, ctx: CustomContext, error: Exception):
         if isinstance(error, commands.MaxConcurrencyReached):
             return await ctx.send("Sorry, there is already a giveaway being created in this channel.")
+
+    async def determine_winners(self, message: discord.Message, *, emoji: int, winners: int) -> List[discord.Member]:
+        reaction = discord.utils.get(message.reactions, emoji__id=emoji)
+        users = [user async for user in reaction.users() if user.bot is False]
+
+        return self.bot.random.sample(users, min(len(users), winners))
 
     @commands.Cog.listener()
     async def on_giveaway_complete(self, reminder):
@@ -242,14 +289,14 @@ class Giveaways(commands.Cog):
         except discord.HTTPException:
             return
 
-        reaction = discord.utils.get(message.reactions, emoji__id=data["emoji"])
-        users = [user async for user in reaction.users() if user.bot is False]
-
-        winners = self.bot.random.sample(users, min(len(users), data["winners"]))
+        winners = await self.get_winners(message, emoji=data["emoji"], winners=data["winners"])
         old = discord.Embed(color=discord.Color.green(), timestamp=reminder["expires"])
         old.set_footer(text="Ended at")
         old.set_author(name=data["prize"])
-        old_kwargs = {"content": f"{random_tada()} __**GIVEAWAY ENDED**__ {random_tada()}", "embed": old}
+        old_kwargs = {
+            "content": f"{self.bot.get_emoji(data['emoji'])} __**GIVEAWAY ENDED**__ {random_tada()}",
+            "embed": old
+        }
 
         if len(winners) == 0:
             content = "Not enough entrants to determine a winner!"
