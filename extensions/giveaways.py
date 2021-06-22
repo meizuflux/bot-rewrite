@@ -213,7 +213,7 @@ class Giveaways(commands.Cog):
         await m.add_reaction("✅")
 
     @giveaway.command(name="reroll", aliases=("newwinner",))
-    async def giveaway_reroll(self, ctx: CustomContext, message: discord.Message=None):
+    async def giveaway_reroll(self, ctx: CustomContext, message: discord.Message = None):
         if message is None:
             async for msg in ctx.history(limit=100):
                 check = await self.validate_reroll_message(msg)
@@ -242,13 +242,6 @@ class Giveaways(commands.Cog):
 
         return True
 
-
-
-
-
-
-
-
     async def get_winners(
         self, message: discord.Message, *, emoji: str, winners: int
     ) -> List[discord.Member]:
@@ -265,7 +258,9 @@ class Giveaways(commands.Cog):
         if isinstance(error, commands.MaxConcurrencyReached):
             return await ctx.send("Sorry, there is already a giveaway being created in this channel.")
 
-    async def determine_winners(self, message: discord.Message, *, emoji: int, winners: int) -> List[discord.Member]:
+    async def determine_winners(
+        self, message: discord.Message, *, emoji: int, winners: int
+    ) -> List[discord.Member]:
         reaction = discord.utils.get(message.reactions, emoji__id=emoji)
         users = [user async for user in reaction.users() if user.bot is False]
 
@@ -295,7 +290,7 @@ class Giveaways(commands.Cog):
         old.set_author(name=data["prize"])
         old_kwargs = {
             "content": f"{self.bot.get_emoji(data['emoji'])} __**GIVEAWAY ENDED**__ {random_tada()}",
-            "embed": old
+            "embed": old,
         }
 
         if len(winners) == 0:
