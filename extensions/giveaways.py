@@ -124,8 +124,10 @@ class Giveaways(commands.Cog):
         if not await self.bot.is_owner(ctx.author) and not perms.manage_guild:
             giveaway_role = [role for role in ctx.author.roles if role.name.lower().startswith("giveaway")]
             if not giveaway_role:
-                return await ctx.send(":( Sorry, but you either need to have `Manage Server` permission "
-                                      "or have a role named `Giveaways`.")
+                return await ctx.send(
+                    ":( Sorry, but you either need to have `Manage Server` permission "
+                    "or have a role named `Giveaways`."
+                )
 
         await ctx.send(
             f"{random_tada()} Ok, lets create your giveaway. "
@@ -222,7 +224,6 @@ class Giveaways(commands.Cog):
         if isinstance(error, commands.MaxConcurrencyReached):
             return await ctx.send("Sorry, there is already a giveaway being created in this channel.")
 
-
     @commands.Cog.listener()
     async def on_giveaway_complete(self, reminder):
         print(reminder)
@@ -248,35 +249,28 @@ class Giveaways(commands.Cog):
         old = discord.Embed(color=discord.Color.green(), timestamp=reminder["expires"])
         old.set_footer(text="Ended at")
         old.set_author(name=data["prize"])
-        old_kwargs = {
-            "content": f"{random_tada()} __**GIVEAWAY ENDED**__ {random_tada()}",
-            "embed": old
-        }
+        old_kwargs = {"content": f"{random_tada()} __**GIVEAWAY ENDED**__ {random_tada()}", "embed": old}
 
         if len(winners) == 0:
             content = "Not enough entrants to determine a winner!"
             old.description = "Nobody entered the giveaway! :("
 
         elif len(winners) == 1:
-            content = f"{random_tada()} Giveaway finished! " \
-                      f"{winners[0].mention}, you win the **{data['prize']}**! Congratulations! "
+            content = (
+                f"{random_tada()} Giveaway finished! "
+                f"{winners[0].mention}, you win the **{data['prize']}**! Congratulations! "
+            )
             old.description = f"Winner: {winners[0].mention}"
 
         else:
-            winners = ', '.join(w.mention for w in winners)
+            winners = ", ".join(w.mention for w in winners)
             content = f"{random_tada()} Giveaway ended! Winners: {winners} You all win the **{data['prize']}**! :tada:"
             old.description = f"Winners: {winners}"
 
-        new_kwargs = {
-            "content": content
-        }
+        new_kwargs = {"content": content}
 
         await message.edit(**old_kwargs)
         await channel.send(**new_kwargs)
-
-
-
-
 
 
 def setup(bot: CustomBot):
