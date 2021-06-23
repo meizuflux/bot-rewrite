@@ -1,10 +1,8 @@
-from collections import OrderedDict
+from typing import Optional
 
 import discord
 from discord import Interaction, ui
 from discord.ext import commands
-
-from utils.buttons import StopButton
 
 
 class MenuError(Exception):
@@ -37,10 +35,10 @@ class ButtonSource:
     async def prepare(self):
         return
 
-    def is_paginating(self):
+    def is_paginating(self) -> Optional[bool]:
         raise NotImplementedError
 
-    def get_max_pages(self):
+    def get_max_pages(self) -> Optional[int]:
         return None
 
     async def get_page(self, page_number):
@@ -71,68 +69,19 @@ class ListButtonSource(ButtonSource):
         if self.per_page == 1:
             return self.entries[page_number]
         base = page_number * self.per_page
-        return self.entries[base : base + self.per_page]
+        return self.entries[base: base + self.per_page]
 
 
-class MenuButton(ui.Button):
-    def __init__(self, func, **kwargs) -> None:
-        self.cls = None
-        self.func = func
-        super().__init__(style=discord.ButtonStyle.blurple, **kwargs)
-
-    async def callback(self, interaction: Interaction):
-        await self.func(self.cls, interaction)
-
-
-def button(**kwargs):
-    def decorator(func):
-        func.__button_kwargs__ = kwargs
-        return func
-
-    return decorator
-
-
-class _MenuMeta(type):
-    @classmethod
-    def __prepare__(cls, name, bases, **kwargs):
-        # This is needed to maintain member order for the buttons
-        return OrderedDict()
-
-    def __new__(cls, name, bases, attrs, **kwargs):
-        buttons = []
-        new_cls = super().__new__(cls, name, bases, attrs)
-
-        for elem, value in attrs.items():
-            try:
-                value.__button_kwargs__
-            except AttributeError:
-                continue
-            else:
-                buttons.append(value)
-
-        new_cls.__buttons__ = buttons
-        return new_cls
-
-    def get_buttons(cls):
-        return [MenuButton(func, **func.__button_kwargs__) for func in cls.__buttons__]
-
-
-class ButtonMenu(ui.View, metaclass=_MenuMeta):
+class ButtonMenu(ui.View):
     ctx: commands.Context
 
     def __init__(self, *, timeout=180.0, delete_message_after=False):
-        super().__init__(timeout)
+        super().__init__(timeout=timeout)
         self.delete_message_after = delete_message_after
         self.message = None
 
-        self._buttons = self.__class__.get_buttons()
-
-        for _button in self._buttons:
-            _button.cls = self
-            self.add_item(_button)
-
     def should_add_reactions(self):
-        return len(self._buttons)
+        return len(self.children)
 
     def _verify_permissions(self, ctx, channel, permissions):
         if not permissions.send_messages:
@@ -163,13 +112,21 @@ class ButtonPages(ButtonMenu):
         self.current_page = 0
         super().__init__(**kwargs)
 
-        self.add_item(StopButton())
-
     async def show_page(self, interaction, page_number):
         page = await self._source.get_page(page_number)
         self.current_page = page_number
         kwargs = await self._get_kwargs_from_page(page)
         await interaction.response.edit_message(**kwargs)
+
+    def format_view(self):
+        for i, b in enumerate(self.children):
+            b.disabled = any(
+                [
+                    self.current_page == 0 and i < 2,
+                    self.current_page == self._source.get_max_pages() - 1
+                    and i >= 3,
+                ]
+            )
 
     async def show_checked_page(self, interaction, page_number):
         max_pages = self._source.get_max_pages()
@@ -181,8 +138,14 @@ class ButtonPages(ButtonMenu):
             # An error happened that can be handled, so ignore it.
             pass
 
-    async def interaction_check(self, interaction: Interaction):
-        return interaction.user == self.ctx.author
+    async def interaction_check(self, interaction):
+        """Only allowing the context author to interact with the view"""
+        ctx = self.ctx
+        author = ctx.author
+        if interaction.user != author:
+            await interaction.response.send_message(f"Only `{author}` can use this menu.", ephemeral=True)
+            return False
+        return True
 
     async def start(self, ctx, *, channel=None):
         self.ctx = ctx
@@ -201,21 +164,31 @@ class ButtonPages(ButtonMenu):
             kwargs = {"content": value, "embed": None}
         elif isinstance(value, discord.Embed):
             kwargs = {"embed": value, "content": None}
-        if kwargs:
+        self.format_view()
+        if "view" not in kwargs:
             kwargs["view"] = self
         return kwargs
 
-    @button(label="<<")
-    async def first(self, interaction: Interaction):
+    @ui.button(label="First Page")
+    async def first_page(self, _, interaction: Interaction):
         await self.show_page(interaction, 0)
 
-    @button(label="<")
-    async def previous(self, interaction: Interaction):
+    @ui.button(label="Last Page")
+    async def before_page(self, _, interaction: Interaction):
         await self.show_checked_page(interaction, self.current_page - 1)
 
-    @button(label=">")
-    async def next(self, interaction: Interaction):
+    @ui.button(label="Stop")
+    async def stop_page(self, _, interaction: Interaction):
+        self.stop()
+        await interaction.message.delete()
+
+    @ui.button(label="Next Page")
+    async def next_page(self, _, interaction: Interaction):
         await self.show_checked_page(interaction, self.current_page + 1)
+
+    @ui.button(label="Last Page")
+    async def last_page(self, _, interaction: Interaction):
+        await self.show_page(interaction, self._source.get_max_pages() - 1)
 
 
 class TestSource(ListButtonSource):
@@ -224,3 +197,4 @@ class TestSource(ListButtonSource):
 
 
 test = TestSource([discord.Embed(title="1"), discord.Embed(title="2"), discord.Embed(title="3")], per_page=1)
+mtest = ButtonPages(source=test)

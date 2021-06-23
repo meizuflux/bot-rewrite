@@ -112,6 +112,8 @@ async def wait_for(ctx: CustomContext) -> Optional[str]:
 class Giveaways(commands.Cog):
     def __init__(self, bot: CustomBot):
         self.bot = bot
+        self.emoji = random_tada()
+        self.show_subcommands = True
 
     @core.group(aliases=("g", "raffle"), invoke_without_command=True)
     async def giveaway(self, ctx: CustomContext):
