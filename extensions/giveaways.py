@@ -222,8 +222,7 @@ class Giveaways(commands.Cog):
                 message = msg
                 break
         if message is None:
-            return await ctx.send("I could not find a giveaway to reroll! "
-                                  "Try sending the message link.")
+            return await ctx.send("I could not find a giveaway to reroll! " "Try sending the message link.")
         emoji = message.content.split(" ")[0]
         winner = await self.get_winners(message, emoji=int(emoji.rstrip(">").split(":")[2]), winners=1)
         if not winner:
@@ -244,7 +243,7 @@ class Giveaways(commands.Cog):
         return True
 
     async def get_winners(
-            self, message: discord.Message, *, emoji: int, winners: int
+        self, message: discord.Message, *, emoji: int, winners: int
     ) -> List[discord.Member]:
         if not message.reactions:
             return []
