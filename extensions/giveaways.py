@@ -213,7 +213,7 @@ class Giveaways(commands.Cog):
         await m.add_reaction("✅")
 
     @giveaway.command(name="reroll", aliases=("newwinner",))
-    async def giveaway_reroll(self, ctx: CustomContext, message: discord.Message=None):
+    async def giveaway_reroll(self, ctx: CustomContext, message: discord.Message = None):
         if message is None:
             async for msg in ctx.history(limit=100):
                 check = await self.validate_reroll_message(msg)
@@ -221,36 +221,30 @@ class Giveaways(commands.Cog):
                     continue
                 message = msg
                 break
+        if message is None:
+            return await ctx.send("I could not find a giveaway to reroll! "
+                                  "Try sending the message link.")
         emoji = message.content.split(" ")[0]
-        await ctx.send(emoji)
+        winner = await self.get_winners(message, emoji=int(emoji.rstrip(">").split(":")[2]), winners=1)
+        if not winner:
+            await ctx.send("I couldn't determine a winner for that giveaway. :(")
+        else:
+            winner = winner[0]
+            await ctx.send(f"The new winner is {winner.mention}! Congratulations!")
 
     async def validate_reroll_message(self, message: discord.Message):
         if not message.embeds or message.author != self.bot.user:
             return False
         embed = message.embeds[0]
-        if embed.footer != "Ended At":
+        if embed.footer.text != "Ended at":
             return False
-
         if " __**GIVEAWAY ENDED**__ " not in message.content:
-            return False
-
-        desc = embed.description.splitlines()
-        if len(desc) != 2:
-            return False
-        if not desc[0].startswith("Winner"):
             return False
 
         return True
 
-
-
-
-
-
-
-
     async def get_winners(
-        self, message: discord.Message, *, emoji: str, winners: int
+            self, message: discord.Message, *, emoji: int, winners: int
     ) -> List[discord.Member]:
         if not message.reactions:
             return []
@@ -273,7 +267,6 @@ class Giveaways(commands.Cog):
 
     @commands.Cog.listener()
     async def on_giveaway_complete(self, reminder):
-        print(reminder)
         data = reminder["data"]
         try:
             channel: discord.TextChannel = self.bot.get_channel(data["channel"]) or (
@@ -317,7 +310,7 @@ class Giveaways(commands.Cog):
         new_kwargs = {"content": content}
 
         await message.edit(**old_kwargs)
-        await channel.send(**new_kwargs)
+        await message.reply(**new_kwargs)
 
 
 def setup(bot: CustomBot):
