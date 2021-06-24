@@ -69,7 +69,7 @@ class ListButtonSource(ButtonSource):
         if self.per_page == 1:
             return self.entries[page_number]
         base = page_number * self.per_page
-        return self.entries[base: base + self.per_page]
+        return self.entries[base : base + self.per_page]
 
 
 class ButtonMenu(ui.View):
@@ -123,8 +123,7 @@ class ButtonPages(ButtonMenu):
             b.disabled = any(
                 [
                     self.current_page == 0 and i < 2,
-                    self.current_page == self._source.get_max_pages() - 1
-                    and i >= 3,
+                    self.current_page == self._source.get_max_pages() - 1 and i >= 3,
                 ]
             )
 
