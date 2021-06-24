@@ -48,6 +48,7 @@ def wait_until_prepped(bot=None):
 
 def pages(per_page=10):
     """Compact page source from stella"""
+
     def wrapper(func):
         async def create_page(self, menu, entry):
             return await discord.utils.maybe_coroutine(func, self, menu, entry)

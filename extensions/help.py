@@ -51,11 +51,11 @@ async def CogSource(source, menu: menus.ButtonMenu, _commands: List[Union[core.C
 
 class GroupSource(menus.ListButtonSource):
     def __init__(
-            self,
-            group: Union[core.Group, commands.Group],
-            entries: List[Union[core.Command, commands.Command]],
-            *,
-            per_page: int,
+        self,
+        group: Union[core.Group, commands.Group],
+        entries: List[Union[core.Command, commands.Command]],
+        *,
+        per_page: int,
     ):
         super().__init__(entries=entries, per_page=per_page)
         self.group = group
@@ -111,7 +111,7 @@ class CustomHelp(commands.HelpCommand):
         await destination.send(**send_kwargs)
 
     async def send_bot_help(
-            self, mapping: Mapping[commands.Cog, List[Union[core.Command, commands.Command]]]
+        self, mapping: Mapping[commands.Cog, List[Union[core.Command, commands.Command]]]
     ):
         cogs = [
             f"{cog.emoji} `{self.context.clean_prefix}help` `{cog.qualified_name}`"

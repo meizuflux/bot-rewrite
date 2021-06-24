@@ -74,7 +74,7 @@ class ListButtonSource(ButtonSource):
         if self.per_page == 1:
             return self.entries[page_number]
         base = page_number * self.per_page
-        return self.entries[base: base + self.per_page]
+        return self.entries[base : base + self.per_page]
 
 
 class ButtonMenu(ui.View):
@@ -113,29 +113,29 @@ class ButtonMenu(ui.View):
 
 
 def button(
-        *,
-        label: Optional[str] = None,
-        custom_id: Optional[str] = None,
-        disabled: bool = False,
-        style: discord.ButtonStyle = discord.ButtonStyle.secondary,
-        emoji: Optional[Union[str, discord.Emoji, discord.PartialEmoji]] = None,
-        row: Optional[int] = None,
-        skip_if: Callable = lambda x: True
+    *,
+    label: Optional[str] = None,
+    custom_id: Optional[str] = None,
+    disabled: bool = False,
+    style: discord.ButtonStyle = discord.ButtonStyle.secondary,
+    emoji: Optional[Union[str, discord.Emoji, discord.PartialEmoji]] = None,
+    row: Optional[int] = None,
+    skip_if: Callable = lambda x: True,
 ) -> Callable[[ItemCallbackType], ItemCallbackType]:
     def decorator(func: ItemCallbackType) -> ItemCallbackType:
         if not inspect.iscoroutinefunction(func):
-            raise TypeError('button function must be a coroutine function')
+            raise TypeError("button function must be a coroutine function")
 
         func.skip_if = skip_if
         func.__discord_ui_model_type__ = ui.Button
         func.__discord_ui_model_kwargs__ = {
-            'style': style,
-            'custom_id': custom_id,
-            'url': None,
-            'disabled': disabled,
-            'label': label,
-            'emoji': emoji,
-            'row': row,
+            "style": style,
+            "custom_id": custom_id,
+            "url": None,
+            "disabled": disabled,
+            "label": label,
+            "emoji": emoji,
+            "row": row,
         }
         return func
 
