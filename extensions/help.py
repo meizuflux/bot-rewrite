@@ -23,26 +23,26 @@ def get_sig(ctx: CustomContext, command: Union[core.Command, commands.Command]) 
 
 
 def add_formatting(command):
-    fmt = '{0}' if command.short_doc else 'No help was provided for this command.'
+    fmt = "{0}" if command.short_doc else "No help was provided for this command."
     return fmt.format(command.short_doc)
 
 
 class CogSource(menus.ListButtonSource):
-    async def format_page(self, menu: menus.ButtonMenu, _commands: List[Union[core.Command, commands.Command]]):
+    async def format_page(
+        self, menu: menus.ButtonMenu, _commands: List[Union[core.Command, commands.Command]]
+    ):
         ctx: CustomContext = menu.ctx
         page = f"{menu.current_page + 1}/{self.get_max_pages()}"
         cog: commands.Cog = _commands[0].cog
         name = cog.qualified_name
         if hasattr(cog, "emoji"):
             name = f"{cog.emoji} {name}"
-        embed = ctx.bot.embed(
-            title=f"{name} | {page} ({len(self.entries)} Commands)"
-        )
+        embed = ctx.bot.embed(title=f"{name} | {page} ({len(self.entries)} Commands)")
         for command in _commands:
             embed.add_field(
                 name=get_sig(ctx, command),
                 value=add_formatting(command).format(prefix=ctx.clean_prefix),
-                inline=False
+                inline=False,
             )
         if menu.current_page == 0:
             embed.description = cog.description
@@ -51,8 +51,13 @@ class CogSource(menus.ListButtonSource):
 
 
 class GroupSource(menus.ListButtonSource):
-    def __init__(self, group: Union[core.Group, commands.Group], entries: List[Union[core.Command, commands.Command]],
-                 *, per_page: int):
+    def __init__(
+        self,
+        group: Union[core.Group, commands.Group],
+        entries: List[Union[core.Command, commands.Command]],
+        *,
+        per_page: int,
+    ):
         super().__init__(entries=entries, per_page=per_page)
         self.group = group
 
@@ -67,7 +72,7 @@ class GroupSource(menus.ListButtonSource):
             embed.add_field(
                 name=get_sig(ctx, command),
                 value=add_formatting(command).format(prefix=ctx.clean_prefix),
-                inline=False
+                inline=False,
             )
 
         if menu.current_page == 0:
@@ -107,7 +112,7 @@ class CustomHelp(commands.HelpCommand):
         await destination.send(**send_kwargs)
 
     async def send_bot_help(
-            self, mapping: Mapping[commands.Cog, List[Union[core.Command, commands.Command]]]
+        self, mapping: Mapping[commands.Cog, List[Union[core.Command, commands.Command]]]
     ):
         cogs = [
             f"{cog.emoji} `{self.context.clean_prefix}help` `{cog.qualified_name}`"
