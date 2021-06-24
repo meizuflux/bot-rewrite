@@ -143,27 +143,12 @@ def button(
 
 
 class ButtonPages(ButtonMenu):
-    def __init__(self, source: ButtonSource, timeout: Optional[float] = 180.0):
+    def __init__(self, source: ButtonSource, **options):
         self._source = source
         self.current_page = 0
-        self.timeout = timeout
-        self.children: List[ui.Item] = []
-        for func in self.__view_children_items__:
-            skip_if = func.skip_if(self)
-            if skip_if:
-
-                item: ui.Item = func.__discord_ui_model_type__(**func.__discord_ui_model_kwargs__)
-                item.callback = partial(func, self, item)
-                item._view = self
-                setattr(self, func.__name__, item)
-                self.children.append(item)
-
-        self.__weights = ui.view._ViewWeights(self.children)
-        loop = asyncio.get_running_loop()
-        self.id = os.urandom(16).hex()
-        self._cancel_callback: Optional[Callable[[ui.View], None]] = None
-        self._timeout_handler: Optional[asyncio.TimerHandle] = None
-        self._stopped = loop.create_future()
+        super().__init__(**options)
+        if not self._source.is_paginating():
+            self.children = [b for b in self.children if b.label == "Stop"]
 
     async def show_page(self, interaction, page_number):
         page = await self._source.get_page(page_number)
@@ -172,13 +157,14 @@ class ButtonPages(ButtonMenu):
         await interaction.response.edit_message(**kwargs)
 
     def format_view(self):
-        for i, b in enumerate(self.children):
-            b.disabled = any(
-                [
-                    self.current_page == 0 and i < 2,
-                    self.current_page == self._source.get_max_pages() - 1 and i >= 3,
-                ]
-            )
+        if self._source.is_paginating():
+            for i, b in enumerate(self.children):
+                b.disabled = any(
+                    [
+                        self.current_page == 0 and i < 2,
+                        self.current_page == self._source.get_max_pages() - 1 and i >= 3,
+                    ]
+                )
 
     async def show_checked_page(self, interaction, page_number):
         max_pages = self._source.get_max_pages()
@@ -221,21 +207,15 @@ class ButtonPages(ButtonMenu):
             kwargs["view"] = self
         return kwargs
 
-    def skip_long(self):
-        max_pages = self._source.get_max_pages()
-        if max_pages is None:
-            return True
-        return max_pages <= 2
-
-    @button(label="First Page", skip_if=skip_long)
+    @button(label="First Page", style=discord.ButtonStyle.primary)
     async def first_page(self, _, interaction: Interaction):
         await self.show_page(interaction, 0)
 
-    @button(label="Last Page")
+    @button(label="Last Page", style=discord.ButtonStyle.primary)
     async def before_page(self, _, interaction: Interaction):
         await self.show_checked_page(interaction, self.current_page - 1)
 
-    @button(label="Stop")
+    @button(label="Stop", style=discord.ButtonStyle.danger)
     async def stop_page(self, _, interaction: Interaction):
         if self.delete_message_after:
             self.stop()
@@ -246,10 +226,10 @@ class ButtonPages(ButtonMenu):
             self.stop()
             await interaction.response.edit_message(view=self)
 
-    @button(label="Next Page")
+    @button(label="Next Page", style=discord.ButtonStyle.primary)
     async def next_page(self, _, interaction: Interaction):
         await self.show_checked_page(interaction, self.current_page + 1)
 
-    @button(label="Last Page", skip_if=skip_long)
+    @button(label="Last Page", style=discord.ButtonStyle.primary)
     async def last_page(self, _, interaction: Interaction):
         await self.show_page(interaction, self._source.get_max_pages() - 1)
