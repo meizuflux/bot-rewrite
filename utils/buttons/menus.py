@@ -195,11 +195,3 @@ class ButtonPages(ButtonMenu):
     async def last_page(self, _, interaction: Interaction):
         await self.show_page(interaction, self._source.get_max_pages() - 1)
 
-
-class TestSource(ListButtonSource):
-    async def format_page(self, menu, page):
-        return page
-
-
-test = TestSource([discord.Embed(title="1"), discord.Embed(title="2"), discord.Embed(title="3")], per_page=1)
-mtest = ButtonPages(source=test)
