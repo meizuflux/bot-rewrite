@@ -179,8 +179,14 @@ class ButtonPages(ButtonMenu):
 
     @ui.button(label="Stop")
     async def stop_page(self, _, interaction: Interaction):
-        self.stop()
-        await interaction.message.delete()
+        if self.delete_message_after:
+            self.stop()
+            await interaction.message.delete()
+        else:
+            for button in self.children:
+                button.disabled = True
+            self.stop()
+            await interaction.response.edit_message(view=self)
 
     @ui.button(label="Next Page")
     async def next_page(self, _, interaction: Interaction):
