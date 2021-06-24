@@ -6,8 +6,74 @@ from discord.ext import commands
 
 import core
 from core.context import CustomContext
+from utils.buttons import menus
 
 __all__ = ("setup",)
+
+
+def get_sig(ctx: CustomContext, command: Union[core.Command, commands.Command]) -> str:
+    sig = command.signature
+    if not sig and not command.parent:
+        return f"`{ctx.clean_prefix}{command.name}`"
+    if not command.parent:
+        return f"`{ctx.clean_prefix}{command.name}` `{sig}`"
+    if not sig:
+        return f"`{ctx.clean_prefix}{command.parent}` `{command.name}`"
+    return f"`{ctx.clean_prefix}{command.parent}` `{command.name}` `{sig}`"
+
+
+def add_formatting(command):
+    fmt = '{0}' if command.short_doc else 'No help was provided for this command.'
+    return fmt.format(command.short_doc)
+
+
+class CogSource(menus.ListButtonSource):
+    async def format_page(self, menu: menus.ButtonMenu, _commands: List[Union[core.Command, commands.Command]]):
+        ctx: CustomContext = menu.ctx
+        page = f"{menu.current_page + 1}/{self.get_max_pages()}"
+        cog: commands.Cog = _commands[0].cog
+        name = cog.qualified_name
+        if hasattr(cog, "emoji"):
+            name = f"{cog.emoji} {name}"
+        embed = ctx.bot.embed(
+            title=f"{name} | {page} ({len(self.entries)} Commands)"
+        )
+        for command in _commands:
+            embed.add_field(
+                name=get_sig(ctx, command),
+                value=add_formatting(command).format(prefix=ctx.clean_prefix),
+                inline=False
+            )
+        if menu.current_page == 0:
+            embed.description = cog.description
+
+        return embed
+
+
+class GroupSource(menus.ListButtonSource):
+    def __init__(self, group: Union[core.Group, commands.Group], entries: List[Union[core.Command, commands.Command]],
+                 *, per_page: int):
+        super().__init__(entries=entries, per_page=per_page)
+        self.group = group
+
+    async def format_page(self, menu: menus.ButtonPages, cmds: List[core.Command]):
+        ctx = menu.ctx
+        page = f"{menu.current_page + 1}/{self.get_max_pages()}"
+        embed = ctx.bot.embed(
+            title=f"{self.group.cog.qualified_name.lower()}:{self.group.qualified_name} | {page} ({len(self.entries)} Subcommands)"
+        )
+
+        for command in cmds:
+            embed.add_field(
+                name=get_sig(ctx, command),
+                value=add_formatting(command).format(prefix=ctx.clean_prefix),
+                inline=False
+            )
+
+        if menu.current_page == 0:
+            embed.description = self.group.description
+
+        return embed
 
 
 class CustomHelp(commands.HelpCommand):
@@ -20,16 +86,6 @@ class CustomHelp(commands.HelpCommand):
         iterator = cmds if self.show_hidden else list(filter(lambda c: not c.hidden, cmds))
 
         return sorted(iterator, key=key) if sort else iterator
-
-    def get_sig(self, command):
-        sig = command.signature
-        if not sig and not command.parent:
-            return f"`{self.context.clean_prefix}{command.name}`"
-        if not command.parent:
-            return f"`{self.context.clean_prefix}{command.name}` `{sig}`"
-        if not sig:
-            return f"`{self.context.clean_prefix}{command.parent}` `{command.name}`"
-        return f"`{self.context.clean_prefix}{command.parent}` `{command.name}` `{sig}`"
 
     async def send(self, **send_kwargs):
         if not send_kwargs.get("view"):
@@ -51,7 +107,7 @@ class CustomHelp(commands.HelpCommand):
         await destination.send(**send_kwargs)
 
     async def send_bot_help(
-        self, mapping: Mapping[commands.Cog, List[Union[core.Command, commands.Command]]]
+            self, mapping: Mapping[commands.Cog, List[Union[core.Command, commands.Command]]]
     ):
         cogs = [
             f"{cog.emoji} `{self.context.clean_prefix}help` `{cog.qualified_name}`"
@@ -76,14 +132,19 @@ class CustomHelp(commands.HelpCommand):
             _commands = list(cog.walk_commands())
         else:
             _commands = cog.get_commands()
+        source = CogSource(entries=await self.filter_commands(_commands), per_page=4)
+        menu = menus.ButtonPages(source=source)
+        await menu.start(self.context)
 
-        emoji = getattr(cog, "emoji", "")
+    async def send_group_help(self, group: Union[core.Group, commands.Group]):
+        if not hasattr(group.cog, "emoji") and not await self.context.bot.is_owner(self.context.author):
+            return await self.send_error_message(self.command_not_found(group.cog.qualified_name))
 
-        filtered = await self.filter_commands(_commands)
-        _fmt = [self.get_sig(command) + f" " for command in filtered]
-        embed = self.context.bot.embed(title=f"{emoji} {cog.qualified_name}", description="\n".join(_fmt))
+        _commands = list(group.walk_commands())
 
-        await self.send(embed=embed)
+        source = GroupSource(group, entries=await self.filter_commands(_commands), per_page=4)
+        menu = menus.ButtonPages(source=source)
+        await menu.start(self.context)
 
     async def send_command_help(self, command: Union[core.Command, commands.Command]):
         if not hasattr(command.cog, "emoji") and not await self.context.bot.is_owner(self.context.author):
@@ -94,7 +155,7 @@ class CustomHelp(commands.HelpCommand):
         help_string = command.help or "No help was provided for this command ._."
         embed.description = help_string.format(prefix=ctx.clean_prefix)
 
-        usage = self.get_sig(command)
+        usage = get_sig(self.context, command)
         if returns := getattr(command, "returns", None):
             usage += "\nReturns: " + returns
 
@@ -123,9 +184,6 @@ class CustomHelp(commands.HelpCommand):
             )
 
         await self.send(embed=embed)
-
-        async def on_help_command_error(self, ctx, error):
-            print(error)
 
 
 def setup(bot):

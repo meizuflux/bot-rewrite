@@ -74,6 +74,7 @@ class ListButtonSource(ButtonSource):
 
 class ButtonMenu(ui.View):
     ctx: commands.Context
+    current_page: int
 
     def __init__(self, *, timeout=180.0, delete_message_after=False):
         super().__init__(timeout=timeout)
