@@ -195,4 +195,3 @@ class ButtonPages(ButtonMenu):
     @ui.button(label="Last Page")
     async def last_page(self, _, interaction: Interaction):
         await self.show_page(interaction, self._source.get_max_pages() - 1)
-
