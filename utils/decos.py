@@ -5,6 +5,8 @@ from discord.ext import commands
 
 __all__ = ("wait_until_prepped", "wait_until_ready")
 
+from utils.buttons import menus
+
 
 def event(func):
     def check(method):
@@ -42,3 +44,18 @@ def wait_until_prepped(bot=None):
         return True
 
     return event(predicate)
+
+
+def pages(per_page=10):
+    """Compact page source from stella"""
+    def wrapper(func):
+        async def create_page(self, menu, entry):
+            return await discord.utils.maybe_coroutine(func, self, menu, entry)
+
+        def init(self, entries):
+            super(self.__class__, self).__init__(entries, per_page=per_page)
+
+        kwargs = {"__init__": init, "format_page": create_page}
+        return type(func.__name__, (menus.ListButtonSource,), kwargs)
+
+    return wrapper

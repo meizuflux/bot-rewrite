@@ -1,8 +1,13 @@
-from typing import Optional
+import asyncio
+import inspect
+import os
+from functools import partial
+from typing import Callable, List, Optional, Union
 
 import discord
 from discord import Interaction, ui
 from discord.ext import commands
+from discord.ui.item import ItemCallbackType
 
 
 class MenuError(Exception):
@@ -69,7 +74,7 @@ class ListButtonSource(ButtonSource):
         if self.per_page == 1:
             return self.entries[page_number]
         base = page_number * self.per_page
-        return self.entries[base : base + self.per_page]
+        return self.entries[base: base + self.per_page]
 
 
 class ButtonMenu(ui.View):
@@ -107,11 +112,58 @@ class ButtonMenu(ui.View):
         await channel.send(**send_kwargs, view=view)
 
 
+def button(
+        *,
+        label: Optional[str] = None,
+        custom_id: Optional[str] = None,
+        disabled: bool = False,
+        style: discord.ButtonStyle = discord.ButtonStyle.secondary,
+        emoji: Optional[Union[str, discord.Emoji, discord.PartialEmoji]] = None,
+        row: Optional[int] = None,
+        skip_if: Callable = lambda x: True
+) -> Callable[[ItemCallbackType], ItemCallbackType]:
+    def decorator(func: ItemCallbackType) -> ItemCallbackType:
+        if not inspect.iscoroutinefunction(func):
+            raise TypeError('button function must be a coroutine function')
+
+        func.skip_if = skip_if
+        func.__discord_ui_model_type__ = ui.Button
+        func.__discord_ui_model_kwargs__ = {
+            'style': style,
+            'custom_id': custom_id,
+            'url': None,
+            'disabled': disabled,
+            'label': label,
+            'emoji': emoji,
+            'row': row,
+        }
+        return func
+
+    return decorator
+
+
 class ButtonPages(ButtonMenu):
-    def __init__(self, source: ButtonSource, **kwargs):
+    def __init__(self, source: ButtonSource, timeout: Optional[float] = 180.0):
         self._source = source
         self.current_page = 0
-        super().__init__(**kwargs)
+        self.timeout = timeout
+        self.children: List[ui.Item] = []
+        for func in self.__view_children_items__:
+            skip_if = func.skip_if(self)
+            if skip_if:
+
+                item: ui.Item = func.__discord_ui_model_type__(**func.__discord_ui_model_kwargs__)
+                item.callback = partial(func, self, item)
+                item._view = self
+                setattr(self, func.__name__, item)
+                self.children.append(item)
+
+        self.__weights = ui.view._ViewWeights(self.children)
+        loop = asyncio.get_running_loop()
+        self.id = os.urandom(16).hex()
+        self._cancel_callback: Optional[Callable[[ui.View], None]] = None
+        self._timeout_handler: Optional[asyncio.TimerHandle] = None
+        self._stopped = loop.create_future()
 
     async def show_page(self, interaction, page_number):
         page = await self._source.get_page(page_number)
@@ -169,29 +221,35 @@ class ButtonPages(ButtonMenu):
             kwargs["view"] = self
         return kwargs
 
-    @ui.button(label="First Page")
+    def skip_long(self):
+        max_pages = self._source.get_max_pages()
+        if max_pages is None:
+            return True
+        return max_pages <= 2
+
+    @button(label="First Page", skip_if=skip_long)
     async def first_page(self, _, interaction: Interaction):
         await self.show_page(interaction, 0)
 
-    @ui.button(label="Last Page")
+    @button(label="Last Page")
     async def before_page(self, _, interaction: Interaction):
         await self.show_checked_page(interaction, self.current_page - 1)
 
-    @ui.button(label="Stop")
+    @button(label="Stop")
     async def stop_page(self, _, interaction: Interaction):
         if self.delete_message_after:
             self.stop()
             await interaction.message.delete()
         else:
-            for button in self.children:
-                button.disabled = True
+            for _button in self.children:
+                _button.disabled = True
             self.stop()
             await interaction.response.edit_message(view=self)
 
-    @ui.button(label="Next Page")
+    @button(label="Next Page")
     async def next_page(self, _, interaction: Interaction):
         await self.show_checked_page(interaction, self.current_page + 1)
 
-    @ui.button(label="Last Page")
+    @button(label="Last Page", skip_if=skip_long)
     async def last_page(self, _, interaction: Interaction):
         await self.show_page(interaction, self._source.get_max_pages() - 1)
