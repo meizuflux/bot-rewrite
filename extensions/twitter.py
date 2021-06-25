@@ -1,4 +1,5 @@
 import asyncio
+import json
 
 import aiohttp
 import discord
@@ -19,7 +20,7 @@ class TwitterStreamer:
         self.session = None
 
     async def start(self):
-        url = API_URL + "/2/tweets/search/stream"
+        url = API_URL + "/2/tweets/search/stream?tweet.fields=created_at&expansions=author_id&user.fields=created_at"
 
         # https://developer.twitter.com/en/docs/twitter-api/v1/tweets/filter-realtime/guides/connecting
         stall_timeout = 90
@@ -30,7 +31,7 @@ class TwitterStreamer:
         http_420_error_wait_start = 60
 
         if self.session is None or self.session.closed:
-            headers = self.bot.session.headers | {"Authorization": f"Bearer {twitter_bearer_token}"}
+            headers = dict(self.bot.session.headers) | {"Authorization": f"Bearer {twitter_bearer_token}"}
             self.session = aiohttp.ClientSession(
                 headers=headers,
                 timeout=aiohttp.ClientTimeout(sock_read=stall_timeout)
@@ -72,12 +73,15 @@ class TwitterStreamer:
             await self.session.close()
 
     async def on_data(self, data: bytes):
-        pass
+        data = json.loads(data)
+        print(data)
 
 
 class Twitter(commands.Cog):
     def __init__(self, bot: CustomBot):
         self.bot = bot
+        self.handler = TwitterStreamer(bot)
+        self.bot.loop.create_task(self.handler.start())
 
 
 def setup(bot: CustomBot):
