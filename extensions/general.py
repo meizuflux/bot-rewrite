@@ -100,7 +100,6 @@ class General(commands.Cog):
         embed = self.bot.embed(color=discord.Color.og_blurple())
 
         me = await self.bot.getch_user(self.bot.owner_id)
-        await ctx.send(me)
         embed.set_author(name=str(me))
 
         guilds = users = bots = text = voice = 0
@@ -121,17 +120,29 @@ class General(commands.Cog):
                 if isinstance(channel, discord.VoiceChannel):
                     voice += 1
 
-        query = """
-            SELECT COUNT(*) FROM stats.commands  
-            """
-        cmds = await self.bot.pool.fetchval(query)
+        cmds = await self.bot.pool.fetchval("SELECT COUNT(*) FROM stats.commands")
+        socket = await self.bot.pool.fetch("SELECT * FROM stats.socket")
+        total = 0
+        total_messages = 0
+        for stat in socket:
+            total += stat["count"]
+            if stat["name"] == "MESSAGE_CREATE":
+                total_messages = stat["count"]
         since_restart = sum(self.bot.extra.command_stats.values())
 
+        links = (
+            f"[Support Server](https://google.com \"Join the support server!\")\n"
+            f"[Invite Link](https://google.com \"Invite me to your server\")\n"
+            f"[Source Code](https://github.com/ppotatoo/bot-rewrite \"View the source code for the bot.\")"
+        )
+
         fields = (
-            ("Users", f"{users + bots} total\n{users} humands\n{bots} robots", False),
-            ("Channels", f"{text + voice} total\n{text} text\n{voice} voice", False),
-            ("Guilds", f"{guilds}", False),
-            ("Command Usage", f"{cmds} total\n{since_restart} since restart", False),
+            ("Users", f"{(users + bots):,} total\n{users:,} humans\n{bots:,} robots", True),
+            ("Channels", f"{(text + voice):,} total\n{text:,} text\n{voice:,} voice", True),
+            ("Links", links, True),
+            ("Guilds", f"{guilds:,}", True),
+            ("Command Usage", f"{cmds:,} total\n{since_restart:,} since restart", True),
+            ("Events", f"{total_messages:,} total messages seen\n{total:,} total socket events", True)
         )
 
         for title, desc, inline in fields:
