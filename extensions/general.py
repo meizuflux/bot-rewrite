@@ -131,9 +131,9 @@ class General(commands.Cog):
         since_restart = sum(self.bot.extra.command_stats.values())
 
         links = (
-            f"[Support Server](https://google.com \"Join the support server!\")\n"
-            f"[Invite Link](https://google.com \"Invite me to your server\")\n"
-            f"[Source Code](https://github.com/ppotatoo/bot-rewrite \"View the source code for the bot.\")"
+            f'[Support Server](https://google.com "Join the support server!")\n'
+            f'[Invite Link](https://google.com "Invite me to your server")\n'
+            f'[Source Code](https://github.com/ppotatoo/bot-rewrite "View the source code for the bot.")'
         )
 
         fields = (
@@ -142,7 +142,7 @@ class General(commands.Cog):
             ("Links", links, True),
             ("Guilds", f"{guilds:,}", True),
             ("Command Usage", f"{cmds:,} total\n{since_restart:,} since restart", True),
-            ("Events", f"{total_messages:,} total messages seen\n{total:,} total socket events", True)
+            ("Events", f"{total_messages:,} total messages seen\n{total:,} total socket events", True),
         )
 
         for title, desc, inline in fields:
