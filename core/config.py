@@ -3,7 +3,15 @@ from typing import NamedTuple
 from yaml import safe_load
 
 __all__ = (
-"token", "prefix", "postgres_uri", "osu", "twitter_bearer_token", "finnhub_key", "nasa_key", "perspective_key")
+    "token",
+    "prefix",
+    "postgres_uri",
+    "osu",
+    "twitter_bearer_token",
+    "finnhub_key",
+    "nasa_key",
+    "perspective_key",
+)
 
 with open("config.yml") as f:
     _config = safe_load(f)

@@ -14,6 +14,7 @@ __all__ = ("setup",)
 
 API_URL = "https://api.twitter.com"
 
+
 class TwitterStreamer:
     def __init__(self, bot: CustomBot):
         self.bot = bot
@@ -33,8 +34,7 @@ class TwitterStreamer:
         if self.session is None or self.session.closed:
             headers = dict(self.bot.session.headers) | {"Authorization": f"Bearer {twitter_bearer_token}"}
             self.session = aiohttp.ClientSession(
-                headers=headers,
-                timeout=aiohttp.ClientTimeout(sock_read=stall_timeout)
+                headers=headers, timeout=aiohttp.ClientTimeout(sock_read=stall_timeout)
             )
 
         try:
@@ -47,19 +47,13 @@ class TwitterStreamer:
                                 if line:
                                     await self.on_data(line)
                         else:
-                            if (
-                                response.status == 420
-                                and http_error_wait < http_420_error_wait_start
-                            ):
+                            if response.status == 420 and http_error_wait < http_420_error_wait_start:
                                 http_error_wait = http_420_error_wait_start
 
                             await asyncio.sleep(http_error_wait)
 
                             http_error_wait *= 2
-                            if (
-                                response.status != 420
-                                and http_error_wait > http_error_wait_max
-                            ):
+                            if response.status != 420 and http_error_wait > http_error_wait_max:
                                 http_error_wait = http_error_wait_max
 
                 except (aiohttp.ClientConnectionError, aiohttp.ClientPayloadError):
