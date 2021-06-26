@@ -1,4 +1,5 @@
 import asyncio
+import ast
 import contextlib
 import inspect
 import io
@@ -53,7 +54,41 @@ async def send(ctx: core.CustomContext, result, stdout_):
         paginator = WrappedPaginator(prefix="", suffix="", max_size=1990, wrap_on=("",))
         paginator.add_line(to_be_sent)
         interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
-        await interface.send_to(ctx)
+        await interface.send_to(ctx)\
+
+def compile(script, _globals, _locals):
+    parsed = import_expression.parse(script)
+    base_function = "async def __evaluate_code(): pass"
+    parsed_function = import_expression.parse(base_function)
+
+    for node in parsed.body:
+        ast.increment_lineno(node)
+
+    def check_for_yield(payload):
+        if isinstance(payload, (list, tuple)):
+            for node_ in payload:
+                if check_for_yield(node_):
+                    return True
+        if isinstance(payload, (ast.Yield, ast.YieldFrom)):
+            return True
+        if hasattr(payload, 'body'):
+            for node_ in payload.body:
+                if check_for_yield(node_):
+                    return True
+        if hasattr(payload, 'value'):
+            if check_for_yield(payload.value):
+                return True
+        return False
+
+    if not check_for_yield(parsed.body):
+        insert_returns(parsed.body)
+
+    parsed_function.body[0].body = parsed.body
+
+    import_expression.exec(
+        import_expression.compile(parsed_function, filename="<evaluator>", mode='exec'),
+        _globals, _locals
+    )
 
 
 class Owner(commands.Cog, command_attrs=dict(hidden=True)):
@@ -82,18 +117,60 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
             "asyncio": asyncio,
             "session": self.bot.session,
         }
-
         env.update(globals())
 
-        code = textwrap.indent(argument.content, "    ")
-        to_compile = f"async def execute():\n{code}"
+        #code = textwrap.indent(argument.content, "    ")
 
+        parsed = import_expression.parse(argument.content)
+        base_function = "async def __execute(): pass"
+        parsed_function = import_expression.parse(base_function)
+
+        for node in parsed.body:
+            ast.increment_lineno(node)
+
+        def check_for_yield(payload):
+            if isinstance(payload, (list, tuple)):
+                for node_ in payload:
+                    if check_for_yield(node_):
+                        return True
+            if isinstance(payload, (ast.Yield, ast.YieldFrom)):
+                return True
+            if hasattr(payload, 'body'):
+                for node_ in payload.body:
+                    if check_for_yield(node_):
+                        return True
+            if hasattr(payload, 'value'):
+                if check_for_yield(payload.value):
+                    return True
+            return False
+
+        def insert_returns(body):
+            if isinstance(body[-1], ast.Expr):
+                body[-1] = ast.Return(body[-1].value)
+                ast.fix_missing_locations(body[-1])
+
+            if isinstance(body[-1], ast.If):
+                insert_returns(body[-1].body)
+                insert_returns(body[-1].orelse)
+
+            if isinstance(body[-1], (ast.With, ast.AsyncWith)):
+                insert_returns(body[-1].body)
+
+        if not check_for_yield(parsed.body):
+            insert_returns(parsed.body)
+
+        parsed_function.body[0].body = parsed.body
+
+        
         try:
-            import_expression.exec(to_compile, env, locals())
+            import_expression.exec(
+                import_expression.compile(parsed_function, filename="<repl>", mode='exec'),
+                env, locals()
+            )
         except Exception as err:
             return await ctx.send(f"```py\n" f"{err.__class__.__name__}: {err}```")
 
-        func = locals()["execute"]
+        func = locals()["__execute"]
         with io.StringIO() as stdout:
             try:
                 with contextlib.redirect_stdout(stdout):
@@ -123,7 +200,7 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
     async def execute(self, ctx: core.CustomContext, *, query: str):
         with Timer() as timer:
             ret = await self.pool.execute(query.strip("`"))
-        await ctx.send(f"`{ret}`\n**Executed in {timer.ms}ms**")
+        await ctx.send(f"`{ret}`\n**Executed in {timer.exact}**")
 
     @sql.command(aliases=("f",))
     async def fetch(self, ctx: core.CustomContext, *, query: str):
@@ -132,13 +209,13 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
         table = tabulate((dict(row) for row in ret), headers="keys", tablefmt="github")
         if len(table) > 1000:
             table = await self.bot.paste(table)
-        await ctx.send(f"{codeblock(table)}\n**Retrieved {len(ret)} rows in {timer.ms:.2f}ms**")
+        await ctx.send(f"{codeblock(table)}\n**Retrieved {len(ret)} rows in {timer.exact}**")
 
     @sql.command(aliases=("fv",))
     async def fetchval(self, ctx: core.CustomContext, *, query: str):
         with Timer() as timer:
             ret = await self.pool.fetchval(query.strip("`"))
-        await ctx.send(f"{codeblock(f'{ret!r}')}\n**Retrieved in {timer.ms}ms**")
+        await ctx.send(f"{codeblock(f'{ret!r}')}\n**Retrieved in {timer.exact}**")
 
     @sql.error
     async def sql_error(self, ctx: core.CustomContext, error: Exception):

@@ -110,6 +110,7 @@ class Timer:
         self._end = time.perf_counter()
         self.elapsed = self._end - self._start
         self.ms = self.elapsed * 1000
+        self.exact = specific_timer_duration(self.elapsed)
 
     def __int__(self):
         return round(self.elapsed)
@@ -142,3 +143,17 @@ def parse_date(argument):
             continue
 
     return None
+
+def specific_timer_duration(seconds):
+    def rnd(i):
+        return round(i, 2) if i >= 10 else round(i, 3)
+
+    if seconds > 0.001:
+        return f"{rnd(seconds * 1000)} ms"
+    if seconds > 0.000001:
+        return f"{rnd(seconds * 1000000)} μs"
+    if seconds > 0.000000001:
+        return f"{rnd(seconds * 1000000000)} ns"
+    if seconds > 0.000000000001:
+        return f"{rnd(seconds * 1000000000000)} ps"
+    return "<1 ps"
