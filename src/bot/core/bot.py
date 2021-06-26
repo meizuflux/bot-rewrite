@@ -36,15 +36,20 @@ class Extra:
 class CustomBot(commands.Bot):
     loop: AbstractEventLoop
 
-    def __init__(self, *args, **kwargs) -> None:
-        _prefix = kwargs.pop("command_prefix", get_prefix)
-        super().__init__(*args, **kwargs, command_prefix=_prefix)
+    def __init__(self) -> None:
+        intents = discord.Intents.default()
+        intents.members = True
+        super().__init__(
+            command_prefix=get_prefix,
+            skip_after_prefix=True,
+            case_insensitive=True,
+            intents=intents,
+            max_messages=750,
+            owner_id=809587169520910346,
+        )
 
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
 
-        self.pool: CustomPool = self.loop.run_until_complete(
-            create_pool(bot=self, dsn=config.postgres_uri, loop=self.loop)
-        )
         self.loop.create_task(self.__prep())
         self.prepped = Event()
 

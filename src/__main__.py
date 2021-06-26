@@ -1,37 +1,49 @@
+import asyncio
 import os
-import sys
+import logging
 from asyncio import get_event_loop
 from traceback import format_exc
 
 import click
-import discord
+import uvicorn
 from asyncpg import Pool, create_pool
 
+from db import db
 from bot.core import CustomBot
 from config import postgres_uri, token
 
 
-def run_bot():
-    intents = discord.Intents.default()
-    intents.members = True
+log = logging.getLogger("runner")
 
-    flags = discord.MemberCacheFlags.from_intents(intents)
+async def run_bot(bot):
+    log.info("Running Bot")
+    bot.load_extensions()
+    try:
+        await bot.start(token)
+    finally:
+        if not bot.is_closed():
+            await bot.close()
 
-    bot = CustomBot(
-        skip_after_prefix=True,
-        case_insensitive=True,
-        intents=intents,
-        member_cache_flags=flags,
-        max_messages=750,
-        owner_id=809587169520910346,
-    )
+async def run_server(server: uvicorn.Server):
+    log.info("Running Webserver")
+    try:
+        await server.serve()
+    finally:
+        await server.config.app.close()
+        await server.shutdown()
 
+async def run():
     os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
     os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True"
     os.environ["JISHAKU_HIDE"] = "True"
     os.environ["PYTHONIOENCODING"] = "UTF-8"
 
-    bot.run(token)
+    
+    bot = CustomBot()
+    bot.pool = await db.create_pool(bot=bot, dsn=postgres_uri, loop=bot.loop)
+
+
+    await asyncio.gather(run_bot(bot), run_server())
 
 
 @click.group(invoke_without_command=True, options_metavar="[options]")
@@ -39,7 +51,7 @@ def run_bot():
 def main(ctx):
     """Launches the bot."""
     if ctx.invoked_subcommand is None:
-        run_bot()
+        asyncio.run(run())
 
 
 @main.command(short_help="initialises the databases for the bot", options_metavar="[options]")
@@ -71,11 +83,17 @@ def init(show: bool, run: bool):
                 click.echo(f"Failed on file {file}.\n{format_exc()}", err=True)
                 return
 
-    click.echo("Created tables.", file=sys.stderr)
+    log.info("Created tables.")
 
     if run:
         run_bot()
 
 
 if __name__ == "__main__":
+    try:
+        import uvloop
+    except ModuleNotFoundError:
+        log.warning("uvloop is not installed")
+    else:
+        uvloop.install()
     main()
