@@ -1,8 +1,5 @@
-import asyncio
 import inspect
-import os
-from functools import partial
-from typing import Callable, List, Optional, Union
+from typing import Callable, Optional, Union
 
 import discord
 from discord import Interaction, ui

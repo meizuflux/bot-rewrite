@@ -4,15 +4,14 @@ import discord
 from discord import ui
 from discord.ext import commands
 
-import core
-from core.context import CustomContext
+from bot import core
 from utils import decos
 from utils.buttons import menus
 
 __all__ = ("setup",)
 
 
-def get_sig(ctx: CustomContext, command: Union[core.Command, commands.Command]) -> str:
+def get_sig(ctx: core.CustomContext, command: Union[core.Command, commands.Command]) -> str:
     sig = command.signature
     if not sig and not command.parent:
         return f"`{ctx.clean_prefix}{command.name}`"
@@ -30,7 +29,7 @@ def add_formatting(command):
 
 @decos.pages(per_page=4)
 async def CogSource(source, menu: menus.ButtonMenu, _commands: List[Union[core.Command, commands.Command]]):
-    ctx: CustomContext = menu.ctx
+    ctx: core.CustomContext = menu.ctx
     page = f"{menu.current_page + 1}/{source.get_max_pages()}"
     cog: commands.Cog = _commands[0].cog
     name = cog.qualified_name
@@ -81,7 +80,7 @@ class GroupSource(menus.ListButtonSource):
 
 
 class CustomHelp(commands.HelpCommand):
-    context: CustomContext
+    context: core.CustomContext
 
     async def filter_commands(self, cmds, *, sort=True, key=None):
         if sort and key is None:
@@ -190,9 +189,9 @@ class CustomHelp(commands.HelpCommand):
         await self.send(embed=embed)
 
 
-def setup(bot):
+def setup(bot: core.CustomBot):
     bot.help_command = CustomHelp()
 
 
-def teardown(bot):
+def teardown(bot: core.CustomBot):
     bot.help_command = commands.DefaultHelpCommand()

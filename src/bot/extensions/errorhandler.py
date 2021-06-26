@@ -4,18 +4,17 @@ from traceback import format_exception
 import discord
 from discord.ext import commands
 
-from core.bot import CustomBot
-from core.context import CustomContext
+from bot import core
 
 __all__ = ("setup",)
 
 
 class ErrorHandler(commands.Cog):
-    def __init__(self, bot: CustomBot):
+    def __init__(self, bot: core.CustomBot):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_command_error(self, ctx: CustomContext, error: Exception):
+    async def on_command_error(self, ctx: core.CustomContext, error: Exception):
         owner_errors = (
             commands.MissingAnyRole,
             commands.MissingPermissions,
@@ -72,5 +71,5 @@ class ErrorHandler(commands.Cog):
         await ctx.send("Oops, an error occured. Here's some info on it: \n" + traceback)
 
 
-def setup(bot):
+def setup(bot: core.CustomBot):
     bot.add_cog(ErrorHandler(bot))

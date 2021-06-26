@@ -5,7 +5,7 @@ from datetime import datetime as dt, timezone
 from dateutil.relativedelta import relativedelta
 from discord.ext import commands
 
-from core.context import CustomContext
+from bot import core
 from .formats import human_join, plural
 
 __all__ = ("parse_time", "human_timedelta", "Timer")
@@ -23,7 +23,7 @@ TIME_REGEX = re.compile(
 )
 
 
-def parse_time(ctx: CustomContext, arg: str, *, _add_now=False) -> dt:
+def parse_time(ctx: core.CustomContext, arg: str, *, _add_now=False) -> dt:
     now = utcnow()
     argument = arg.replace(" and ", "").replace(" ", "")
 

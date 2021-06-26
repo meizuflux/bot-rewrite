@@ -7,9 +7,7 @@ import discord
 from discord import utils
 from discord.ext import commands
 
-import core
-from core.bot import CustomBot
-from core.context import CustomContext
+from bot import core
 from utils.formats import plural
 from utils.time import parse_time, utcnow
 
@@ -30,7 +28,7 @@ def random_tada():
     return choice(tadas)
 
 
-async def get_channel(ctx: CustomContext, argument: str) -> Optional[discord.TextChannel]:
+async def get_channel(ctx: core.CustomContext, argument: str) -> Optional[discord.TextChannel]:
     try:
         channel = await commands.TextChannelConverter().convert(ctx, argument)
     except commands.ChannelNotFound:
@@ -60,7 +58,7 @@ async def get_channel(ctx: CustomContext, argument: str) -> Optional[discord.Tex
     return channel
 
 
-async def get_expiration(ctx: CustomContext, argument: str) -> Optional[dt]:
+async def get_expiration(ctx: core.CustomContext, argument: str) -> Optional[dt]:
     try:
         expires = parse_time(ctx, argument, _add_now=True)
     except commands.BadArgument as err:
@@ -70,7 +68,7 @@ async def get_expiration(ctx: CustomContext, argument: str) -> Optional[dt]:
     return expires
 
 
-async def get_prize(ctx: CustomContext, argument: str) -> Optional[str]:
+async def get_prize(ctx: core.CustomContext, argument: str) -> Optional[str]:
     if len(argument) >= 256:
         await ctx.send(f"{random_tada()} The prize must be less than 256 characters long, sorry. ;-;")
         return None
@@ -78,7 +76,7 @@ async def get_prize(ctx: CustomContext, argument: str) -> Optional[str]:
     return argument
 
 
-async def get_mex_winners(ctx: CustomContext, argument: str) -> Optional[int]:
+async def get_mex_winners(ctx: core.CustomContext, argument: str) -> Optional[int]:
     if not argument.isdigit():
         await ctx.send(f"{random_tada()} Please send a number. ;-;")
         return None
@@ -92,7 +90,7 @@ async def get_mex_winners(ctx: CustomContext, argument: str) -> Optional[int]:
     return int(argument)
 
 
-async def wait_for(ctx: CustomContext) -> Optional[str]:
+async def wait_for(ctx: core.CustomContext) -> Optional[str]:
     check = lambda m: m.author == ctx.author and m.channel == ctx.channel
     try:
         message: discord.Message = await ctx.bot.wait_for("message", check=check, timeout=120)
@@ -110,18 +108,18 @@ async def wait_for(ctx: CustomContext) -> Optional[str]:
 
 
 class Giveaways(commands.Cog):
-    def __init__(self, bot: CustomBot):
+    def __init__(self, bot: core.CustomBot):
         self.bot = bot
         self.emoji = random_tada()
         self.show_subcommands = True
 
     @core.group(aliases=("g", "raffle"), invoke_without_command=True)
-    async def giveaway(self, ctx: CustomContext):
+    async def giveaway(self, ctx: core.CustomContext):
         await ctx.send_help(ctx.command)
 
     @giveaway.command(name="create")
     @commands.max_concurrency(1, commands.BucketType.channel)
-    async def giveaway_create(self, ctx: CustomContext):
+    async def giveaway_create(self, ctx: core.CustomContext):
         timer = self.bot.get_cog("Reminders")
         if timer is None:
             return await ctx.send("This functionality is not available currently.")
@@ -215,7 +213,7 @@ class Giveaways(commands.Cog):
         await m.add_reaction("✅")
 
     @giveaway.command(name="reroll", aliases=("newwinner",))
-    async def giveaway_reroll(self, ctx: CustomContext, message: discord.Message = None):
+    async def giveaway_reroll(self, ctx: core.CustomContext, message: discord.Message = None):
         if message is None:
             async for msg in ctx.history(limit=100):
                 check = await self.validate_reroll_message(msg)
@@ -256,7 +254,7 @@ class Giveaways(commands.Cog):
         return self.bot.random.sample(users, min(len(users), winners))
 
     @giveaway_create.error
-    async def create_giveaway_error(self, ctx: CustomContext, error: Exception):
+    async def create_giveaway_error(self, ctx: core.CustomContext, error: Exception):
         if isinstance(error, commands.MaxConcurrencyReached):
             return await ctx.send("Sorry, there is already a giveaway being created in this channel.")
 
@@ -316,5 +314,5 @@ class Giveaways(commands.Cog):
         await message.reply(**new_kwargs)
 
 
-def setup(bot: CustomBot):
+def setup(bot: core.CustomBot):
     bot.add_cog(Giveaways(bot))

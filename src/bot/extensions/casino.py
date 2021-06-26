@@ -4,9 +4,7 @@ import discord
 from discord import ui
 from discord.ext import commands
 
-import core
-from core.bot import CustomBot
-from core.context import CustomContext
+from bot import core
 
 __all__ = ("setup",)
 
@@ -95,7 +93,7 @@ class Gamble:
 
 
 class Blackjack(ui.View):
-    def __init__(self, ctx: CustomContext, *, bet: int):
+    def __init__(self, ctx: core.CustomContext, *, bet: int):
         super().__init__()
         self.ctx = ctx
         self.embed = None
@@ -235,15 +233,15 @@ class Blackjack(ui.View):
 
 
 class Casino(commands.Cog):
-    def __init__(self, bot: CustomBot):
+    def __init__(self, bot: core.CustomBot):
         self.bot = bot
 
     @core.command()
     @commands.is_owner()
-    async def blackjack(self, ctx: CustomContext):
+    async def blackjack(self, ctx: core.CustomContext):
         game = Blackjack(ctx, bet=1000)
         await game.start()
 
 
-def setup(bot: CustomBot):
+def setup(bot: core.CustomBot):
     bot.add_cog(Casino(bot))

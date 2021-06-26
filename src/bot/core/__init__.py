@@ -1,6 +1,8 @@
 from discord.ext import commands
+from .bot import CustomBot
+from .context import CustomContext
 
-__all__ = ("command", "group")
+__all__ = ("command", "group", "CustomBot", "CustomContext")
 
 
 class CommandMixin:

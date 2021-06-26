@@ -7,8 +7,8 @@ import click
 import discord
 from asyncpg import Pool, create_pool
 
-from core.bot import CustomBot
-from core.config import postgres_uri, token
+from bot.core import CustomBot
+from config import postgres_uri, token
 
 
 def run_bot():
@@ -61,7 +61,7 @@ def init(show: bool, run: bool):
         "indexes.sql",
     )
     for file in files:
-        with open("scripts/sql/" + file, encoding="utf8") as f:
+        with open("src/scripts/sql/" + file, encoding="utf8") as f:
             read = f.read()
             if show:
                 print(read)

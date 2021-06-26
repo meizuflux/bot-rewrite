@@ -9,8 +9,8 @@ import discord
 from aiohttp import ClientSession
 from discord.ext import commands
 
-from core import config
-from utils.db import CustomPool, create_pool
+import config
+from db.db import CustomPool, create_pool
 
 log = logging.getLogger("bot")
 logging.basicConfig(level=logging.INFO)
@@ -69,7 +69,6 @@ class CustomBot(commands.Bot):
 
     def load_extensions(self):
         extensions = [
-            "jishaku",
             "core.context",
             "extensions.help",
             "extensions.osu",
@@ -82,10 +81,10 @@ class CustomBot(commands.Bot):
             "extensions.casino",
             "extensions.useful",
             "extensions.giveaways",
-            #  "extensions.twitter",
         ]
         for ext in extensions:
-            self.load_extension(ext)
+            self.load_extension("bot." + ext)
+        self.load_extension("jishaku")
         log.info("Loaded extensions")
 
     async def get_context(self, message, *, cls=None):

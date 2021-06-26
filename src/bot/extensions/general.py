@@ -4,9 +4,7 @@ from pathlib import Path
 import discord
 from discord.ext import commands
 
-import core
-from core.bot import CustomBot
-from core.context import CustomContext
+from bot import core
 from utils import codeblock
 
 __all__ = ("setup",)
@@ -58,7 +56,7 @@ class LineCounter:
 class General(commands.Cog):
     """General commands, about the bot etc"""
 
-    def __init__(self, bot: CustomBot):
+    def __init__(self, bot: core.CustomBot):
         self.bot = bot
         self.emoji = "<a:pop_cat:854027957878390784>"
 
@@ -86,17 +84,17 @@ class General(commands.Cog):
         returns="A chart showing socket stats of this bot.",
         invoke_without_command=True,
     )
-    async def socket(self, ctx: CustomContext):
+    async def socket(self, ctx: core.CustomContext):
         await self.send_socket_stats(ctx, self.bot.extra.socket_stats.most_common())
 
     @socket.command(name="total", aliases=("all",), returns="A table showing the total socket stats")
-    async def socket_total(self, ctx: CustomContext):
+    async def socket_total(self, ctx: core.CustomContext):
         raw = await self.bot.pool.fetch("SELECT name, count FROM stats.socket ORDER BY count DESC")
         stats = [(i["name"], i["count"]) for i in raw]
         await self.send_socket_stats(ctx, stats, omit_minutes=True)
 
     @core.command(returns="Things about the bot.")
-    async def about(self, ctx: CustomContext):
+    async def about(self, ctx: core.CustomContext):
         embed = self.bot.embed(color=discord.Color.og_blurple())
 
         me = await self.bot.getch_user(self.bot.owner_id)
@@ -151,7 +149,7 @@ class General(commands.Cog):
         await ctx.send(embed=embed)
 
     @core.command(aliases=("codestats", "lines"), returns="Various code stats about me!")
-    async def code_stats(self, ctx: CustomContext):
+    async def code_stats(self, ctx: core.CustomContext):
         stats = LineCounter.project()
         await ctx.send(
             codeblock(
@@ -171,5 +169,5 @@ class General(commands.Cog):
         )
 
 
-def setup(bot: CustomBot):
+def setup(bot: core.CustomBot):
     bot.add_cog(General(bot))

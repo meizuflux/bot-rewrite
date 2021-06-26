@@ -6,8 +6,7 @@ from logging import getLogger
 import discord
 from discord.ext import commands, tasks
 
-from core.bot import CustomBot
-from core.context import CustomContext
+from bot import core
 from utils.decos import wait_until_prepped
 
 __all__ = ("setup",)
@@ -16,7 +15,7 @@ log = getLogger(__name__)
 
 
 class BackgroundEvents(commands.Cog):
-    def __init__(self, bot: CustomBot):
+    def __init__(self, bot: core.CustomBot):
         self.bot = bot
         self._lock = asyncio.Lock(loop=self.bot.loop)
 
@@ -93,7 +92,7 @@ class BackgroundEvents(commands.Cog):
                     self._socket_cache.clear()
 
     @commands.Cog.listener()
-    async def on_command_completion(self, ctx: CustomContext):
+    async def on_command_completion(self, ctx: core.CustomContext):
         if ctx.command is None:
             return
 
@@ -133,5 +132,5 @@ class BackgroundEvents(commands.Cog):
                 self._usernames_cache.append({"snowflake": after.id, "username": after.name})
 
 
-def setup(bot):
+def setup(bot: core.CustomBot):
     bot.add_cog(BackgroundEvents(bot))

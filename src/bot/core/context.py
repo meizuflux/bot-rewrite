@@ -1,6 +1,6 @@
 from discord.ext import commands
 
-from core.bot import CustomBot
+from . import CustomBot
 
 __all__ = ("CustomContext", "setup", "teardown")
 

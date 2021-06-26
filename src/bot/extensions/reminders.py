@@ -7,9 +7,7 @@ import asyncpg
 import discord
 from discord.ext import commands
 
-import core
-from core.bot import CustomBot
-from core.context import CustomContext
+from bot import core
 from utils.time import human_timedelta, parse_time, utcnow
 
 __all__ = ("setup",)
@@ -18,7 +16,7 @@ log = logging.getLogger(__name__)
 
 
 class Reminders(commands.Cog):
-    def __init__(self, bot: CustomBot):
+    def __init__(self, bot: core.CustomBot):
         self.bot = bot
         self.emoji = "<a:pikawink:853236064991182909>"
         self.show_subcommands = True
@@ -120,7 +118,7 @@ class Reminders(commands.Cog):
         },
         returns="Confirmation that I have registered your reminder.",
     )
-    async def remind(self, ctx: CustomContext, time: str, *, thing: str = "Nothing"):
+    async def remind(self, ctx: core.CustomContext, time: str, *, thing: str = "Nothing"):
         """A command to remind yourself of things
         Times are in UTC.
         """
@@ -156,5 +154,5 @@ class Reminders(commands.Cog):
             return
 
 
-def setup(bot):
+def setup(bot: core.CustomBot):
     bot.add_cog(Reminders(bot))

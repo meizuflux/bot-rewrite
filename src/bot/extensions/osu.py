@@ -7,10 +7,8 @@ from discord import ButtonStyle, Embed, Interaction, ui
 from discord.ext import commands
 from humanize import precisedelta
 
-import core
-from core.bot import CustomBot
-from core.config import osu
-from core.context import CustomContext
+from bot import core
+from config import osu
 from utils import MENTION_REGEX
 from utils.buttons import StopButton
 from utils.decos import wait_until_ready
@@ -34,7 +32,7 @@ class OsuButton(ui.Button["OsuProfileView"]):
 class OsuProfileView(ui.View):
     embed: Embed
 
-    def __init__(self, ctx: CustomContext, messages: dict):
+    def __init__(self, ctx: core.CustomContext, messages: dict):
         super().__init__()
         self.ctx = ctx
         self.data = messages
@@ -64,7 +62,7 @@ OsuConverterResponse = NamedTuple("ConverterResponse", [("search", Union[int, st
 
 
 class OsuUserConverter(commands.Converter):
-    async def convert(self, ctx: "CustomContext", argument) -> OsuConverterResponse:
+    async def convert(self, ctx: "core.CustomContext", argument) -> OsuConverterResponse:
         if argument is None:
             _id = await ctx.bot.pool.fetchval(
                 "SELECT id FROM users.games WHERE game = 'osu' AND snowflake = $1", ctx.author.id
@@ -89,7 +87,7 @@ class OsuUserConverter(commands.Converter):
 
 
 class Osu(commands.Cog):
-    def __init__(self, bot: CustomBot):
+    def __init__(self, bot: core.CustomBot):
         self.bot = bot
         self.emoji = "<:osu:850783495386300416>"
         self.show_subcommands = True
@@ -122,7 +120,7 @@ class Osu(commands.Cog):
         return data
 
     @core.group(usage="<subcommand>")
-    async def osu(self, ctx: CustomContext):
+    async def osu(self, ctx: core.CustomContext):
         if ctx.invoked_subcommand is None:
             await ctx.send_help(ctx.command)
 
@@ -135,7 +133,7 @@ class Osu(commands.Cog):
         },
         returns="An interactive view that showcases an osu! user's profile.",
     )
-    async def osu_profile(self, ctx: CustomContext, query: str = None):
+    async def osu_profile(self, ctx: core.CustomContext, query: str = None):
         """A command to view someone's osu! profile.
         You can view the user's stats and socials through an interactive button menu.
         """
@@ -200,7 +198,7 @@ class Osu(commands.Cog):
         params={"query": "The user you want to register yourself to."},
         returns="Confirmation that you got registered.",
     )
-    async def osu_register(self, ctx: CustomContext, query: OsuUserConverter):
+    async def osu_register(self, ctx: core.CustomContext, query: OsuUserConverter):
         """Simple command that registers you to an osu! profile
         Two users can have the same profile.
         """
@@ -210,5 +208,5 @@ class Osu(commands.Cog):
         await ctx.send("Registered you into the database.")
 
 
-def setup(bot):
+def setup(bot: core.CustomBot):
     bot.add_cog(Osu(bot))
