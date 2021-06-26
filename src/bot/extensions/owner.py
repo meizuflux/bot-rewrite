@@ -85,7 +85,6 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
         }
         env.update(globals())
 
-
         parsed = import_expression.parse(argument.content)
         base_function = "async def __execute(): pass"
         parsed_function = import_expression.parse(base_function)
