@@ -36,7 +36,9 @@ class Useful(commands.Cog):
         returns="An invite link for the channel.",
     )
     @checks.can_run(create_instant_invite=True)
-    async def vc_game(self, ctx: core.CustomContext, game: GameConverter, channel: discord.VoiceChannel = None):
+    async def vc_game(
+        self, ctx: core.CustomContext, game: GameConverter, channel: discord.VoiceChannel = None
+    ):
         """Creates an invite link for an interactive game in a Voice Channel"""
         json = {
             "max_age": 86400,

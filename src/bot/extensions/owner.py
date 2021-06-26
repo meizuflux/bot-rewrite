@@ -54,7 +54,8 @@ async def send(ctx: core.CustomContext, result, stdout_):
         paginator = WrappedPaginator(prefix="", suffix="", max_size=1990, wrap_on=("",))
         paginator.add_line(to_be_sent)
         interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
-        await interface.send_to(ctx)\
+        await interface.send_to(ctx)
+
 
 def compile(script, _globals, _locals):
     parsed = import_expression.parse(script)
@@ -71,11 +72,11 @@ def compile(script, _globals, _locals):
                     return True
         if isinstance(payload, (ast.Yield, ast.YieldFrom)):
             return True
-        if hasattr(payload, 'body'):
+        if hasattr(payload, "body"):
             for node_ in payload.body:
                 if check_for_yield(node_):
                     return True
-        if hasattr(payload, 'value'):
+        if hasattr(payload, "value"):
             if check_for_yield(payload.value):
                 return True
         return False
@@ -86,8 +87,7 @@ def compile(script, _globals, _locals):
     parsed_function.body[0].body = parsed.body
 
     import_expression.exec(
-        import_expression.compile(parsed_function, filename="<evaluator>", mode='exec'),
-        _globals, _locals
+        import_expression.compile(parsed_function, filename="<evaluator>", mode="exec"), _globals, _locals
     )
 
 
@@ -119,7 +119,7 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
         }
         env.update(globals())
 
-        #code = textwrap.indent(argument.content, "    ")
+        # code = textwrap.indent(argument.content, "    ")
 
         parsed = import_expression.parse(argument.content)
         base_function = "async def __execute(): pass"
@@ -135,11 +135,11 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
                         return True
             if isinstance(payload, (ast.Yield, ast.YieldFrom)):
                 return True
-            if hasattr(payload, 'body'):
+            if hasattr(payload, "body"):
                 for node_ in payload.body:
                     if check_for_yield(node_):
                         return True
-            if hasattr(payload, 'value'):
+            if hasattr(payload, "value"):
                 if check_for_yield(payload.value):
                     return True
             return False
@@ -161,11 +161,9 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
 
         parsed_function.body[0].body = parsed.body
 
-        
         try:
             import_expression.exec(
-                import_expression.compile(parsed_function, filename="<repl>", mode='exec'),
-                env, locals()
+                import_expression.compile(parsed_function, filename="<repl>", mode="exec"), env, locals()
             )
         except Exception as err:
             return await ctx.send(f"```py\n" f"{err.__class__.__name__}: {err}```")
