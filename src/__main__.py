@@ -9,6 +9,7 @@ import uvicorn
 from asyncpg import Pool, create_pool
 
 from db import db
+from web import app
 from bot.core import CustomBot
 from config import postgres_uri, token
 
@@ -29,7 +30,6 @@ async def run_server(server: uvicorn.Server):
     try:
         await server.serve()
     finally:
-        await server.config.app.close()
         await server.shutdown()
 
 async def run():
@@ -42,8 +42,10 @@ async def run():
     bot = CustomBot()
     bot.pool = await db.create_pool(bot=bot, dsn=postgres_uri, loop=bot.loop)
 
+    config = uvicorn.Config(app)
+    server = uvicorn.Server(config)
 
-    await asyncio.gather(run_bot(bot), run_server())
+    await asyncio.gather(run_bot(bot), run_server(server))
 
 
 @click.group(invoke_without_command=True, options_metavar="[options]")
@@ -96,4 +98,7 @@ if __name__ == "__main__":
         log.warning("uvloop is not installed")
     else:
         uvloop.install()
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
