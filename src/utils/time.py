@@ -144,6 +144,7 @@ def parse_date(argument):
 
     return None
 
+
 def specific_timer_duration(seconds):
     def rnd(i):
         return round(i, 2) if i >= 10 else round(i, 3)
