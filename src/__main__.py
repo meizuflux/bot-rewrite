@@ -43,7 +43,7 @@ async def run():
     bot = CustomBot()
     bot.pool = await db.create_pool(bot=bot, dsn=postgres_uri, loop=bot.loop)
 
-    config = uvicorn.Config(app, use_colors=False, log_config=None, host="localhost")
+    config = uvicorn.Config(app, use_colors=False, log_config=None)
     server = uvicorn.Server(config)
     server.install_signal_handlers = lambda *args, **kwargs: None
 
@@ -60,12 +60,12 @@ def main(ctx):
 
 @main.command(short_help="initialises the databases for the bot", options_metavar="[options]")
 @click.option("-s", "--show", help="show the output", is_flag=True)
-@click.option("-r", "--run", help="run bot after", is_flag=True)
-def init(show: bool, run: bool):
+@click.option("--start_bot", help="run bot after", is_flag=True)
+def init(show: bool, start_bot: bool):
     _run = get_event_loop().run_until_complete
     try:
         pool: Pool = _run(create_pool(dsn=postgres_uri))
-    except Exception as err:
+    except:
         click.echo(f"Could not create database connection.\n{format_exc()}", err=True)
         return
 
@@ -89,8 +89,8 @@ def init(show: bool, run: bool):
 
     log.info("Created tables.")
 
-    if run:
-        run_bot()
+    if start_bot:
+        asyncio.run(run())
 
 
 if __name__ == "__main__":
