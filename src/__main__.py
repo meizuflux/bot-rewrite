@@ -17,6 +17,7 @@ from config import postgres_uri, token
 
 log = logging.getLogger("runner")
 
+
 async def run_bot(bot):
     bot.load_extensions()
     try:
@@ -25,11 +26,13 @@ async def run_bot(bot):
         if not bot.is_closed():
             await bot.close()
 
+
 async def run_server(server: uvicorn.Server):
     try:
         await server.serve()
     finally:
         await server.shutdown()
+
 
 async def run():
     os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
@@ -37,7 +40,6 @@ async def run():
     os.environ["JISHAKU_HIDE"] = "True"
     os.environ["PYTHONIOENCODING"] = "UTF-8"
 
-    
     bot = CustomBot()
     bot.pool = await db.create_pool(bot=bot, dsn=postgres_uri, loop=bot.loop)
 
