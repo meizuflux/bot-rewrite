@@ -6,11 +6,12 @@ from statistics import mean
 from typing import List, Union
 
 import discord
+import uvicorn
 from aiohttp import ClientSession
 from discord.ext import commands
 
 import config
-from db.db import CustomPool, create_pool
+from web.app import app
 
 log = logging.getLogger("bot")
 logging.basicConfig(level=logging.INFO)
@@ -36,7 +37,7 @@ class Extra:
 class CustomBot(commands.Bot):
     loop: AbstractEventLoop
 
-    def __init__(self) -> None:
+    def __init__(self, loop: AbstractEventLoop) -> None:
         intents = discord.Intents.default()
         intents.members = True
         super().__init__(
@@ -46,6 +47,7 @@ class CustomBot(commands.Bot):
             intents=intents,
             max_messages=750,
             owner_id=809587169520910346,
+            loop=loop,
         )
 
         self._BotBase__cogs = commands.core._CaseInsensitiveDict()
@@ -63,6 +65,8 @@ class CustomBot(commands.Bot):
         self.session = ClientSession(
             headers={"User-Agent": "Walrus (https://github.com/ppotatoo/bot-rewrite)"}
         )
+        # self.ipc.start()
+        
         await self.wait_until_ready()
         async with self.pool.acquire() as conn:
             await conn.executemany(
@@ -96,8 +100,8 @@ class CustomBot(commands.Bot):
         return await super().get_context(message, cls=cls or self.context)
 
     async def login(self, token: str):
-        self.start_time = discord.utils.utcnow()
         await super().login(token)
+        self.start_time = discord.utils.utcnow()
 
     def run(self, *args, **kwargs):
         self.load_extensions()

@@ -32,6 +32,8 @@ class BackgroundEvents(commands.Cog):
     @tasks.loop(seconds=10)
     @wait_until_prepped()
     async def bulk_insert(self):
+        if self.bot.is_closed():
+            return
         async with self.bot.pool.acquire() as conn:
             if self._command_cache:
                 async with self._lock:
