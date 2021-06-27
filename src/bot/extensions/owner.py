@@ -14,9 +14,9 @@ from jishaku.codeblocks import codeblock_converter
 from jishaku.paginators import PaginatorInterface, WrappedPaginator
 from tabulate import tabulate
 
-from bot import core
-from utils import codeblock
-from utils.time import Timer
+from src.bot import core
+from src.utils import codeblock
+from src.utils.time import Timer
 
 __all__ = ("setup",)
 

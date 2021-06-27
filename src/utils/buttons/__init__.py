@@ -3,7 +3,7 @@ from typing import Optional, Tuple, Union
 
 import discord
 
-from bot import core
+from src.bot import core
 
 
 class StopButton(discord.ui.Button):

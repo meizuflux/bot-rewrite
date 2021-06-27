@@ -5,13 +5,11 @@ from asyncio import get_event_loop
 from traceback import format_exc
 
 import click
-import uvicorn
 from asyncpg import Pool, create_pool
 
-import db
-from web import app
-from bot.core import CustomBot
-from config import postgres_uri, token
+from src import db
+from src.bot.core import CustomBot
+from src.config import postgres_uri, token
 
 
 log = logging.getLogger("runner")
@@ -27,6 +25,7 @@ def run():
 
     bot = CustomBot(loop=loop)
     bot.pool = loop.run_until_complete(db.create_pool(bot=bot, dsn=postgres_uri, loop=bot.loop))
+    bot.ipc.start()
 
     bot.run(token)
 

@@ -6,17 +6,20 @@ from statistics import mean
 from typing import List, Union
 
 import discord
-import uvicorn
 from aiohttp import ClientSession
 from discord.ext import commands
 
-import config
-from web.app import app
+from ... import config
+from src.web import ipc
 
 log = logging.getLogger("bot")
 logging.basicConfig(level=logging.INFO)
 
 __all__ = ("CustomBot",)
+
+@ipc.route(name="test")
+async def test(text):
+    return "this is a cool thing: {}".format(text)
 
 
 def get_prefix(bot: "CustomBot", message: discord.Message) -> Union[List[str], str]:
@@ -59,14 +62,14 @@ class CustomBot(commands.Bot):
         self.extra = Extra()
         self.start_time = None
 
+        self.ipc = ipc.Server(self)
+
         self.context = commands.Context
 
     async def __prep(self):
         self.session = ClientSession(
             headers={"User-Agent": "Walrus (https://github.com/ppotatoo/bot-rewrite)"}
         )
-        # self.ipc.start()
-
         await self.wait_until_ready()
         async with self.pool.acquire() as conn:
             await conn.executemany(
@@ -92,7 +95,7 @@ class CustomBot(commands.Bot):
             "extensions.giveaways",
         ]
         for ext in extensions:
-            self.load_extension("bot." + ext)
+            self.load_extension("src.bot." + ext)
         self.load_extension("jishaku")
         log.info("Loaded extensions")
 

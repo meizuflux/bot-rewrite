@@ -6,8 +6,8 @@ from logging import getLogger
 import discord
 from discord.ext import commands, tasks
 
-from bot import core
-from utils.decos import wait_until_prepped
+from src.bot import core
+from src.utils.decos import wait_until_prepped
 
 __all__ = ("setup",)
 

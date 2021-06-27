@@ -7,11 +7,11 @@ from discord import ButtonStyle, Embed, Interaction, ui
 from discord.ext import commands
 from humanize import precisedelta
 
-from bot import core
-from config import osu
-from utils import MENTION_REGEX
-from utils.buttons import StopButton
-from utils.decos import wait_until_ready
+from src.bot import core
+from src.config import osu
+from src.utils import MENTION_REGEX
+from src.utils.buttons import StopButton
+from src.utils.decos import wait_until_ready
 
 EMOJIS = {
     "Main": "<:osu:850783495386300416>",

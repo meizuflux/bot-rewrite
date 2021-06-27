@@ -2,11 +2,12 @@ import discord
 from discord.ext import commands
 from discord.http import Route
 
-from bot import core
+from src.bot import core
+from src.utils import checks
 
 __all__ = ("setup",)
 
-from utils import checks
+
 
 voice_games = {
     "youtube": "755600276941176913",

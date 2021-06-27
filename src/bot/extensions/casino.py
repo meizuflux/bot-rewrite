@@ -4,7 +4,7 @@ import discord
 from discord import ui
 from discord.ext import commands
 
-from bot import core
+from src.bot import core
 
 __all__ = ("setup",)
 

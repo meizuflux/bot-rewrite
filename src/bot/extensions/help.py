@@ -4,9 +4,9 @@ import discord
 from discord import ui
 from discord.ext import commands
 
-from bot import core
-from utils import decos
-from utils.buttons import menus
+from src.bot import core
+from src.utils import decos
+from src.utils.buttons import menus
 
 __all__ = ("setup",)
 

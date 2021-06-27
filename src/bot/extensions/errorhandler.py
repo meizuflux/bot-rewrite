@@ -4,7 +4,7 @@ from traceback import format_exception
 import discord
 from discord.ext import commands
 
-from bot import core
+from src.bot import core
 
 __all__ = ("setup",)
 

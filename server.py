@@ -1,5 +1,5 @@
 import uvicorn
-from app import app
+from src.web.app import app
 
 if __name__ == "__main__":
     connect_kwargs = {
