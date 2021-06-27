@@ -2,6 +2,7 @@ import asyncio
 import os
 import logging
 from asyncio import get_event_loop
+from contextlib import suppress
 from traceback import format_exc
 
 import click
@@ -17,7 +18,6 @@ from config import postgres_uri, token
 log = logging.getLogger("runner")
 
 async def run_bot(bot):
-    log.info("Running Bot")
     bot.load_extensions()
     try:
         await bot.start(token)
@@ -26,7 +26,6 @@ async def run_bot(bot):
             await bot.close()
 
 async def run_server(server: uvicorn.Server):
-    log.info("Running Webserver")
     try:
         await server.serve()
     finally:
@@ -42,8 +41,9 @@ async def run():
     bot = CustomBot()
     bot.pool = await db.create_pool(bot=bot, dsn=postgres_uri, loop=bot.loop)
 
-    config = uvicorn.Config(app)
+    config = uvicorn.Config(app, use_colors=False, log_config=None, host="localhost")
     server = uvicorn.Server(config)
+    server.install_signal_handlers = lambda *args, **kwargs: None
 
     await asyncio.gather(run_bot(bot), run_server(server))
 
