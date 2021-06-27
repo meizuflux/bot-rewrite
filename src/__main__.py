@@ -25,7 +25,6 @@ def run():
 
     loop = asyncio.get_event_loop()
 
-    
     bot = CustomBot(loop=loop)
     bot.pool = loop.run_until_complete(db.create_pool(bot=bot, dsn=postgres_uri, loop=bot.loop))
 
