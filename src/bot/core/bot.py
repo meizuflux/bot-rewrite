@@ -66,7 +66,7 @@ class CustomBot(commands.Bot):
             headers={"User-Agent": "Walrus (https://github.com/ppotatoo/bot-rewrite)"}
         )
         # self.ipc.start()
-        
+
         await self.wait_until_ready()
         async with self.pool.acquire() as conn:
             await conn.executemany(

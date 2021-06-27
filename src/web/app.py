@@ -9,9 +9,11 @@ current_dir = Path(__file__).parent
 app = Starlette()
 app.mount("/static", StaticFiles(directory=str(current_dir / "static")), name="static")
 
+
 @app.route("/")
 async def index(request: Request):
     return Response("Hello, World!")
+
 
 @app.route("/favicon.ico")
 async def favicon(request: Request):
