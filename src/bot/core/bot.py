@@ -17,6 +17,7 @@ logging.basicConfig(level=logging.INFO)
 
 __all__ = ("CustomBot",)
 
+
 @ipc.route(name="test")
 async def test(text):
     return "this is a cool thing: {}".format(text)

@@ -8,7 +8,6 @@ from src.utils import checks
 __all__ = ("setup",)
 
 
-
 voice_games = {
     "youtube": "755600276941176913",
     "poker": "755827207812677713",
