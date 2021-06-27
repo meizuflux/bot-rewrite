@@ -1,20 +1,29 @@
-from pathlib import Path
-
 from starlette.applications import Starlette
 from starlette.responses import Response, RedirectResponse
+from starlette.routing import Route, Mount
 from starlette.requests import Request
+from starlette.templating import Jinja2Templates
 from starlette.staticfiles import StaticFiles
 
-current_dir = Path(__file__).parent
-app = Starlette()
-app.mount("/static", StaticFiles(directory=str(current_dir / "static")), name="static")
+templates = Jinja2Templates(directory="src/web/templates")
 
-
-@app.route("/")
 async def index(request: Request):
-    return Response("Hello, World!")
+    return templates.TemplateResponse(
+        "index.html", 
+        context = {
+            "request": request,
+            "name": "who knows?"
+        }
+    )
 
-
-@app.route("/favicon.ico")
 async def favicon(request: Request):
     return RedirectResponse(url="/static/favicon.ico")
+
+routes = [
+    Route("/", endpoint=index),
+    Route("/favicon.ico", endpoint=favicon),
+
+    Mount("/static", StaticFiles(directory="src/web/static"))
+]
+
+app = Starlette(debug=True, routes=routes)
