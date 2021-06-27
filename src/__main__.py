@@ -16,48 +16,18 @@ from config import postgres_uri, token
 
 log = logging.getLogger("runner")
 
-<<<<<<< HEAD
 
 def run():
-=======
-
-async def run_bot(bot):
-    bot.load_extensions()
-    try:
-        await bot.start(token)
-    finally:
-        if not bot.is_closed():
-            await bot.close()
-
-
-async def run_server(server: uvicorn.Server):
-    try:
-        await server.serve()
-    finally:
-        await server.shutdown()
-
-
-async def run():
->>>>>>> 98d46841f94b1a6acc959cbf0291fc190f51dfa8
     os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
     os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True"
     os.environ["JISHAKU_HIDE"] = "True"
     os.environ["PYTHONIOENCODING"] = "UTF-8"
 
-<<<<<<< HEAD
     loop = asyncio.get_event_loop()
 
     
     bot = CustomBot(loop=loop)
     bot.pool = loop.run_until_complete(db.create_pool(bot=bot, dsn=postgres_uri, loop=bot.loop))
-=======
-    bot = CustomBot()
-    bot.pool = await db.create_pool(bot=bot, dsn=postgres_uri, loop=bot.loop)
-
-    config = uvicorn.Config(app, use_colors=False, log_config=None)
-    server = uvicorn.Server(config)
-    server.install_signal_handlers = lambda *args, **kwargs: None
->>>>>>> 98d46841f94b1a6acc959cbf0291fc190f51dfa8
 
     bot.run(token)
 
@@ -101,13 +71,8 @@ def init(show: bool, start_bot: bool):
 
     log.info("Created tables.")
 
-<<<<<<< HEAD
     if run:
         run()
-=======
-    if start_bot:
-        asyncio.run(run())
->>>>>>> 98d46841f94b1a6acc959cbf0291fc190f51dfa8
 
 
 if __name__ == "__main__":
