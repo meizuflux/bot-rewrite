@@ -7,8 +7,8 @@ import asyncpg
 import discord
 from discord.ext import commands
 
-from src.bot import core
-from src.utils.time import human_timedelta, parse_time, utcnow
+from .. import core
+from utils.time import human_timedelta, parse_time, utcnow
 
 __all__ = ("setup",)
 

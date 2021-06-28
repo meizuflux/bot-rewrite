@@ -7,9 +7,9 @@ import discord
 from discord import utils
 from discord.ext import commands
 
-from src.bot import core
-from src.utils.formats import plural
-from src.utils.time import parse_time, utcnow
+from .. import core
+from utils.formats import plural
+from utils.time import parse_time, utcnow
 
 __all__ = ("setup",)
 

@@ -2,8 +2,8 @@ import discord
 from discord.ext import commands
 from discord.http import Route
 
-from src.bot import core
-from src.utils import checks
+from .. import core
+from utils import checks
 
 __all__ = ("setup",)
 

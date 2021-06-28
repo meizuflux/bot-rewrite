@@ -9,8 +9,8 @@ import discord
 from aiohttp import ClientSession
 from discord.ext import commands
 
-from ... import config
-from src.web import ipc
+import config
+from web import ipc
 
 log = logging.getLogger("bot")
 logging.basicConfig(level=logging.INFO)
@@ -96,7 +96,7 @@ class CustomBot(commands.Bot):
             "extensions.giveaways",
         ]
         for ext in extensions:
-            self.load_extension("src.bot." + ext)
+            self.load_extension("bot." + ext)
         self.load_extension("jishaku")
         log.info("Loaded extensions")
 

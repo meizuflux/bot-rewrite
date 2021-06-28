@@ -4,9 +4,9 @@ from starlette.routing import Route, Mount
 from starlette.requests import Request
 from starlette.templating import Jinja2Templates
 from starlette.staticfiles import StaticFiles
-from src.web import ipc
+from web import ipc
 
-templates = Jinja2Templates(directory="src/web/templates")
+templates = Jinja2Templates(directory="web/templates")
 client = ipc.Client()
 
 
@@ -40,7 +40,7 @@ routes = [
     Route("/", endpoint=index),
     Route("/favicon.ico", endpoint=favicon),
     Route("/stats", endpoint=test),
-    Mount("/static", StaticFiles(directory="src/web/static")),
+    Mount("/static", StaticFiles(directory="web/static")),
 ]
 
 app = Starlette(debug=True, routes=routes, on_startup=[start], on_shutdown=[stop])

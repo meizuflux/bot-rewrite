@@ -7,12 +7,12 @@ from traceback import format_exc
 import click
 from asyncpg import Pool, create_pool
 
-from src import db
-from src.bot.core import CustomBot
-from src.config import postgres_uri, token
+import db
+from bot.core import CustomBot
+from config import postgres_uri, token
 
 
-log = logging.getLogger("runner")
+log = logging.getLogger("runner.bot")
 
 
 def run():

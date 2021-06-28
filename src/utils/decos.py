@@ -5,7 +5,7 @@ from discord.ext import commands
 
 __all__ = ("wait_until_prepped", "wait_until_ready")
 
-from src.utils.buttons import menus
+from .buttons import menus
 
 
 def event(func):
