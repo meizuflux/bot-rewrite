@@ -13,6 +13,7 @@ if __name__ == "__main__":
         uvloop.install()
     connect_kwargs = {
         "use_colors": False,
+        "host": "localhost"
     }
     config = uvicorn.Config(app, **connect_kwargs)
     server = uvicorn.Server(config)

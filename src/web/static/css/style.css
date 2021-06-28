@@ -33,9 +33,9 @@ html {
   justify-content: space-between;
 }
 
-.navbar .max-width .logo {
-  color: coral;
-  font-size: 40px;
+.navbar .logo a {
+  color: #ff7f50;
+  font-size: 35px;
   font-weight: 600;
 }
 
@@ -46,7 +46,7 @@ html {
 
 .navbar .menu li a {
   display: block;
- /* color: #fff; */
+  color: #fff;
   font-size: 18px;
   font-weight: 500;
   margin-left: 25px;
@@ -57,7 +57,7 @@ html {
   color: coral;
 }
 .navbar.sticky .menu li a:hover {
-  color: #fff;
+  color: coral;
 }
 
 .menu-btn {
@@ -73,13 +73,3 @@ html {
   position: absolute;
 }
 
-.home {
-  display: flex;
-  background: #121212 no-repeat center;
-  background-size: cover;
-  background-attachment: fixed;
-  height: 100vh;
-  color: #fff;
-  min-height: 500px;
-  font-family: 'Ubuntu', sans-serif;
-}
