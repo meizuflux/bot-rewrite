@@ -21,6 +21,7 @@ async def stop():
 async def index(request: Request) -> Response:
     return templates.TemplateResponse("index.html", context={"request": request, "name": "Walrus"})
 
+
 async def test(r):
     e = await client.request("test", text="test")
     return Response(e)
