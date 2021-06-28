@@ -63,7 +63,8 @@ class CustomBot(commands.Bot):
         self.extra = Extra()
         self.start_time = None
 
-        self.ipc = ipc.Server(self)
+        self.ipc = ipc.Server(self, host="bot", port=7998)
+        self.ipc.start()
 
         self.context = commands.Context
 

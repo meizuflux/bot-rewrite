@@ -1,6 +1,7 @@
 * text=auto
 
 *.sql linguist-language=PLpgSQL
+*.Dockerfile linguist-language=Dockerfile
 config.yml.example linguist-language=YAML
 
 # Older git versions try to fix line endings on images and fonts, this prevents it.

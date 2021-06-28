@@ -25,7 +25,6 @@ def run():
 
     bot = CustomBot(loop=loop)
     bot.pool = loop.run_until_complete(db.create_pool(bot=bot, dsn=postgres_uri, loop=bot.loop))
-    bot.ipc.start()
 
     bot.run(token)
 
@@ -57,7 +56,7 @@ def init(show: bool, start_bot: bool):
         "indexes.sql",
     )
     for file in files:
-        with open("src/scripts/sql/" + file, encoding="utf8") as f:
+        with open("scripts/sql/" + file, encoding="utf8") as f:
             read = f.read()
             if show:
                 print(read)
