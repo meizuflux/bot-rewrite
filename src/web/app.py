@@ -19,12 +19,7 @@ async def stop():
 
 
 async def index(request: Request) -> Response:
-    return templates.TemplateResponse("index.html", context={"request": request, "name": "who knows?"})
-
-
-async def favicon(request: Request):
-    return RedirectResponse(url="/static/favicon.ico")
-
+    return templates.TemplateResponse("index.html", context={"request": request, "name": "Walrus"})
 
 async def test(r):
     e = await client.request("test", text="test")
@@ -33,7 +28,6 @@ async def test(r):
 
 routes = [
     Route("/", endpoint=index),
-    Route("/favicon.ico", endpoint=favicon),
     Route("/stats", endpoint=test),
     Mount("/static", StaticFiles(directory="web/static")),
 ]

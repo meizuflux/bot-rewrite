@@ -1,16 +1,3 @@
-/* -----------------------------------------------
-/* How to use? : Check the GitHub README
-/* ----------------------------------------------- */
-
-/* To load a config file (particles.json) you need to host this demo (MAMP/WAMP/local)... */
-/*
-particlesJS.load('particles-js', 'particles.json', function() {
-  console.log('particles.js loaded - callback');
-});
-*/
-
-/* Otherwise just put the config content (json): */
-
 particlesJS('particles-js',
   
   {
@@ -32,7 +19,7 @@ particlesJS('particles-js',
           "color": "random"
         },
         "polygon": {
-          "nb_sides": 1
+          "nb_sides": 10
         },
         "image": {
           "src": "img/github.svg",
@@ -69,9 +56,9 @@ particlesJS('particles-js',
       },
       "move": {
         "enable": true,
-        "speed": 2,
-        "direction": "right",
-        "random": true,
+        "speed": 1,
+        "direction": "bottom-left",
+        "random": false,
         "straight": false,
         "out_mode": "out",
         "attract": {
@@ -85,11 +72,11 @@ particlesJS('particles-js',
       "detect_on": "window",
       "events": {
         "onhover": {
-          "enable": true,
+          "enable": false,
           "mode": "repulse"
         },
         "onclick": {
-          "enable": false,
+          "enable": true,
           "mode": "push"
         },
         "resize": true
@@ -112,7 +99,7 @@ particlesJS('particles-js',
           "distance": 150
         },
         "push": {
-          "particles_nb": 4
+          "particles_nb": 2
         },
         "remove": {
           "particles_nb": 2
@@ -120,14 +107,7 @@ particlesJS('particles-js',
       }
     },
     "retina_detect": true,
-    "config_demo": {
-      "hide_card": false,
-      "background_color": "#b61924",
-      "background_image": "",
-      "background_position": "50% 50%",
-      "background_repeat": "no-repeat",
-      "background_size": "cover"
-    }
+
   }
 
 );

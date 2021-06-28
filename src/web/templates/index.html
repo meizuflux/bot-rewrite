@@ -14,15 +14,32 @@
     <div id="particles-js"></div>
     <nav class="navbar">
         <div class="max-width">
-            <div class="logo"><a href="#home">Walrus</a></div>
+            <div class="logo"><a href="#home">{{ name }}</a></div>
             <ul class="menu">
-                <li><a href="#features" class="menu-btn" class="menu-btn">Features</a></li>
                 <li><a href="#stats" class="menu-btn">Stats</a></li>
                 <li><a href="/discord" class="menu-btn">Contact</a></li>
                 <li><a href="/commands" class="menu-btn">Commands</a></li>
             </ul>
         </div>
     </nav>
+
+    <section class="home" id="home">
+        <div class="max-width">
+            <div class="content">
+                <div class="text">{{ name }}</div>
+                <a class="invite" href="/invite">Invite {{ name }} to your Server</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="loader">
+        <img src="https://cdn.discordapp.com/emojis/833561979041349652.gif?v=1" alt="Loading....">
+        <div class="longfazers">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+    </div>
 
     <script src="static/js/particles/particles.js"></script>
     <script src="static/js/particles/app.js"></script>
