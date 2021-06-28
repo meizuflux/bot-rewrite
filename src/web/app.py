@@ -7,7 +7,7 @@ from starlette.staticfiles import StaticFiles
 from web import ipc
 
 templates = Jinja2Templates(directory="web/templates")
-client = ipc.Client(host="bot", port=7998)
+client = ipc.Client()
 
 
 async def start():
