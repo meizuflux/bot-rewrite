@@ -7,9 +7,6 @@
   text-decoration: none;
   background: #121212 no-repeat center;
 }
-*::selection {
-  color: cornflowerblue;
-}
 
 html {
   scroll-behavior: smooth;
@@ -49,7 +46,7 @@ html {
 
 .navbar .menu li a {
   display: block;
-  color: #fff;
+ /* color: #fff; */
   font-size: 18px;
   font-weight: 500;
   margin-left: 25px;
