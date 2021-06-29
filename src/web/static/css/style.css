@@ -90,6 +90,9 @@ html {
   font-size: 75px;
   font-weight: 600;
 }
+.home .content .invite-stats {
+  font-size: 27px;
+}
 
 
 .invite {
@@ -154,8 +157,6 @@ section .title::after {
   flex-direction: column;
   position: fixed;
 }
-
-
 
 
 .longfazers {

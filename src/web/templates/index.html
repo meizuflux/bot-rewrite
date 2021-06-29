@@ -27,6 +27,9 @@
         <div class="max-width">
             <div class="content">
                 <div class="text">{{ name }}</div>
+                {% if stats is not none %}
+                    <div class="invite-stats">Currently watching {{ stats["users"] }} in {{ stats["guilds"] }} servers</div>
+                {% endif %}
                 <a class="invite" href="/invite">Invite {{ name }} to your Server</a>
             </div>
         </div>

@@ -2,6 +2,7 @@ import asyncio
 from typing import Any, Optional
 import aiohttp
 import aiohttp.web
+from aiohttp.client_exceptions import ClientConnectionError
 import logging
 
 client = logging.getLogger("ipc_client")
@@ -18,13 +19,13 @@ class Client:
         self.port = port
         self.key = key
 
-        self.loop.create_task(self.initiate())
-
     @property
     def url(self):
         return f"ws://{self.host}:{self.port}"
 
     async def request(self, endpoint: str, **kwargs) -> Any:
+        if self.websocket is None:
+            return None
         client.info(f"Requesting IPC Server for {endpoint}")
 
         payload = {"endpoint": endpoint, "auth": self.key, "kwargs": kwargs}
@@ -56,7 +57,10 @@ class Client:
         client.info("Instantiating websocket.")
         self.session = aiohttp.ClientSession()
 
-        self.websocket = await self.session.ws_connect(self.url, autoclose=False, autoping=False)
+        try:
+            self.websocket = await self.session.ws_connect(self.url, autoclose=False, autoping=False)
+        except ClientConnectionError:
+            pass
 
     async def close(self):
         await self.session.close()
@@ -106,7 +110,7 @@ class Server:
                 if cog:
                     args = (cog, json["kwargs"])
                 else:
-                    args = (json["kwargs"],)
+                    args = (self.bot, json["kwargs"],)
 
                 try:
                     response = await func(*args)
