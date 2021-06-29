@@ -22,13 +22,11 @@ __all__ = ("CustomBot",)
 async def test(text):
     return "this is a cool thing: {}".format(text)
 
+
 @ipc.route(name="stats")
 async def cool(bot):
     print(type(bot))
-    return {
-        "users": len(bot.users),
-        "guilds": len(bot.guilds)
-    }
+    return {"users": len(bot.users), "guilds": len(bot.guilds)}
 
 
 def get_prefix(bot: "CustomBot", message: discord.Message) -> Union[List[str], str]:

@@ -110,7 +110,10 @@ class Server:
                 if cog:
                     args = (cog, json["kwargs"])
                 else:
-                    args = (self.bot, json["kwargs"],)
+                    args = (
+                        self.bot,
+                        json["kwargs"],
+                    )
 
                 try:
                     response = await func(*args)

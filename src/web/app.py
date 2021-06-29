@@ -22,12 +22,7 @@ async def index(request: Request) -> Response:
     stats = await client.request("stats")
     print(stats)
     return templates.TemplateResponse(
-        "index.html",
-        context={
-            "request": request,
-            "name": "Walrus",
-            "stats": stats
-        }
+        "index.html", context={"request": request, "name": "Walrus", "stats": stats}
     )
 
 
