@@ -22,6 +22,7 @@ __all__ = ("CustomBot",)
 async def test(text):
     return "this is a cool thing: {}".format(text)
 
+
 @ipc.route(name="stats")
 async def cool(bot):
     return {
