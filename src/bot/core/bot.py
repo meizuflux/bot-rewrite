@@ -24,10 +24,9 @@ async def test(text):
 
 @ipc.route(name="stats")
 async def cool(bot):
-    print(type(bot))
     return {
-        "users": len(bot.users),
-        "guilds": len(bot.guilds)
+        "users": format(len(bot.users), ","),
+        "guilds": format(len(bot.guilds), ",")
     }
 
 

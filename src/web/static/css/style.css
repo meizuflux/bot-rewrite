@@ -93,6 +93,9 @@ html {
 .home .content .invite-stats {
   font-size: 27px;
 }
+.home .content .invite-stats span {
+  color: var(--coral);
+}
 
 
 .invite {

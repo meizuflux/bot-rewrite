@@ -2,6 +2,7 @@ import asyncio
 from typing import Any, Optional
 import aiohttp
 import aiohttp.web
+from traceback import format_exception
 from aiohttp.client_exceptions import ClientConnectionError
 import logging
 
@@ -48,7 +49,8 @@ class Client:
             await self.session.close()
             await asyncio.sleep(5)
 
-            await self.initiate()
+            while self.websocket is None:
+                await self.initiate()
             return await self.request(endpoint, **kwargs)
 
         return recv.json()
@@ -106,16 +108,18 @@ class Server:
                 response = {"error": "Invalid Endpoint provided", "code": 400}
             else:
                 cog = self.bot.get_cog(func.__qualname__.split(".", maxsplit=1)[0])
-
+                kwargs = json["kwargs"]
                 if cog:
-                    args = (cog, json["kwargs"])
+                    args = [cog, kwargs]
                 else:
-                    args = (self.bot, json["kwargs"],)
+                    args = [self.bot, kwargs]
+                if kwargs == {}:
+                    del args[1]
 
                 try:
                     response = await func(*args)
                 except Exception as err:
-                    server.error(f"Recieved error while executing {endpoint}")
+                    server.error(f"Recieved error while executing {err}")
                     response = {"error": f"IPC route raised error of type {type(err).__name__}", "code": 500}
 
         try:
