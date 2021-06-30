@@ -26,13 +26,9 @@ async def index(request: Request) -> Response:
         "index.html", context={"request": request, "name": bot_name, "stats": stats}
     )
 
+
 async def not_found(request, exc):
-    return templates.TemplateResponse(
-        "404.html",
-        context={
-            "request": request
-        }
-    )
+    return templates.TemplateResponse("404.html", context={"request": request})
 
 
 async def test(r):
@@ -46,14 +42,8 @@ routes = [
     Mount("/static", StaticFiles(directory="web/static")),
 ]
 
-exceptions = {
-    404: not_found
-}
+exceptions = {404: not_found}
 
 app = Starlette(
-    debug=False,
-    routes=routes,
-    exception_handlers=exceptions,
-    on_startup=[start],
-    on_shutdown=[stop]
+    debug=False, routes=routes, exception_handlers=exceptions, on_startup=[start], on_shutdown=[stop]
 )

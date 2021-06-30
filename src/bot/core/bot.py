@@ -25,7 +25,10 @@ async def test(text):
 
 @ipc.route(name="stats")
 async def cool(bot):
-    return {"users": format(sum(1 for i in bot.users if not i.bot), ","), "guilds": format(len(bot.guilds), ",")}
+    return {
+        "users": format(sum(1 for i in bot.users if not i.bot), ","),
+        "guilds": format(len(bot.guilds), ","),
+    }
 
 
 def get_prefix(bot: "CustomBot", message: discord.Message) -> Union[List[str], str]:
