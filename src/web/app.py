@@ -23,22 +23,23 @@ async def stop():
 async def index(request: Request) -> Response:
     stats = await client.request("stats")
     return templates.TemplateResponse(
-        "index.html", context={"request": request, "name": bot_name, "stats": stats}
+        "index.jinja", context={"request": request, "name": bot_name, "stats": stats}
     )
 
 
 async def not_found(request, exc):
-    return templates.TemplateResponse("404.html", context={"request": request})
+    return templates.TemplateResponse("404.jinja", context={"request": request})
 
 
-async def test(r):
-    e = await client.request("test", text="test")
-    return Response(e)
+async def stats(request):
+    return templates.TemplateResponse(
+        "stats.jinja", context={"request": request, "name": bot_name}
+    )
 
 
 routes = [
     Route("/", endpoint=index),
-    Route("/stats", endpoint=test),
+    Route("/stats", endpoint=stats),
     Mount("/static", StaticFiles(directory="web/static")),
 ]
 
