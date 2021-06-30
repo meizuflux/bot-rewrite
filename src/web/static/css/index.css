@@ -12,7 +12,17 @@
 }
 
 html {
+  /*overflow: hidden;*/
+  margin: 0;
+  padding: 0;
   scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none !important;
+}
+
+ /* Hide scrollbar for Chrome, Safari and Opera */
+::-webkit-scrollbar {
+  display: none;
 }
 
 .max-width {
@@ -22,7 +32,7 @@ html {
 }
 
 .navbar {
-  background: #121212 no-repeat center;
+  position: fixed;
   width: 100%;
   padding: 30px 0;
   font-family: 'Ubuntu', sans-serif;
@@ -80,15 +90,16 @@ html {
   background-attachment: fixed;
   height: 100vh;
   color: #fff;
-  min-height: 500px;
   font-family: 'Ubuntu', sans-serif;
 }
 .home .max-width {
   margin: auto 0 auto 150px;
 }
 .home .content .text {
+  color: var(--coral);
   font-size: 75px;
   font-weight: 600;
+  opacity: 100%;
 }
 .home .content .invite-stats {
   font-size: 27px;
@@ -146,49 +157,4 @@ section .title::after {
   padding: 5px;
   background: #fff;
   transform: translateX(-50%);
-}
-
-.loader-wrapper {
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  background-color: #222;
-  display:flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  position: fixed;
-}
-
-
-.longfazers {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-.longfazers span {
-  position: absolute;
-  height: 4px;
-  width: 20%;
-  background: crimson;
-}
-.longfazers span:nth-child(1) {
-  top: 20%;
-  animation: lf 0.6s linear infinite;
-  animation-delay: -5s;
-}
-.longfazers span:nth-child(2) {
-  top: 40%;
-  animation: lf2 0.8s linear infinite;
-  animation-delay: -1s;
-}
-.longfazers span:nth-child(3) {
-  top: 60%;
-  animation: lf3 0.6s linear infinite;
-}
-.longfazers span:nth-child(4) {
-  top: 80%;
-  animation: lf4 0.5s linear infinite;
-  animation-delay: -3s;
 }
