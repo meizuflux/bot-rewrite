@@ -32,9 +32,7 @@ async def not_found(request, exc):
 
 
 async def stats(request):
-    return templates.TemplateResponse(
-        "stats.jinja", context={"request": request, "name": bot_name}
-    )
+    return templates.TemplateResponse("stats.jinja", context={"request": request, "name": bot_name})
 
 
 routes = [
